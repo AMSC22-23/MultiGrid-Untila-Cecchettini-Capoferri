@@ -34,21 +34,20 @@ def test(A, b, xi, iteration, niter, xe, titolo):
 
     def update(frame):
         nonlocal xi
-        passo = 4
+        passo = 2
+        fram.set_ydata(xi)
 
         for i in range(passo):
             xi = iteration(xi, A, b)
             norm = sqrt(sum([(xi[j] - xe[j]) ** 2 for j in range(len(xe))]))
             asse_y.append(norm)
-
-
-        fram.set_ydata(xi)
+        
         text.set_text("Jacobi iteration "+str(len(asse_y)-1))
         return fram,
 
-    ani = animation.FuncAnimation(fig, update, repeat=True, frames=140,interval=200)
+    ani = animation.FuncAnimation(fig, update, repeat=True, frames=200,interval=200)
 
-    ani.save('animation.gif', writer='ffmpeg',bitrate=100,fps=15)
+    ani.save('animation.gif', writer='ffmpeg',bitrate=100,fps=10)
 
 
 def triDiag1(n):
@@ -63,7 +62,7 @@ def triDiag1(n):
 
 n = 50
 A = triDiag1(n)
-xe = [sin(2*pi*i/50) for i in range(n)]
+xe = [-1 for i in range(n)]
 b = prod(A,xe)
-x0 = [random.random()-0.5 for i in range(n)]
+x0 = [random.random() for i in range(n)]
 test(A,b,x0,jacobiIteration,4000,xe,"Jacobi")
