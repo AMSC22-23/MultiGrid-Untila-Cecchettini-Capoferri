@@ -7,7 +7,7 @@ The main idea is to create an abstract class iteration, which takes as construct
 identify the current level grid nodes, to apply the iteration to x^k we could define an operator i.e.:
 regularCoarsening = true;
 GaussSeidelIteration GS(A,b,regularCoarsening,"h");
-x-(GS)->-(GS)->
+x->(GS)->(GS)
 in this case for example we applied two gauss seidel iterations to an initial guess
 */
 
