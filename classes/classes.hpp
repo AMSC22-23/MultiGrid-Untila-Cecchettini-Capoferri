@@ -14,13 +14,13 @@ in this case for example we applied two gauss seidel iterations to an initial gu
 template<typename T_m, typename T_v>
 class Iteration{
     public:
-        virtual Iteration(){
+        Iteration(T_m &A, T_v &b, const size_t size, std::string &mask): m_A(A), m_b(b), m_size(size), m_mask(mask){};
 
-        }
     protected:
-        T_m* m_A;
-        T_v* m_b;
+        T_m &m_A;
+        T_v &m_b;
         size_t m_size;
+        std::string &m_mask;
 };
 
 #endif
