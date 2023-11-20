@@ -1,9 +1,10 @@
 # Makefile
 
 TARGET = prova
+SOURCE = main.cpp
 
-${TARGET}: main.cpp
-	g++ -Wall -I${mkEigenInc} -o ${TARGET} main.cpp
+${TARGET}: ${SOURCE}
+	g++ -Wall -I${mkEigenInc} -o ${TARGET} ${SOURCE}
 
 clean:
 	rm -f ${TARGET}

@@ -11,7 +11,7 @@ x->(GS)->(GS)
 in this case for example we applied two gauss seidel iterations to an initial guess
 */
 
-template<typename T_m, typename T_v>
+template<class T_m, class T_v>
 class Iteration{
     public:
         Iteration(const T_m &A, const T_v &b, const size_t size, std::string &mask): m_A(A), m_b(b), m_size(size), m_mask(mask){};
