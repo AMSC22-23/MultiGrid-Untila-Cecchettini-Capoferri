@@ -30,7 +30,7 @@ void Domain_qnt(my_tuple* list, int N, double B_left, double B_right, double B_t
 int main(){
 
 my_tuple list;
-Domain_qnt(&list, 576, 15,5,15,5);
+Domain_qnt(&list, 576,500,450,200,150);
 
 //stampo i tuple cioe le quantizzazioni del mio dominio
 for(int k=0; k < list.size() ; k++){
