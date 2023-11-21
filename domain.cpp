@@ -10,6 +10,19 @@ for this case we describe the domain as 4 limits...for the most general case wou
 //definition of my_tuple where i save my coordinates
 typedef  std::vector < std::tuple<double, double>> my_tuple;
 /*paasserò un puntatore ad un vettore inizializzato vuoto di tuple*/
+
+//funzione per la stampa del domizio quantizzato
+void Print_matrix(my_tuple &tp){
+    for(int i=0; i<tp.size() ;i++){
+
+        if(std::get<1>(tp[i])!=std::get<1>(tp[i-1]) && i!=0)
+            std::cout<<std::endl<<std::endl;
+
+         std::cout<< "(" << std::get<0>(tp[i]) <<":"<< std::get<1>(tp[i]) << ")"<<"  ";
+         
+    }
+}
+
 void Domain_qnt(my_tuple &list, int N, double B_left, double B_right, double B_top, double B_down) {
 
     double h;
@@ -31,17 +44,19 @@ void Domain_qnt(my_tuple &list, int N, double B_left, double B_right, double B_t
 int main(int argc, char** argv){
 
 my_tuple list;
-Domain_qnt(list,97,-10.0,40.0,20.0,-30.0);
+Domain_qnt(list,156,-10.0,10,-10,-30.0);
 
 for(int i=0;i<argc; i++){
     std::cout<<argv[i]<<std::endl;
 }
 
 //stampo i tuple cioe le quantizzazioni del mio dominio
-for(size_t k=0; k < list.size() ; k++){
+/*for(size_t k=0; k < list.size() ; k++){
         std::cout<< "(" << std::get<0>(list[k]) << " - " << std::get<1>(list[k]) << ")" <<std::endl;
-}
+}*/
 
+//stampo i tuple a matrice
+Print_matrix(list);
     return 0;
 }
 
