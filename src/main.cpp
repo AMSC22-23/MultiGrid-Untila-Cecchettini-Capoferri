@@ -7,7 +7,7 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-    DOMAIN1 domain(argc, argv);
+    DOMAIN domain(argc, argv);
     domain.printN();
     
 

@@ -2,9 +2,9 @@
 #include <vector>
 #define DEFAULT_N 100
 
-class DOMAIN1 {
+class DOMAIN {
     public:
-        DOMAIN1(int argc, char** argv) {
+        DOMAIN(int argc, char** argv) {
             using namespace std;
             // below... 
             string nn = "-n";

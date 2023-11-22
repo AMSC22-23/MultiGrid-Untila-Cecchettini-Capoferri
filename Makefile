@@ -17,12 +17,12 @@ all: $(TARGET)
 # Rules for linking
 $(TARGET): $(OBJ)
 	@mkdir -p $(BINDIR)
-	$(CXX) $(CXXFLAGS) $^ -o $@
+	@$(CXX) $(CXXFLAGS) $^ -o $@
 
 # Rules for compiling
 $(BINDIR)/%.o: $(SRCDIR)/%.cpp
 	@mkdir -p $(BINDIR)
-	$(CXX) $(CXXFLAGS) -I $(INCDIR) -c $< -o $@
+	@$(CXX) $(CXXFLAGS) -I $(INCDIR) -c $< -o $@
 
 clean:
 	@rm -rf $(BINDIR)
