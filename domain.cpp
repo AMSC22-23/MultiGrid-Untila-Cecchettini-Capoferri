@@ -25,15 +25,16 @@ void Print_matrix(my_tuple &tp){
 
 void Domain_qnt(my_tuple &list, int N, double B_left, double B_right, double B_top, double B_down) {
 
-    double h;
+    double h,k;
 
     //trova h
     h = std::abs((B_right - B_left)/(std::round(sqrt(N))-1));
+    k = std::abs((B_top - B_down)/(std::round(sqrt(N))-1));
 
     //discretizzo il dominio per riga
     if(list.size()!=0)
         return;
-    for(double j=B_top; j>=B_down; j -= h){
+    for(double j=B_top; j>=B_down; j -= k){
         for(double i= B_left; i<= B_right; i += h){
             list.push_back(std::make_tuple(i,j));
         }
@@ -44,7 +45,7 @@ void Domain_qnt(my_tuple &list, int N, double B_left, double B_right, double B_t
 int main(int argc, char** argv){
 
 my_tuple list;
-Domain_qnt(list,156,-10.0,10,-10,-30.0);
+Domain_qnt(list,25,-100.0,10.0,-10,-30.0);
 
 for(int i=0;i<argc; i++){
     std::cout<<argv[i]<<std::endl;
