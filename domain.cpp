@@ -6,6 +6,12 @@
 /*the main goal of this parte is to write a function in order to discretize the square domain(esiest case).
 for this case we describe the domain as 4 limits...for the most general case would be better to implement a classe DOMAIN*/
 
+class Domain{
+        public:
+        double BLeft,BRight, BTop, BDown;
+        Domain( double  B_Left,double B_Right,double B_Top,double B_Down)
+        : BLeft(B_Left),BRight(B_Right),BTop(B_Top), BDown(B_Down) {}
+};
 
 //definition of my_tuple where i save my coordinates
 typedef  std::vector < std::tuple<double, double>> my_tuple;
@@ -23,19 +29,19 @@ void Print_matrix(my_tuple &tp){
     }
 }
 
-void Domain_qnt(my_tuple &list, int N, double B_left, double B_right, double B_top, double B_down) {
+void Domain_qnt(my_tuple &list, int N, Domain Dmn) {
 
     double h,k;
 
     //trova h
-    h = std::abs((B_right - B_left)/(std::round(sqrt(N))-1));
-    k = std::abs((B_top - B_down)/(std::round(sqrt(N))-1));
+    h = std::abs((Dmn.BRight - Dmn.BLeft)/(std::round(sqrt(N))-1));
+    k = std::abs((Dmn.BTop - Dmn.BDown)/(std::round(sqrt(N))-1));
 
     //discretizzo il dominio per riga
     if(list.size()!=0)
         return;
-    for(double j=B_top; j>=B_down; j -= k){
-        for(double i= B_left; i<= B_right; i += h){
+    for(double j=Dmn.BTop; j>=Dmn.BDown; j -= k){
+        for(double i= Dmn.BLeft; i<= Dmn.BRight; i += h){
             list.push_back(std::make_tuple(i,j));
         }
     }
@@ -44,8 +50,11 @@ void Domain_qnt(my_tuple &list, int N, double B_left, double B_right, double B_t
 
 int main(int argc, char** argv){
 
+int N=56;
 my_tuple list;
-Domain_qnt(list,25,-100.0,10.0,-10,-30.0);
+Domain DMN(-100.0,10.0,-10.0,-30.0);
+
+Domain_qnt(list,N,DMN);
 
 for(int i=0;i<argc; i++){
     std::cout<<argv[i]<<std::endl;
