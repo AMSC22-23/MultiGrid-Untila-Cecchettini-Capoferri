@@ -14,9 +14,9 @@ void fillMatrix(T &mat){
     mat.coeffRef(0,0) = 1;
 
     for(auto i = 1; i < mat.cols(); i++){
-        mat.coeffRef(i,i) = 2;
-        mat.coeffRef(i-1,i) = 1;
-        mat.coeffRef(i,i-1) = 1; 
+        mat.coeffRef(i,i) = 4;
+        mat.coeffRef(i-1,i) = -1;
+        mat.coeffRef(i,i-1) = -1;
     }
 }
 
