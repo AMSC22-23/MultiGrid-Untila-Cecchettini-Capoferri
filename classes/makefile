@@ -7,4 +7,4 @@ ${TARGET}: ${SOURCE}
 	g++ -Wall -I${mkEigenInc} -o ${TARGET} ${SOURCE}
 
 clean:
-	rm -f ${TARGET}
+	@rm -f ${TARGET}
