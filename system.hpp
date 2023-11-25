@@ -3,6 +3,7 @@
 #include <functions>
 
 
+
 template<typename T,class T_VECT>
 class System{
     public:
@@ -38,9 +39,9 @@ void iteration_method(std::vector<T>& sol) override{
         sol[i]= (f[i] - sum1 -sum2) / A.coeffRef(i,i);
     }
 }
-}
+}//chiedi gestione var..
 
-//jacobi method
+//jacobi method 
 
 
 
