@@ -3,6 +3,7 @@
 
 #include <tuple>
 #include <vector>
+#include <functional>
 
 namespace AMG{
 
@@ -94,20 +95,21 @@ class PoissonMatrix{
         PoissonMatrix(Domain &domain):m_domain(domain), m_size(domain.N()) {}
 
         const T coeffRef(const size_t i, const size_t j){
+            double k = m_domain.h() * m_domain.h();
             if(m_domain.isOnBoundary(i)){
-                //auto h = m_domain.h();
                 return ((j == i) ? 1. : 0.);
             }else{
                 if(j == i)
-                    return 4.;
+                    return 4./k;
                 
                 auto [x_i, y_i] = m_domain[i];
                 auto [x_j, y_j] = m_domain[j];
                 auto sq_dist = (x_i - x_j) * (x_i - x_j) + (y_i - y_j) * (y_i - y_j);
                 auto h = m_domain.h();
 
+				// We had to set a treshold higher than h^2 due to the inexact arithmetics
                 if(sq_dist <= 1.1 * h * h)
-                    return -1.;
+                    return -1./k;
                 else
                     return 0.;
             }
@@ -130,6 +132,50 @@ class PoissonMatrix{
         Domain &m_domain;
         size_t m_size;
 };
+
+template<typename T>
+class DataVector{
+    public:
+        DataVector(Domain &domain, const std::function<T(double,double)> &f, const std::function<T(double,double)> &g) : m_domain(domain), m_f(f), m_g(g){
+            for(size_t i = 0; i < m_domain.N(); i++){
+                auto [x, y] = m_domain[i];
+                T val = ((m_domain.isOnBoundary(i)) ? m_g : m_f)(x,y);
+                
+                m_vec.push_back(val);
+            }
+        }
+       
+
+        const T &operator[](const size_t i){
+            return m_vec[i];
+        }
+
+        const size_t size(){
+            return m_vec.size();
+        }
+
+        ~DataVector(){}
+    private:
+        Domain &m_domain;
+        std::function<T(double,double)> m_f;
+        std::function<T(double,double)> m_g;
+        std::vector<T> m_vec;
+};
+
+
+// un risolutore temporaneo
+
+void jacobiIteration(PoissonMatrix<double> &A, DataVector<double> &f, std::vector<double> &x){
+    for(size_t i = 0; i < f.size(); i++){
+        double sum = 0;
+        for(const auto &id : A.nonZerosInRow(i)){
+            if(id != i){
+                sum += A.coeffRef(i,id) * x[id];
+            }
+        }
+        x[i] = (f[i] - sum) / A.coeffRef(i,i);
+    }
+}
 
 }
 
