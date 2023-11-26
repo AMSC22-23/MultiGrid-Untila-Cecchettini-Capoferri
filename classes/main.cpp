@@ -10,7 +10,7 @@ template<class SpMat>
 void saveMatrixOnFile(SpMat A, std::string fileName){
 
     std::ofstream file;
-    file.open(fileName);
+    file.open(fileName, std::ofstream::trunc);
     file<<A.rows()<<" "<<A.cols()<<" "<<A.nonZeros()<<std::endl;
 
     for(size_t i = 0; i < A.rows(); i++){
@@ -26,7 +26,7 @@ template<class Vector>
 void saveVectorOnFile(Vector f, std::string fileName){
     
     std::ofstream file;
-    file.open(fileName);
+    file.open(fileName, std::ofstream::trunc);
     file<<f.size()<<std::endl;
 
     for(size_t i = 0; i < f.size(); i++){
