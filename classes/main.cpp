@@ -55,7 +55,7 @@ int main(int argc, char** argv){
     //saveMatrixOnFile<AMG::PoissonMatrix<double>>(A,"out.mtx");
     //saveVectorOnFile<AMG::DataVector<double>>(fVec,"f.mtx");
 
-    std::vector<double> x(fVec.size(),0.);
+    std::vector<double> x(fVec.size(),0.);      //our initial guess
 
     int niter = 1000;
     for(int i = 0; i < niter; i++){
