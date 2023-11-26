@@ -19,9 +19,13 @@ class DOMAIN {
                             N = stoi(argv[i+1]);
                         }catch(exception){
                             cout<<"Please, insert a number after -n"<<endl<<"Inserted by default N = 100"<<endl;
+                            exit(1);
                         }
                     }
-                    else if(nn.compare(argv[i]) == 0 && ( i+1 == argc )) cout<<"Please, insert a number after -n"<<endl<<"Inserted by default N = 100"<<endl;
+                    else if(nn.compare(argv[i]) == 0 && ( i+1 == argc )) {
+                        cout<<"Please, insert a number after -n"<<endl<<"Inserted by default N = 100"<<endl;
+                        exit(1);
+                    }
                 } 
             } 
     }
