@@ -38,6 +38,7 @@ void iteration_method(std::vector<T>& sol) override{
         }
         X_new[i]= (f[i] - sum1 -sum2) / A.coeffRef(i,i);
     }
+    sol=X_new;
 }
 }//chiedi gestione var..
 
