@@ -26,7 +26,7 @@ class GS : public System{
 public:
 void iteration_method(std::vector<T>& sol) override{
     //implement GS method
-    std::vector<double> x_new;
+    std::vector<T> x_new;
     for(size_t i = 0; i<f.size(); i++){
         double sum1=0,sum2=0;
         for(int id : A.nonZerosInRow(i)){
@@ -42,5 +42,23 @@ void iteration_method(std::vector<T>& sol) override{
 }
 }//chiedi gestione var..
 
-//jacobi method 
 
+//jacobi method 
+class Jacobi : public System{
+
+public:
+void iteration_method(std::vector<T>& sol) override{
+    std::vector<T> X_new;
+    for(size_t i = 0; i < f.size(); i++){
+        double sum = 0;
+        for(const auto &id : A.nonZerosInRow(i)){
+            if(id != i){
+                sum += A.coeffRef(i,id) * x[id];
+            }
+        }
+        X_new[i] = (f[i] - sum) / A.coeffRef(i,i);
+    }
+    x = X_new;
+ 
+}
+}
