@@ -31,19 +31,15 @@ void iteration_method(std::vector<T>& sol) override{
         double sum1=0,sum2=0;
         for(int id : A.nonZerosInRow(i)){
             if(id < i)
-                sum1+= A.coeffRef(i,id)*sol[id];
+                sum1+= A.coeffRef(i,id)*X_new[id];
             else if(id > i)
                 sum2+= A.coeffRef(i,id)*sol[id];
             
         }
-        sol[i]= (f[i] - sum1 -sum2) / A.coeffRef(i,i);
+        X_new[i]= (f[i] - sum1 -sum2) / A.coeffRef(i,i);
     }
 }
 }//chiedi gestione var..
 
 //jacobi method 
-
-
-
-
 
