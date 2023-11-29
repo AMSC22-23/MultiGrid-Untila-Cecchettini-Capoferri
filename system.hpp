@@ -1,3 +1,4 @@
+#include <iostream>
 #include "domain.hpp"
 #include <vector>
 #include <functions>
@@ -24,9 +25,11 @@ class System{
 class GS : public System{
 
 public:
+GS(int It) : iteration(It) {};
 void iteration_method(std::vector<T>& sol) override{
-    //implement GS method
-    std::vector<T> x_new;
+    
+    std::vector<T> x_new(f.size(),0);
+    for(size_t j=0; j<iteration; j++){
     for(size_t i = 0; i<f.size(); i++){
         double sum1=0,sum2=0;
         for(int id : A.nonZerosInRow(i)){
@@ -38,8 +41,12 @@ void iteration_method(std::vector<T>& sol) override{
         }
         X_new[i]= (f[i] - sum1 -sum2) / A.coeffRef(i,i);
     }
-    sol=X_new;
-}
+     sol=X_new;
+     X_new = X_new.assign(X_new.size(),0);
+    }
+};
+private:
+int iteration;
 }//chiedi gestione var..
 
 
@@ -47,8 +54,11 @@ void iteration_method(std::vector<T>& sol) override{
 class Jacobi : public System{
 
 public:
+Jacobi(int It) : iteration(It) {};
 void iteration_method(std::vector<T>& sol) override{
-    std::vector<T> X_new;
+    
+    std::vector<T> X_new(f.size(),0);
+    for(j=0; j<iteration;j++){
     for(size_t i = 0; i < f.size(); i++){
         double sum = 0;
         for(const auto &id : A.nonZerosInRow(i)){
@@ -59,6 +69,9 @@ void iteration_method(std::vector<T>& sol) override{
         X_new[i] = (f[i] - sum) / A.coeffRef(i,i);
     }
     x = X_new;
- 
-}
+    X_new = X_new.assign(X_new.size(),0);
+    }
+};
+private:
+int iteration;
 }
