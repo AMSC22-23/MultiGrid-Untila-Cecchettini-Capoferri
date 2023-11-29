@@ -25,11 +25,11 @@ class System{
 class GS : public System{
 
 public:
-GS(int It) : iteration(It) {};
+GS(int It, AMG::PoissonMatrix<T>& Mat,T_VECT &F) : iteration(It), mat(Mat), f(F) {};
 void iteration_method(std::vector<T>& sol) override{
     
     std::vector<T> x_new(f.size(),0);
-    for(size_t j=0; j<iteration; j++){
+    for(size_t k=0; k<iteration; k++){
     for(size_t i = 0; i<f.size(); i++){
         double sum1=0,sum2=0;
         for(int id : A.nonZerosInRow(i)){
@@ -54,21 +54,21 @@ int iteration;
 class Jacobi : public System{
 
 public:
-Jacobi(int It) : iteration(It) {};
+Jacobi(int It, AMG::PoissonMatrix<T>& Mat,T_VECT &F) : iteration(It), mat(Mat), f(F) {};
 void iteration_method(std::vector<T>& sol) override{
     
     std::vector<T> X_new(f.size(),0);
-    for(j=0; j<iteration;j++){
+    for(k=0; k<iteration;k++){
     for(size_t i = 0; i < f.size(); i++){
         double sum = 0;
         for(const auto &id : A.nonZerosInRow(i)){
             if(id != i){
-                sum += A.coeffRef(i,id) * x[id];
+                sum += A.coeffRef(i,id) * sol[id];
             }
         }
         X_new[i] = (f[i] - sum) / A.coeffRef(i,i);
     }
-    x = X_new;
+    sol = X_new;
     X_new = X_new.assign(X_new.size(),0);
     }
 };
