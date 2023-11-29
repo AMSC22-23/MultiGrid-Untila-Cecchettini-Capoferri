@@ -13,6 +13,8 @@ we're gonna use.
 */
 class Domain{
     public:
+        virtual std::tuple<double, double> coord(const size_t i, const size_t j) const = 0;
+        virtual std::tuple<size_t, size_t> meshIdx(size_t l) const = 0;
 		//We need an access operator to the abstract domain nodes
         virtual std::tuple<double,double> operator[](const size_t i) const = 0;
 
@@ -39,18 +41,20 @@ class SquareDomain: public Domain{
             m_h = m_length / (m_size - 1);
         }
 
+        std::tuple<size_t, size_t> meshIdx(size_t l) const override{
+            return {l / m_size, l % m_size};
+        }
+
 		//we could need an operator to get the coordinates of a specific node, for example if we have to map a function on the nodes
-        std::tuple<double, double> coord(const size_t i, const size_t j) const {return {j* m_h, m_length - i * m_h};}
+        std::tuple<double, double> coord(const size_t i, const size_t j) const override {return {j* m_h, m_length - i * m_h};}
 
         std::tuple<double,double> operator[](const size_t l) const override{
-            size_t i = l / m_size;
-            size_t j = l % m_size;
+            auto [i, j] = meshIdx(l);
             return coord(i,j); 
         }
 
         const bool isOnBoundary(const size_t l) const override{
-            size_t i = l / m_size;
-            size_t j = l % m_size;
+            auto [i, j] = meshIdx(l);
             return (((i == 0) || (j == 0) || (i == (m_size-1)) || (j == (m_size-1))) ? true : false);
         }
 
@@ -92,24 +96,59 @@ nonZerosInRow for eigen matrices
 template<typename T>
 class PoissonMatrix{
     public:
-        PoissonMatrix(Domain &domain):m_domain(domain), m_size(domain.N()) {}
+        PoissonMatrix(Domain &domain, const std::function<T(double,double)> &alfa):m_domain(domain), m_size(domain.N()), m_alfa(alfa),
+        is_constant_alfa(false), k(domain.h() * domain.h()){}
+
+        PoissonMatrix(Domain &domain, const T const_alfa):m_domain(domain), m_size(domain.N()), m_const_alfa(const_alfa),
+        is_constant_alfa(true), k(domain.h() * domain.h()){}
 
         const T coeffRef(const size_t i, const size_t j){
-            double k = m_domain.h() * m_domain.h();
-            if(m_domain.isOnBoundary(i)){
+            //these are the entries of the matrix relative to the boundary conditions; we want them to not be changed
+            //by the solvers, so they will be the only entries in the whole row
+            if(m_domain.isOnBoundary(i))
                 return ((j == i) ? 1. : 0.);
-            }else{
-                if(j == i)
-                    return 4./k;
-                
-                auto [x_i, y_i] = m_domain[i];
-                auto [x_j, y_j] = m_domain[j];
-                auto sq_dist = (x_i - x_j) * (x_i - x_j) + (y_i - y_j) * (y_i - y_j);
-                auto h = m_domain.h();
 
-				// We had to set a treshold higher than h^2 due to the inexact arithmetics
-                if(sq_dist <= 1.1 * h * h)
-                    return -1./k;
+            if(is_constant_alfa){
+                //in case alpha is a constant
+                if(j == i)
+                    return 4. * m_const_alfa / k; 
+                
+                //using k,l as indices on the grid
+                auto [k_i, l_i] = m_domain.meshIdx(i);
+                auto [k_j, l_j] = m_domain.meshIdx(j);
+
+                // We had to set a treshold higher than h^2 due to the inexact arithmetics
+                if((abs(k_i - k_j) == 1) || (abs(l_i - l_j) == 1))
+                    return - m_const_alfa / k;
+                else
+                    return 0.;
+            }else{
+                //in case alpha is a function
+                auto [x, y] = m_domain[i];
+
+                if(j == i)
+                    return 4. * m_alfa(x, y) / k;
+
+                if(j == i + 1){
+                    auto [xm1, ym1] = m_domain[i - 1];
+                    return (- 2.0 * m_alfa(x, y) + m_alfa(xm1, ym1)) / k;
+                }
+                    
+                if(j == i - 1)
+                    return - m_alfa(x, y) / k;
+                
+                //now we have to check if i and j are neighbors vertically
+                auto [k_i, l_i] = m_domain.meshIdx(i);
+                auto [k_j, l_j] = m_domain.meshIdx(j);
+
+                if(k_j == k_i - 1)
+                    return - m_alfa(x, y) / k;
+                
+                if(k_j == k_i + 1){
+                    auto [xm1, ym1] = m_domain.coord(k_i-1,l_i);
+                    return (- 2.0 * m_alfa(x, y) + m_alfa(xm1, ym1)) / k;
+                }
+
                 else
                     return 0.;
             }
@@ -131,6 +170,10 @@ class PoissonMatrix{
     private:
         Domain &m_domain;
         size_t m_size;
+        std::function<T(double,double)> m_alfa;
+        T m_const_alfa;
+        bool is_constant_alfa;
+        double k;
 };
 
 template<typename T>
