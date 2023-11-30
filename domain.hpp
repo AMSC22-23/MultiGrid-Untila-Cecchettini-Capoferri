@@ -2,8 +2,8 @@
 #include <iostream>
 
 #include <cstdlib>
-#include <Eigen/SparseCore>
-#include <unsupported/Eigen/SparseExtra>
+//#include <Eigen/SparseCore>
+//#include <unsupported/Eigen/SparseExtra>
 
 #ifndef CLASSES_H
 #define CLASSES_H
@@ -121,8 +121,10 @@ class PoissonMatrix{
                     return 0.;
             }
         }
+
+        
 		
-		const std::vector<size_t> nonZerosInRow(const size_t row){
+		const std::vector<size_t> nonZerosInRow(int row) const {
 			return m_domain.inRowConnections(row);
 		}
 

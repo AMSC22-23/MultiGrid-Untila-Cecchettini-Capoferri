@@ -13,8 +13,8 @@ double f(const double x, const double y){
 }
 
 double g(const double x, const double y){
-    double r = sqrt(x*x + y*y);
-    return sin(r);
+    //double r = sqrt(x*x + y*y);
+    return 0;
 }
 
 
@@ -22,7 +22,7 @@ int main(){
 
 int maxit= 10;
 //size_t size = std::atoi(argv[1]);
-  size_t size = 30;
+  size_t size =7;
     AMG::SquareDomain dominio(size,10.0);
     AMG::PoissonMatrix<double> A(dominio);
 
@@ -36,7 +36,7 @@ int maxit= 10;
    for(int i=0;i<fVec.size();i++){
     std::cout<<x[i]<<std::endl<<std::endl;}
 
-    AMG::GS GAUSS(maxit, A, fVec);
+    AMG::GS<double, AMG::DataVector<double>> GAUSS(maxit, A, fVec);
     GAUSS.iteration_method(x);
 
     for(int i=0;i<fVec.size();i++){
