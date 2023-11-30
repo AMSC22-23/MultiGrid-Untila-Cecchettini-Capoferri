@@ -35,52 +35,55 @@ void saveVectorOnFile(Vector f, std::string fileName){
     file.close();
 }
 
+std::vector<double> formatVector(std::vector<double> &in, AMG::Domain &domain){
+    std::vector<double> temp;
+    for(size_t i = 0; i < domain.N(); i++){
+        temp.push_back(in[domain.mask(i)]);
+    }
+    return temp;
+}
+
 double f(const double x, const double y){
-    //return 0.5;
-    return -5.0 * exp(x) * exp(-2.0 * y);
-    /*
-    if(((x > 4.5) && (x < 5.5)) && ((y > 4.5) && (y < 5.5)))
-        return 1.;
-    else
-        return 0.;
-    */
+    return 0.5;
+    //return -5.0 * exp(x) * exp(-2.0 * y);
 }
 
 double g(const double x, const double y){
     
-    //double r = sqrt(x*x + y*y);
-    //return sin(r);
-    //return 0.;
-    return exp(x) * exp(-2.0 * y);
+    return 0.;
+    //return exp(x) * exp(-2.0 * y);
 }
-
-double alpha(double x, double y){
-    return 1.;
-}
-
 
 
 int main(int argc, char** argv){
     size_t size = std::atoi(argv[1]);
-    AMG::SquareDomain dominio(size,1.);
-    AMG::PoissonMatrix<double> A(dominio,std::atof(argv[2]));
+    //size_t size = 13;
+    double width = 10.0;
+    AMG::SquareDomain dominio_h(size,width,0);
+    AMG::SquareDomain dominio_2h(size,width,1);
+    AMG::SquareDomain dominio_4h(size,width,2);
 
 
-    //AMG::DataVector<double> fVec(dominio,f,[](double x, double y){return 0.;});
-    AMG::DataVector<double> fVec(dominio,f,g);
+    AMG::PoissonMatrix<double> A_h(dominio_h,1.);
+    AMG::PoissonMatrix<double> A_2h(dominio_2h,1.);
+    AMG::PoissonMatrix<double> A_4h(dominio_4h,1.);
     
-    //saveMatrixOnFile<AMG::PoissonMatrix<double>>(A,"out1.mtx");
-    //saveVectorOnFile<AMG::DataVector<double>>(fVec,"f.mtx");
+    AMG::DataVector<double> fvec(dominio_h, f, g);
 
-    std::vector<double> x(fVec.size(),0.);      //our initial guess
+    //initial guess
+    std::vector<double> u(fvec.size(), 0.);
+    
+    //starting a V-cycle multigrid iteration
 
-    int niter = 1000;
-    for(int i = 0; i < niter; i++){
-        AMG::jacobiIteration(A,fVec,x);
+    int smoothIterations = 15;
+
+    //fine grid smoothing
+    for(int i = 0; i < smoothIterations; i++){
+        AMG::gaussSeidelIteration(A_4h,fvec,u,dominio_4h);
     }
 
-    saveVectorOnFile<std::vector<double>>(x,"x.mtx");
+    //auto u4h = formatVector(u,dominio_4h);
+    saveVectorOnFile(u,"x.mtx");
 
-    
     return 0;
 }

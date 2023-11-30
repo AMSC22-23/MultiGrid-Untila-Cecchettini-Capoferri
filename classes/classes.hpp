@@ -24,11 +24,14 @@ class Domain{
 		//to optimize the computation for each iteration of itterative solver we could need to know the non zero entries of a row
         virtual const std::vector<size_t> inRowConnections(const size_t l) const = 0;
 
+        virtual size_t mask(const size_t l) const = 0;
+
 		//some useful methods
         virtual const size_t numBoundaryNodes() const = 0;
         virtual const size_t numConnections() const = 0;
         virtual const size_t N() const = 0;
         virtual const double h() const = 0;
+        virtual const size_t getStep() const = 0;
 };
 
 /*
@@ -37,8 +40,12 @@ a way that we can easily make a more generic domain divided in triangles
 */
 class SquareDomain: public Domain{
     public:
-        SquareDomain(const size_t size, const double length):m_size(size), m_length(length){
-            m_h = m_length / (m_size - 1);
+        SquareDomain(const size_t size, const double length, const size_t level):m_size(size), m_length(length), m_level(level), m_h(m_length / (m_size - 1)),
+        width(size), step(1){
+            for(size_t i = 0; i < level; i++){
+                width = (width + 1) / 2;
+                step *= 2;
+            }
         }
 
         std::tuple<size_t, size_t> meshIdx(size_t l) const override{
@@ -49,7 +56,7 @@ class SquareDomain: public Domain{
         std::tuple<double, double> coord(const size_t i, const size_t j) const override {return {j* m_h, m_length - i * m_h};}
 
         std::tuple<double,double> operator[](const size_t l) const override{
-            auto [i, j] = meshIdx(l);
+            auto [i, j] = meshIdx(mask(l));
             return coord(i,j); 
         }
 
@@ -59,29 +66,39 @@ class SquareDomain: public Domain{
         }
 
         const std::vector<size_t> inRowConnections(const size_t l) const override{
+            auto equivalent_l = mask(l);
             std::vector<size_t> temp;
-			if(isOnBoundary(l)){
+			if(isOnBoundary(equivalent_l)){
 				temp.push_back(l);
 			}else{
-				temp.push_back(l - m_size);
+				temp.push_back(l - width);
 				temp.push_back(l - 1);
 				temp.push_back(l);
 				temp.push_back(l + 1);
-				temp.push_back(l + m_size);
+				temp.push_back(l + width);
 			}
 			return temp;
         }
 
-        const size_t numBoundaryNodes() const override{return m_size * 4 - 4;}
-        const size_t numConnections() const override{
-            return (4 * (m_size * m_size - numBoundaryNodes()));
+        size_t mask(const size_t l) const override{
+            return step * (l / width) * m_size + step * (l % width);
         }
-        const size_t N() const override{return m_size*m_size;}
-        const double h() const override{return m_h;}
+
+        const size_t numBoundaryNodes() const override{return width * 4 - 4;}
+        const size_t numConnections() const override{
+            return (4 * (width * width - numBoundaryNodes()));
+        }
+        const size_t N() const override{return width * width;}
+        const double h() const override{return m_h * step;}
+
+        const size_t getStep() const override{return step;}
 
         ~SquareDomain(){}
 
     private:
+        size_t step;
+        size_t m_level;
+        size_t width;
         size_t m_size;
         double m_length;
         double m_h;
@@ -102,18 +119,20 @@ class PoissonMatrix{
         const T coeffRef(const size_t i, const size_t j){
             //these are the entries of the matrix relative to the boundary conditions; we want them to not be changed
             //by the solvers, so they will be the only entries in the whole row
-            if(m_domain.isOnBoundary(i))
+            if(m_domain.isOnBoundary(m_domain.mask(i)))
                 return ((j == i) ? 1. : 0.);
 
             if(j == i)
                 return 4. * m_const_alfa / k; 
             
             //using k,l as indices on the grid
-            auto [k_i, l_i] = m_domain.meshIdx(i);
-            auto [k_j, l_j] = m_domain.meshIdx(j);
+            auto [k_i, l_i] = m_domain.meshIdx(m_domain.mask(i));
+            auto [k_j, l_j] = m_domain.meshIdx(m_domain.mask(j));
+
+            size_t step = m_domain.getStep();
 
             // We had to set a treshold higher than h^2 due to the inexact arithmetics
-            if((abs(k_i - k_j) == 1) || (abs(l_i - l_j) == 1))
+            if((abs(k_i - k_j) == step) || (abs(l_i - l_j) == step))
                 return - m_const_alfa / k;
             else
                 return 0.;
@@ -174,15 +193,16 @@ class DataVector{
 
 // un risolutore temporaneo
 
-void jacobiIteration(PoissonMatrix<double> &A, DataVector<double> &f, std::vector<double> &x){
-    for(size_t i = 0; i < f.size(); i++){
+void gaussSeidelIteration(PoissonMatrix<double> &A, DataVector<double> &f, std::vector<double> &x, Domain &domain){
+    for(size_t i = 0; i < A.rows(); i++){
+        size_t index = domain.mask(i);
         double sum = 0;
         for(const auto &id : A.nonZerosInRow(i)){
             if(id != i){
-                sum += A.coeffRef(i,id) * x[id];
+                sum += A.coeffRef(i,id) * x[domain.mask(id)];
             }
         }
-        x[i] = (f[i] - sum) / A.coeffRef(i,i);
+        x[index] = (f[index] - sum) / A.coeffRef(i,i);
     }
 }
 
