@@ -18,11 +18,11 @@ double g(const double x, const double y){
 }
 
 
-int main(){
+int main(int argc, char** argv){
 
-int maxit= 10;
-//size_t size = std::atoi(argv[1]);
-  size_t size =7;
+int maxit= 100;
+    size_t size = std::atoi(argv[1]);
+  //size_t size =7;
     AMG::SquareDomain dominio(size,10.0);
     AMG::PoissonMatrix<double> A(dominio);
 
@@ -39,10 +39,12 @@ int maxit= 10;
     AMG::GS<double, AMG::DataVector<double>> GAUSS(maxit, A, fVec);
     GAUSS.iteration_method(x);
 
+    /*
     for(int i=0;i<fVec.size();i++){
      std::cout<<x[i]<<std::endl<<std::endl;}
+    */
 
-        
+    
     return 0;
 }
 
