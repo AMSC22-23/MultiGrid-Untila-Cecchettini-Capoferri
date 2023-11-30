@@ -96,11 +96,8 @@ nonZerosInRow for eigen matrices
 template<typename T>
 class PoissonMatrix{
     public:
-        PoissonMatrix(Domain &domain, const std::function<T(double,double)> &alfa):m_domain(domain), m_size(domain.N()), m_alfa(alfa),
-        is_constant_alfa(false), k(domain.h() * domain.h()){}
-
         PoissonMatrix(Domain &domain, const T const_alfa):m_domain(domain), m_size(domain.N()), m_const_alfa(const_alfa),
-        is_constant_alfa(true), k(domain.h() * domain.h()){}
+        k(domain.h() * domain.h()){}
 
         const T coeffRef(const size_t i, const size_t j){
             //these are the entries of the matrix relative to the boundary conditions; we want them to not be changed
@@ -108,50 +105,19 @@ class PoissonMatrix{
             if(m_domain.isOnBoundary(i))
                 return ((j == i) ? 1. : 0.);
 
-            if(is_constant_alfa){
-                //in case alpha is a constant
-                if(j == i)
-                    return 4. * m_const_alfa / k; 
-                
-                //using k,l as indices on the grid
-                auto [k_i, l_i] = m_domain.meshIdx(i);
-                auto [k_j, l_j] = m_domain.meshIdx(j);
+            if(j == i)
+                return 4. * m_const_alfa / k; 
+            
+            //using k,l as indices on the grid
+            auto [k_i, l_i] = m_domain.meshIdx(i);
+            auto [k_j, l_j] = m_domain.meshIdx(j);
 
-                // We had to set a treshold higher than h^2 due to the inexact arithmetics
-                if((abs(k_i - k_j) == 1) || (abs(l_i - l_j) == 1))
-                    return - m_const_alfa / k;
-                else
-                    return 0.;
-            }else{
-                //in case alpha is a function
-                auto [x, y] = m_domain[i];
-
-                if(j == i)
-                    return 4. * m_alfa(x, y) / k;
-
-                if(j == i + 1){
-                    auto [xm1, ym1] = m_domain[i - 1];
-                    return (- 2.0 * m_alfa(x, y) + m_alfa(xm1, ym1)) / k;
-                }
-                    
-                if(j == i - 1)
-                    return - m_alfa(x, y) / k;
-                
-                //now we have to check if i and j are neighbors vertically
-                auto [k_i, l_i] = m_domain.meshIdx(i);
-                auto [k_j, l_j] = m_domain.meshIdx(j);
-
-                if(k_j == k_i - 1)
-                    return - m_alfa(x, y) / k;
-                
-                if(k_j == k_i + 1){
-                    auto [xm1, ym1] = m_domain.coord(k_i-1,l_i);
-                    return (- 2.0 * m_alfa(x, y) + m_alfa(xm1, ym1)) / k;
-                }
-
-                else
-                    return 0.;
-            }
+            // We had to set a treshold higher than h^2 due to the inexact arithmetics
+            if((abs(k_i - k_j) == 1) || (abs(l_i - l_j) == 1))
+                return - m_const_alfa / k;
+            else
+                return 0.;
+            
         }
 		
 		const std::vector<size_t> nonZerosInRow(const size_t row){

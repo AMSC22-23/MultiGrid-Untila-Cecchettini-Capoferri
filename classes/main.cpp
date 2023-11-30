@@ -36,32 +36,40 @@ void saveVectorOnFile(Vector f, std::string fileName){
 }
 
 double f(const double x, const double y){
-    return 0.5;
-    //return -5.0 * exp(x) * exp(-2.0 * y);
+    //return 0.5;
+    return -5.0 * exp(x) * exp(-2.0 * y);
+    /*
+    if(((x > 4.5) && (x < 5.5)) && ((y > 4.5) && (y < 5.5)))
+        return 1.;
+    else
+        return 0.;
+    */
 }
 
 double g(const double x, const double y){
     
-    double r = sqrt(x*x + y*y);
-    return sin(r);
+    //double r = sqrt(x*x + y*y);
+    //return sin(r);
     //return 0.;
-   //return exp(x) * exp(-2.0 * y);
+    return exp(x) * exp(-2.0 * y);
+}
+
+double alpha(double x, double y){
+    return 1.;
 }
 
 
 
 int main(int argc, char** argv){
     size_t size = std::atoi(argv[1]);
-    AMG::SquareDomain dominio(size,10.);
+    AMG::SquareDomain dominio(size,1.);
     AMG::PoissonMatrix<double> A(dominio,std::atof(argv[2]));
 
-    //AMG::PoissonMatrix<double> A2(dominio,[](double x, double y){return 1.;});
 
     //AMG::DataVector<double> fVec(dominio,f,[](double x, double y){return 0.;});
     AMG::DataVector<double> fVec(dominio,f,g);
     
     //saveMatrixOnFile<AMG::PoissonMatrix<double>>(A,"out1.mtx");
-    //saveMatrixOnFile<AMG::PoissonMatrix<double>>(A2,"out2.mtx");
     //saveVectorOnFile<AMG::DataVector<double>>(fVec,"f.mtx");
 
     std::vector<double> x(fVec.size(),0.);      //our initial guess

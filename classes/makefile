@@ -8,3 +8,6 @@ ${TARGET}: ${SOURCE}
 
 clean:
 	@rm -f ${TARGET}
+
+remake:
+	@make clean && make
