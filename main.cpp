@@ -39,6 +39,8 @@ int maxit= 100;
     AMG::GS<double, AMG::DataVector<double>> GAUSS(maxit, A, fVec);
     GAUSS.iteration_method(x);
 
+    
+
     /*
     for(int i=0;i<fVec.size();i++){
      std::cout<<x[i]<<std::endl<<std::endl;}
