@@ -40,8 +40,8 @@ a way that we can easily make a more generic domain divided in triangles
 */
 class SquareDomain: public Domain{
     public:
-        SquareDomain(const size_t size, const double length, const size_t level):m_size(size), m_length(length), m_level(level), m_h(m_length / (m_size - 1)),
-        width(size), step(1){
+        SquareDomain(const size_t size, const double length, const size_t level):m_size(size),step(1) , m_level(level), width(size),
+        m_length(length), m_h(m_length / (m_size - 1)){
             for(size_t i = 0; i < level; i++){
                 width = (width + 1) / 2;
                 step *= 2;
@@ -93,15 +93,16 @@ class SquareDomain: public Domain{
 
         const size_t getStep() const override{return step;}
 
-        ~SquareDomain(){}
+        ~SquareDomain() = default;
 
     private:
+        size_t m_size;
         size_t step;
         size_t m_level;
         size_t width;
-        size_t m_size;
         double m_length;
         double m_h;
+
 };
 
 /*
@@ -150,7 +151,7 @@ class PoissonMatrix{
         const size_t rows(){return m_size;}
         const size_t cols(){return m_size;}
 
-        ~PoissonMatrix(){}
+        ~PoissonMatrix() = default;
 
     private:
         Domain &m_domain;
@@ -182,7 +183,7 @@ class DataVector{
             return m_vec.size();
         }
 
-        ~DataVector(){}
+        ~DataVector() = default;
     private:
         Domain &m_domain;
         std::function<T(double,double)> m_f;

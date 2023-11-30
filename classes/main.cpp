@@ -75,11 +75,11 @@ int main(int argc, char** argv){
     
     //starting a V-cycle multigrid iteration
 
-    int smoothIterations = 15;
+    int smoothIterations = 1000;
 
     //fine grid smoothing
     for(int i = 0; i < smoothIterations; i++){
-        AMG::gaussSeidelIteration(A_4h,fvec,u,dominio_4h);
+        AMG::gaussSeidelIteration(A_2h,fvec,u,dominio_2h);
     }
 
     //auto u4h = formatVector(u,dominio_4h);
