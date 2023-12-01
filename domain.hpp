@@ -213,6 +213,26 @@ void Interpolation(std::vector<double> &sol,Domain &domain_sup, Domain &domain_i
             sol[domain_sup.mask(j)]= 0.5*(domain_sup.mask(j-1)+domain_sup(j+1))
         }
     }
+<<<<<<< Updated upstream:domain.hpp
+=======
+
+     size_t width = domain_sup.getWidth();
+    for(size_t i=0; i<(domain_sup.N()/width); i++){
+        for(size_t j=i*width+1; j<(i+1)*width-1;j+=2){
+            
+            if(! domain_sup.isOnBoundary(domain_sup.mask(j))){
+            sol[domain_sup.mask(j)]= 0.5 * (sol[domain_sup.mask(j-1)]+sol[domain_sup.mask(j+1)]);
+            std::cout<<j<<std::endl;
+            }
+            else{
+                sol[domain_sup.mask(j)]=f[domain_sup.mask(j)];
+                continue;
+            }
+        }
+
+    }
+}
+>>>>>>> Stashed changes:classes/classes.hpp
 
 }
 }

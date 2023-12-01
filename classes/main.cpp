@@ -79,9 +79,14 @@ int main(int argc, char** argv){
 
     //fine grid smoothing
     for(int i = 0; i < smoothIterations; i++){
-        AMG::gaussSeidelIteration(A_2h,fvec,u,dominio_2h);
+        AMG::gaussSeidelIteration(A_4h,fvec,u,dominio_4h);
     }
 
+<<<<<<< Updated upstream
+=======
+    AMG::Interpolation(u,dominio_2h,dominio_4h,fvec);
+
+>>>>>>> Stashed changes
     //auto u4h = formatVector(u,dominio_4h);
     AMG::Interpolation(u,dominio_h, dominio_2h,fvec);
     saveVectorOnFile(u,"x.mtx");
