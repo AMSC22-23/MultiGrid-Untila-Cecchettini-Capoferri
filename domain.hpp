@@ -207,7 +207,13 @@ void Interpolation(std::vector<double> &sol,Domain &domain_sup, Domain &domain_i
                 sol[index3]=f[index3];
         }
     }
-    std::cout<<domain_inf.getWidth()<<"  "<<domain_sup.getWidth()<<std::endl;
+    size_t width = domain_sup.getWidth();
+    for(size_t i=0; i<(domain_sup.N()/width); i++){
+        for(size_t j=1; j<width-2;j+=2){
+            sol[domain_sup.mask(j)]= 0.5*(domain_sup.mask(j-1)+domain_sup(j+1))
+        }
+    }
+
 }
 }
 
