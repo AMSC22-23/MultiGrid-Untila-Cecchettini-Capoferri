@@ -22,6 +22,8 @@ class Domain{
     public:
 		//We need an access operator to the abstract domain nodes
         virtual std::tuple<double,double> operator[](const size_t i) const = 0;
+        //getter
+        virtual const size_t getWidth() const = 0;
 
 		//We need a function to check if a node is on the boundary or not
         virtual const bool isOnBoundary(const size_t l) const = 0;
@@ -54,6 +56,12 @@ class SquareDomain: public Domain{
             size_t j = l % m_size;
             return coord(i,j); 
         }
+       
+        //getter
+         const size_t getWidth() const override{
+                return width;
+         }
+
 
         const bool isOnBoundary(const size_t l) const override{
             size_t i = l / m_size;
@@ -186,6 +194,23 @@ void jacobiIteration(PoissonMatrix<double> &A, DataVector<double> &f, std::vecto
     }
 }
 
+
+void Interpolation(std::vector<double> &sol,Domain &domain_sup, Domain &domain_inf, DataVector<double> &f){
+    for(size_t i = 0; i<domain_inf.N()-domain_inf.getWidth();i++){
+        size_t index1 = domain_inf.mask(i);
+        size_t index2 = domain_inf.mask(i + domain_inf.getWidth());
+        size_t index3 = (index1 + index2)/2;
+        //std::cout<<index3<<std::endl;
+        if(! domain_sup.isOnBoundary(index3)){
+            sol[index3]= 0.5*(sol[index1]+ sol[index2]);
+           }else{
+                sol[index3]=f[index3];
+        }
+    }
+    std::cout<<domain_inf.getWidth()<<"  "<<domain_sup.getWidth()<<std::endl;
+}
 }
 
 #endif
+
+
