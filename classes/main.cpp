@@ -44,21 +44,21 @@ std::vector<double> formatVector(std::vector<double> &in, AMG::Domain &domain){
 }
 
 double f(const double x, const double y){
-    return 0.5;
-    //return -5.0 * exp(x) * exp(-2.0 * y);
+    //return 0.5;
+    return -5.0 * exp(x) * exp(-2.0 * y);
 }
 
 double g(const double x, const double y){
     
-    return 0.;
-    //return exp(x) * exp(-2.0 * y);
+    //return 0.;
+    return exp(x) * exp(-2.0 * y);
 }
 
 
 int main(int argc, char** argv){
     size_t size = std::atoi(argv[1]);
     //size_t size = 13;
-    double width = 10.0;
+    double width = 1.0;
     AMG::SquareDomain dominio_h(size,width,0);
     AMG::SquareDomain dominio_2h(size,width,1);
     AMG::SquareDomain dominio_4h(size,width,2);
@@ -81,6 +81,8 @@ int main(int argc, char** argv){
     for(int i = 0; i < smoothIterations; i++){
         AMG::gaussSeidelIteration(A_2h,fvec,u,dominio_2h);
     }
+
+    AMG::Interpolation(u,dominio_h,dominio_2h,fvec);
 
     //auto u4h = formatVector(u,dominio_4h);
     saveVectorOnFile(u,"x.mtx");

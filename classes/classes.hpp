@@ -25,6 +25,7 @@ class Domain{
         virtual const std::vector<size_t> inRowConnections(const size_t l) const = 0;
 
         virtual size_t mask(const size_t l) const = 0;
+        virtual const size_t getWidth() const = 0;
 
 		//some useful methods
         virtual const size_t numBoundaryNodes() const = 0;
@@ -82,6 +83,10 @@ class SquareDomain: public Domain{
 
         size_t mask(const size_t l) const override{
             return step * (l / width) * m_size + step * (l % width);
+        }
+
+        const size_t getWidth() const override{
+            return width;
         }
 
         const size_t numBoundaryNodes() const override{return width * 4 - 4;}
@@ -148,6 +153,10 @@ class PoissonMatrix{
             return m_size + m_domain.numConnections();
         }
 
+        const size_t mask(const size_t l){
+            return m_domain.mask(l);
+        }
+
         const size_t rows(){return m_size;}
         const size_t cols(){return m_size;}
 
@@ -196,14 +205,28 @@ class DataVector{
 
 void gaussSeidelIteration(PoissonMatrix<double> &A, DataVector<double> &f, std::vector<double> &x, Domain &domain){
     for(size_t i = 0; i < A.rows(); i++){
-        size_t index = domain.mask(i);
+        size_t index = A.mask(i);
         double sum = 0;
         for(const auto &id : A.nonZerosInRow(i)){
             if(id != i){
-                sum += A.coeffRef(i,id) * x[domain.mask(id)];
+                sum += A.coeffRef(i,id) * x[A.mask(id)];
             }
         }
         x[index] = (f[index] - sum) / A.coeffRef(i,i);
+    }
+}
+
+void Interpolation(std::vector<double> &sol, Domain &domain_sup, Domain &domain_inf, DataVector<double> &f){
+    for(size_t i = 0; i < domain_inf.N() - domain_inf.getWidth(); i++){
+        size_t index1 = domain_inf.mask(i);
+        size_t index2 = domain_inf.mask(i + domain_inf.getWidth());
+        size_t index3 = (index1 + index2) / 2;
+        
+        if(! domain_sup.isOnBoundary(index3)){
+            sol[index3] = 0.5 * (sol[index1] + sol[index2]);
+        }else{
+            sol[index3] = f[index3];
+        }
     }
 }
 
