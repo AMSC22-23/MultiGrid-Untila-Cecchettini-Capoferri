@@ -207,16 +207,7 @@ void Interpolation(std::vector<double> &sol,Domain &domain_sup, Domain &domain_i
                 sol[index3]=f[index3];
         }
     }
-    size_t width = domain_sup.getWidth();
-    for(size_t i=0; i<(domain_sup.N()/width); i++){
-        for(size_t j=1; j<width-2;j+=2){
-            sol[domain_sup.mask(j)]= 0.5*(domain_sup.mask(j-1)+domain_sup(j+1))
-        }
-    }
-<<<<<<< Updated upstream:domain.hpp
-=======
-
-     size_t width = domain_sup.getWidth();
+   size_t width = domain_sup.getWidth();
     for(size_t i=0; i<(domain_sup.N()/width); i++){
         for(size_t j=i*width+1; j<(i+1)*width-1;j+=2){
             
@@ -231,8 +222,6 @@ void Interpolation(std::vector<double> &sol,Domain &domain_sup, Domain &domain_i
         }
 
     }
-}
->>>>>>> Stashed changes:classes/classes.hpp
 
 }
 }
