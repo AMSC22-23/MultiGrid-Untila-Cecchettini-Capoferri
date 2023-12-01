@@ -75,14 +75,36 @@ int main(int argc, char** argv){
     
     //starting a V-cycle multigrid iteration
 
-    int smoothIterations = 1000;
+    int smoothIterations = 10;
+    int solverIterations = 100;
 
     //fine grid smoothing
     for(int i = 0; i < smoothIterations; i++){
-        AMG::gaussSeidelIteration(A_2h,fvec,u,dominio_2h);
+        AMG::gaussSeidelIteration(A_h,fvec,u);
     }
 
+    //2h grid smoothing
+    for(int i = 0; i < smoothIterations; i++){
+        AMG::gaussSeidelIteration(A_2h,fvec,u);
+    }
+
+    //4h grid solving
+    for(int i = 0; i < solverIterations; i++){
+        AMG::gaussSeidelIteration(A_4h,fvec,u);
+    }
+
+    //interpolation 4h -> 2h + smoothing
+    AMG::Interpolation(u,dominio_2h,dominio_4h,fvec);
+    for(int i = 0; i < smoothIterations; i++){
+        AMG::gaussSeidelIteration(A_2h,fvec,u);
+    }
+
+    //interpolation 2h -> h + smoothing
     AMG::Interpolation(u,dominio_h,dominio_2h,fvec);
+    for(int i = 0; i < smoothIterations; i++){
+        AMG::gaussSeidelIteration(A_h,fvec,u);
+    }
+
 
     //auto u4h = formatVector(u,dominio_4h);
     saveVectorOnFile(u,"x.mtx");

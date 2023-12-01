@@ -203,7 +203,7 @@ class DataVector{
 
 // un risolutore temporaneo
 
-void gaussSeidelIteration(PoissonMatrix<double> &A, DataVector<double> &f, std::vector<double> &x, Domain &domain){
+void gaussSeidelIteration(PoissonMatrix<double> &A, DataVector<double> &f, std::vector<double> &x){
     for(size_t i = 0; i < A.rows(); i++){
         size_t index = A.mask(i);
         double sum = 0;
@@ -226,6 +226,17 @@ void Interpolation(std::vector<double> &sol, Domain &domain_sup, Domain &domain_
             sol[index3] = 0.5 * (sol[index1] + sol[index2]);
         }else{
             sol[index3] = f[index3];
+        }
+    }
+
+    size_t width = domain_sup.getWidth();
+    for(size_t i = 0; i < domain_sup.N() / width; i++){
+        for(size_t j = i * width; j < (i + 1) * width - 1; j += 2){
+            if(! domain_sup.isOnBoundary(domain_sup.mask(j+1)))
+                sol[domain_sup.mask(j + 1)] = 0.5 * (sol[domain_sup.mask(j)] + sol[domain_sup.mask(j + 2)]);
+            else
+                //sol[domain_sup.mask(j + 1)] = f[domain_sup.mask(j + 1)];
+                continue;
         }
     }
 }
