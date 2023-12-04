@@ -49,7 +49,6 @@ double f(const double x, const double y){
 }
 
 double g(const double x, const double y){
-    
     //return 0.;
     return exp(x) * exp(-2.0 * y);
 }
@@ -73,41 +72,76 @@ int main(int argc, char** argv){
     //initial guess
     std::vector<double> u(fvec.size(), 0.);
     
-    //starting a V-cycle multigrid iteration
-
-    int smoothIterations = 10;
-    int solverIterations = 100;
-
-    //fine grid smoothing
-    for(int i = 0; i < smoothIterations; i++){
-        AMG::gaussSeidelIteration(A_h,fvec,u);
+    //exact solution
+    std::vector<double> ue(fvec.size());
+    for(size_t i = 0; i < fvec.size(); i++){
+        auto [x, y] = dominio_h[i];
+        ue[i] = g(x, y);
     }
 
-    //2h grid smoothing
-    for(int i = 0; i < smoothIterations; i++){
-        AMG::gaussSeidelIteration(A_2h,fvec,u);
+    int mgIterations = 20;
+    int nu1 = 10;
+    int nu2 = 20;
+    int nu3 = 30;
+    int maxSolverIter = 300;
+    double tol = 1.e-6;
+
+    std::vector<double> res(u.size());
+    std::vector<double> hist;
+    hist.push_back(AMG::error(u,ue,dominio_h));
+
+    for(int j = 0; j < mgIterations; j++){
+        std::cout<<j<<std::endl;
+        std::vector<double> err(u.size(),0.);
+        // V-cycle multigrid iteration (3 levels)
+
+        // Do nu1 iterations on A_h x_h = b_h
+        for(int i = 0; i < nu1; i++){
+            AMG::gaussSeidelIteration<AMG::DataVector<double>>(A_h,fvec,u);
+
+        }
+
+        //compute the fine grid residual
+        AMG::residual<AMG::DataVector<double>>(u,fvec,A_h,res);
+
+        //solve for A_4h e_4h = r_4h
+        
+        for(int i = 0; i < maxSolverIter; i++){
+            AMG::gaussSeidelIteration<std::vector<double>>(A_4h,res,err);
+        }
+
+        
+        //interpolate 4h -> 2h
+        AMG::Interpolation(err,dominio_2h,dominio_4h);
+
+        //smooth on level 2h
+        for(int i = 0; i < nu2; i++){
+            AMG::gaussSeidelIteration<std::vector<double>>(A_2h,res,err);
+        }
+
+        
+
+        //interpolate 2h -> h
+        AMG::Interpolation(err,dominio_h,dominio_2h);
+
+        for(size_t i = 0; i < u.size(); i++){
+            u[i] += err[i];
+        }
+
+        //smooth on the fine grid
+        for(int i = 0; i < nu3; i++){
+            AMG::gaussSeidelIteration<AMG::DataVector<double>>(A_h,fvec,u);
+        }
+
+        //compute the true error to plot it
+        hist.push_back(AMG::error(u,ue,dominio_h));
     }
 
-    //4h grid solving
-    for(int i = 0; i < solverIterations; i++){
-        AMG::gaussSeidelIteration(A_4h,fvec,u);
-    }
+    
+    saveVectorOnFile(hist,"hist3MG.txt");
 
-    //interpolation 4h -> 2h + smoothing
-    AMG::Interpolation(u,dominio_2h,dominio_4h,fvec);
-    for(int i = 0; i < smoothIterations; i++){
-        AMG::gaussSeidelIteration(A_2h,fvec,u);
-    }
-
-    //interpolation 2h -> h + smoothing
-    AMG::Interpolation(u,dominio_h,dominio_2h,fvec);
-    for(int i = 0; i < smoothIterations; i++){
-        AMG::gaussSeidelIteration(A_h,fvec,u);
-    }
-
-
-    //auto u4h = formatVector(u,dominio_4h);
     saveVectorOnFile(u,"x.mtx");
+
 
     return 0;
 }

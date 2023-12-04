@@ -203,7 +203,8 @@ class DataVector{
 
 // un risolutore temporaneo
 
-void gaussSeidelIteration(PoissonMatrix<double> &A, DataVector<double> &f, std::vector<double> &x){
+template<class Vector>
+void gaussSeidelIteration(PoissonMatrix<double> &A, Vector &f, std::vector<double> &x){
     for(size_t i = 0; i < A.rows(); i++){
         size_t index = A.mask(i);
         double sum = 0;
@@ -216,7 +217,8 @@ void gaussSeidelIteration(PoissonMatrix<double> &A, DataVector<double> &f, std::
     }
 }
 
-void Interpolation(std::vector<double> &sol, Domain &domain_sup, Domain &domain_inf, DataVector<double> &f){
+
+void Interpolation(std::vector<double> &sol, Domain &domain_sup, Domain &domain_inf){
     for(size_t i = 0; i < domain_inf.N() - domain_inf.getWidth(); i++){
         size_t index1 = domain_inf.mask(i);
         size_t index2 = domain_inf.mask(i + domain_inf.getWidth());
@@ -225,7 +227,8 @@ void Interpolation(std::vector<double> &sol, Domain &domain_sup, Domain &domain_
         if(! domain_sup.isOnBoundary(index3)){
             sol[index3] = 0.5 * (sol[index1] + sol[index2]);
         }else{
-            sol[index3] = f[index3];
+            //sol[index3] = f[index3];
+            continue;
         }
     }
 
@@ -241,6 +244,59 @@ void Interpolation(std::vector<double> &sol, Domain &domain_sup, Domain &domain_
     }
 }
 
+double error(std::vector<double> &vec, std::vector<double> &sol, Domain &domain){
+    double squaredError = 0;
+    double squaredNorm = 0;
+    
+    for(size_t i = 0; i < domain.N(); i++){
+        size_t index = domain.mask(i);
+        double solVal = sol[index];
+        double errVal = vec[index] - solVal;
+        squaredError += errVal * errVal;
+        squaredNorm += solVal * solVal;
+    }
+    return sqrt(squaredError / squaredNorm); 
 }
+
+
+template<class Vector>
+void residual(std::vector<double> &u, Vector &f, PoissonMatrix<double> &A, std::vector<double> &res){
+    for(size_t i = 0; i < A.rows(); i++){
+        size_t index = A.mask(i);
+        double sum = 0;
+        for(const auto &j : A.nonZerosInRow(i)){
+            sum += A.coeffRef(i, j) * u[A.mask(j)];
+        }
+        res[index] = f[index] - sum;
+    }
+}
+
+template<class Vector>
+double residualNorm(std::vector<double> &u, Vector &f, PoissonMatrix<double> &A){
+    double res = 0.;
+    for(size_t i = 0; i < A.rows(); i++){
+        size_t index = A.mask(i);
+        double sum = 0.;
+        for(const auto &j : A.nonZerosInRow(i)){
+            sum += A.coeffRef(i, j) * u[A.mask(j)];
+        }
+        sum = f[index] - sum;
+        res += sum * sum;
+    }
+    return sqrt(res);
+}
+
+template<class Vector>
+double norm(Vector &u, PoissonMatrix<double> &A){
+    double sum = 0;
+    for(size_t i = 0; i < A.rows(); i++){
+        double val = u[A.mask(i)];
+        sum += val * val;
+    }
+    return sqrt(sum);
+}
+
+}
+
 
 #endif
