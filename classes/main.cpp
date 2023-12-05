@@ -137,8 +137,9 @@ int main(int argc, char** argv){
         hist.push_back(AMG::error(u,ue,dominio_h));
     }
 
+
     
-    saveVectorOnFile(hist,"hist3MG.txt");
+    saveVectorOnFile(hist,"provaMG.txt");
 
     saveVectorOnFile(u,"x.mtx");
 

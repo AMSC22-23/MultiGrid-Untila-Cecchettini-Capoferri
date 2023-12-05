@@ -165,9 +165,7 @@ class PoissonMatrix{
     private:
         Domain &m_domain;
         size_t m_size;
-        std::function<T(double,double)> m_alfa;
         T m_const_alfa;
-        bool is_constant_alfa;
         double k;
 };
 
@@ -231,7 +229,7 @@ void Interpolation(std::vector<double> &sol, Domain &domain_sup, Domain &domain_
             continue;
         }
     }
-
+    
     size_t width = domain_sup.getWidth();
     for(size_t i = 0; i < domain_sup.N() / width; i++){
         for(size_t j = i * width; j < (i + 1) * width - 1; j += 2){
@@ -242,6 +240,7 @@ void Interpolation(std::vector<double> &sol, Domain &domain_sup, Domain &domain_
                 continue;
         }
     }
+    
 }
 
 double error(std::vector<double> &vec, std::vector<double> &sol, Domain &domain){
