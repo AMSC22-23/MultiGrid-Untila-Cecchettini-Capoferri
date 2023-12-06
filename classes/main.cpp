@@ -146,7 +146,7 @@ int main(int argc, char** argv){
 
     //saveVectorOnFile(u,"x.mtx");
 
-    size_t size = 7;
+    size_t size = std::atoi(argv[1]);
     double width = 1.0;
     AMG::SquareDomain dominio(size,width,0);
 
@@ -156,10 +156,20 @@ int main(int argc, char** argv){
 
     std::vector<double> u(fvec.size(), 0.);
 
+    std::vector<double> res(u.size());
+
     AMG::Gauss_Siedel_iteration<AMG::DataVector<double>> GS(A,fvec);
     AMG::Jacobi_iteration<AMG::DataVector<double>> J(A,fvec);
 
-    u = u * J * GS;
+    AMG::Residual<AMG::DataVector<double>> R(A,fvec,res);
+
+    for(int i = 0; i < 20; i++){
+        u = u * GS * R;
+        std::cout<<"Norm of residual at iteration "<<i<<" = "<<R.norm<<std::endl;
+    }
+
+
+
     saveVectorOnFile(u,"x.mtx");
 
     return 0;

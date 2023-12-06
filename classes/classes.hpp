@@ -313,9 +313,9 @@ class Iteration{
         {
             B.apply_iteration_to_vec(x_k);
             return x_k;
-        } // B is iteration matrix
+        } // B is equivalent to iteration matrix
 
-        virtual double Res_calc(std::vector<double> &sol) const = 0;
+        //virtual double Res_calc(std::vector<double> &sol) const = 0;
 
         // return the norm of the residual
         //virtual double apply_with_residual(std::vector<double> &sol) const = 0;
@@ -347,12 +347,11 @@ class Gauss_Siedel_iteration : public Iteration<Vector>{
         }
          // TODO implementation
 
+        /*
         double Res_calc(std::vector<double> &sol) const override {
             std::accumulate
         }
-
-
-
+        */
 // one iteration of GS
 
 };
@@ -388,6 +387,48 @@ class Jacobi_iteration : public Iteration<Vector>{
 
 };
 
+
+template<class Vector>
+class Residual{
+    private:
+        PoissonMatrix<double> &m_A;
+        Vector &b;
+        std::vector<double> &m_res;
+        bool saveVector;
+    
+    public:
+        Residual(PoissonMatrix<double> &A, Vector &f): m_A(A), b(f), saveVector(false){}
+        Residual(PoissonMatrix<double> &A, Vector &f, std::vector<double> &res): m_A(A), b(f), m_res(res), saveVector(true){}
+
+        double norm;
+
+        void apply_iteration_to_vec(std::vector<double> &sol){
+            norm = 0.;
+            if(saveVector){
+                for(size_t i = 0; i < m_A.rows(); i++){
+                    size_t index = m_A.mask(i);
+                    double sum = 0;
+                    for(const auto &j : m_A.nonZerosInRow(i)){
+                        sum += m_A.coeffRef(i, j) * sol[m_A.mask(j)];
+                    }
+                    double r = b[index] - sum;
+                    m_res[index] = r;
+                    norm += r * r;
+                }
+            }
+        }
+        
+        friend std::vector<double>& operator*(std::vector<double> &x_k, Residual &B)
+        {
+            B.apply_iteration_to_vec(x_k);
+            return x_k;
+        }
+        
+
+        double Norm(){
+            return norm;
+        }
+};
 
 
 }
