@@ -163,10 +163,11 @@ int main(int argc, char** argv){
 
     AMG::Residual<AMG::DataVector<double>> R(A,fvec,res);
 
-    for(int i = 0; i < 20; i++){
-        u = u * GS * R;
-        std::cout<<"Norm of residual at iteration "<<i<<" = "<<R.norm<<std::endl;
-    }
+    AMG::Solver<AMG::DataVector<double>> S(A,fvec,GS,R,1000, 1.e-3);
+  
+    u= u*S;
+    std::cout<<R.Norm()<<std::endl;
+       
 
 
 
