@@ -217,7 +217,6 @@ void Interpolation(std::vector<double> &sol,Domain &domain_sup, Domain &domain_i
             }
             else{
                 sol[domain_sup.mask(j)]=f[domain_sup.mask(j)];
-                continue;
             }
         }
 
