@@ -55,9 +55,12 @@ double g(const double x, const double y){
 
 
 int main(int argc, char** argv){
+    /*
     size_t size = std::atoi(argv[1]);
     //size_t size = 13;
     double width = 1.0;
+
+    
     AMG::SquareDomain dominio_h(size,width,0);
     AMG::SquareDomain dominio_2h(size,width,1);
     AMG::SquareDomain dominio_4h(size,width,2);
@@ -79,12 +82,11 @@ int main(int argc, char** argv){
         ue[i] = g(x, y);
     }
 
-    int mgIterations = 20;
+    int mgIterations = 0;
     int nu1 = 10;
     int nu2 = 20;
     int nu3 = 30;
     int maxSolverIter = 300;
-    double tol = 1.e-6;
 
     std::vector<double> res(u.size());
     std::vector<double> hist;
@@ -140,9 +142,25 @@ int main(int argc, char** argv){
 
     
     saveVectorOnFile(hist,"provaMG.txt");
+    */
 
+    //saveVectorOnFile(u,"x.mtx");
+
+    size_t size = 7;
+    double width = 1.0;
+    AMG::SquareDomain dominio(size,width,0);
+
+    AMG::PoissonMatrix<double> A(dominio,1.);
+
+    AMG::DataVector<double> fvec(dominio, f, g);
+
+    std::vector<double> u(fvec.size(), 0.);
+
+    AMG::Gauss_Siedel_iteration<AMG::DataVector<double>> GS(A,fvec);
+    AMG::Jacobi_iteration<AMG::DataVector<double>> J(A,fvec);
+
+    u = u * J * GS;
     saveVectorOnFile(u,"x.mtx");
-
 
     return 0;
 }
