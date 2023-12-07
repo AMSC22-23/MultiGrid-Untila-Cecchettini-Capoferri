@@ -396,13 +396,21 @@ class Residual{
         std::vector<double> &m_res;
         bool saveVector;
         double norm;
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 51fc206c4f677be727de766a7fb7f9640e8f8cfc
     public:
         Residual(PoissonMatrix<double> &A, Vector &f): m_A(A), b(f), saveVector(false){}
         Residual(PoissonMatrix<double> &A, Vector &f, std::vector<double> &res): m_A(A), b(f), m_res(res), saveVector(true){}
 
+<<<<<<< HEAD
         
 
+=======
+       
+>>>>>>> 51fc206c4f677be727de766a7fb7f9640e8f8cfc
         void apply_iteration_to_vec(std::vector<double> &sol){
             norm = 0.;
             if(saveVector){
@@ -416,6 +424,7 @@ class Residual{
                     m_res[index] = r;
                     norm += r * r;
                 }
+<<<<<<< HEAD
             }else{
                 for(size_t i = 0; i < m_A.rows(); i++){
                     double sum = 0;
@@ -426,6 +435,9 @@ class Residual{
                     norm += r * r;
                 }
             }
+=======
+            } 
+>>>>>>> 51fc206c4f677be727de766a7fb7f9640e8f8cfc
             norm = sqrt(norm);
         }
         
@@ -442,18 +454,28 @@ class Residual{
 };
 
 
+<<<<<<< HEAD
+=======
+//solver class
+>>>>>>> 51fc206c4f677be727de766a7fb7f9640e8f8cfc
 template<class Vector>
 class Solver{
 
     private:
         PoissonMatrix<double> &m_A;
         Vector &m_b;
+<<<<<<< HEAD
         Iteration<Vector> &m_it;
         Residual<Vector> &m_res;
+=======
+        Iteration &m_it;
+        Residual &m_res;
+>>>>>>> 51fc206c4f677be727de766a7fb7f9640e8f8cfc
         size_t m_maxit;
         double m_tol;
 
     public:
+<<<<<<< HEAD
         Solver(PoissonMatrix<double> &A, Vector &b, Iteration<Vector> &it,Residual<Vector> &res, size_t maxit, double tol) : m_A(A), m_b(b), m_it(it), m_res(res), m_maxit(maxit), m_tol(tol) {};
         int Solve (std::vector<double> &x_k){
             x_k=x_k*m_res;
@@ -464,6 +486,16 @@ class Solver{
                         m_maxit -= 1;
                     }
                     x_k = x_k * m_res;
+=======
+        Solver(PoissonMatrix<double> &A, Vector &b, Iteration &it,Residual &res, size_t maxit, double tol) : m_A(A), m_b(b), m_it(it), m_res(res), m_maxit(maxit), m_tol(tol) {};
+        int Solve (std::vector<double> x_k){
+            x_k=x_k*m_res;
+            while(m_res.Norm() > m_tol){
+                if(m_maxit>0){
+                    x_k = x_k*m_it;
+                    x_k=x_k*m_res;
+                    m_maxit-=1;
+>>>>>>> 51fc206c4f677be727de766a7fb7f9640e8f8cfc
                 }
                 else{
                     return 1;
@@ -477,7 +509,10 @@ class Solver{
 
         }
 
+<<<<<<< HEAD
         
+=======
+>>>>>>> 51fc206c4f677be727de766a7fb7f9640e8f8cfc
         friend std::vector<double>& operator*(std::vector<double> &x_k, Solver &B)
         {
             B.Solve(x_k);
@@ -486,7 +521,10 @@ class Solver{
 
 };
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 51fc206c4f677be727de766a7fb7f9640e8f8cfc
 }
 
 
