@@ -163,16 +163,7 @@ int main(int argc, char** argv){
 
     AMG::Residual<AMG::DataVector<double>> R(A,fvec,res);
 
-<<<<<<< HEAD
     AMG::Solver<AMG::DataVector<double>> S(A,fvec,GS,R,10000,1.e-12);
-=======
-    AMG::Solver<AMG::DataVector<double>> S(A,fvec,GS,R,1000, 1.e-3);
-  
-    u= u*S;
-    std::cout<<R.Norm()<<std::endl;
-       
-
->>>>>>> 51fc206c4f677be727de766a7fb7f9640e8f8cfc
 
     u = u * S;
     
