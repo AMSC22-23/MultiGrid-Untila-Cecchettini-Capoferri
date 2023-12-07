@@ -405,19 +405,20 @@ class Residual{
         Vector &b;
         std::vector<double> &m_res;
         bool saveVector;
-        double norm;
         double norm_of_b;
+        double norm;
+        
     
     public:
-        Residual(PoissonMatrix<double> &A, Vector &f): m_A(A), b(f), saveVector(false){
+        Residual(PoissonMatrix<double> &A, Vector &f): m_A(A), b(f), saveVector(false), norm_of_b(0.){
             for(size_t i = 0; i < b.size(); i++){
                 double val = b[i];
                 norm_of_b += val * val;
             }
         }
-        Residual(PoissonMatrix<double> &A, Vector &f, std::vector<double> &res): m_A(A), b(f), m_res(res), saveVector(true){
-            for(size_t i = 0; i < b.size(); i++){
-                double val = b[i];
+        Residual(PoissonMatrix<double> &A, Vector &f, std::vector<double> &res): m_A(A), b(f), m_res(res), saveVector(true), norm_of_b(0.){
+            for(size_t i = 0; i < A.rows(); i++){
+                double val = b[A.mask(i)];
                 norm_of_b += val * val;
             }
         }
@@ -491,8 +492,7 @@ class Solver{
                 else{
                     flag = 1;
                     return;
-                }
-                std::cout<<"curr res = "<<m_res.Norm()<<std::endl;           
+                }         
             }
             flag = 0;
             return;
@@ -525,7 +525,6 @@ class InterpolationClass{
                 if(! m_A_sup.isOnBoundary(index3)){
                     vec[index3] = 0.5 * (vec[index1] + vec[index2]);
                 }else{
-                    //sol[index3] = f[index3];
                     continue;
                 }
             }
@@ -536,7 +535,6 @@ class InterpolationClass{
                     if(! m_A_sup.isOnBoundary(m_A_sup.mask(j+1)))
                         vec[m_A_sup.mask(j + 1)] = 0.5 * (vec[m_A_sup.mask(j)] + vec[m_A_sup.mask(j + 2)]);
                     else
-                        //sol[domain_sup.mask(j + 1)] = f[domain_sup.mask(j + 1)];
                         continue;
                 }
             }

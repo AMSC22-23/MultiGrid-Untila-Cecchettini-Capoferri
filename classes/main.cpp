@@ -74,7 +74,7 @@ int main(int argc, char** argv){
 
     //Let's create the solution vector and ine for the residual (and for the error)
     std::vector<double> u(A.rows(),0.);
-    std::vector<double> res(u.size());
+    std::vector<double> res(u.size(),0.);
     std::vector<double> err(u.size(),0.);
 
     //As a smoother we're gonna use Gauss Seidel
@@ -82,8 +82,6 @@ int main(int argc, char** argv){
 
     //We need a residual updater
     AMG::Residual<AMG::DataVector<double>> RES(A,fvec,res);
-    u = u * RES;
-    std::cout<<RES.Norm()<<std::endl;
 
     //Before starting the mg iterations we can define the interpolation operators
     AMG::InterpolationClass INTERPOLATE_4h(A_4h,A_2h);
@@ -109,14 +107,14 @@ int main(int argc, char** argv){
         u = u * RES;
 
         std::cout<<"Residual at iteration "<<k<<" = "<<RES.Norm()<<std::endl;
-        RES.debug();
 
         //Now we have to compute A * err = res on the coarsest grid
         AMG::Gauss_Siedel_iteration<std::vector<double>> GS_4h(A_4h,res);
         AMG::Residual<std::vector<double>> RES_4H(A_4h,res,res_4h);
-        AMG::Solver<std::vector<double>> SOLVE(GS_4h,RES_4H,1000,1.e-6,1);
+        AMG::Solver<std::vector<double>> SOLVE(GS_4h,RES_4H,10000,1.e-6,10);
 
         err = err * SOLVE;
+        std::cout<<"Coarse grid normalized residual "<<RES_4H.Norm()<<std::endl;
 
         //Once we solved the error on the coarsest level we can interpolate
         err = err * INTERPOLATE_4h;
