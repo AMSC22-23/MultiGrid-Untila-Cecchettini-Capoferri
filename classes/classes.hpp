@@ -50,6 +50,8 @@ class SquareDomain: public Domain{
             }
         }
 
+        SquareDomain(const SquareDomain &dom):SquareDomain(dom.m_size, dom.m_length, dom.m_level + 1){}
+
         std::tuple<size_t, size_t> meshIdx(size_t l) const override{
             return {l / m_size, l % m_size};
         }
@@ -156,6 +158,14 @@ class PoissonMatrix{
 
         const size_t mask(const size_t l){
             return m_domain.mask(l);
+        }
+
+        const size_t getWidth(){
+            return m_domain.getWidth();
+        }
+
+        bool isOnBoundary(const size_t l){
+            return m_domain.isOnBoundary(l);
         }
 
         const size_t rows(){return m_size;}
@@ -396,10 +406,21 @@ class Residual{
         std::vector<double> &m_res;
         bool saveVector;
         double norm;
+        double norm_of_b;
     
     public:
-        Residual(PoissonMatrix<double> &A, Vector &f): m_A(A), b(f), saveVector(false){}
-        Residual(PoissonMatrix<double> &A, Vector &f, std::vector<double> &res): m_A(A), b(f), m_res(res), saveVector(true){}
+        Residual(PoissonMatrix<double> &A, Vector &f): m_A(A), b(f), saveVector(false){
+            for(size_t i = 0; i < b.size(); i++){
+                double val = b[i];
+                norm_of_b += val * val;
+            }
+        }
+        Residual(PoissonMatrix<double> &A, Vector &f, std::vector<double> &res): m_A(A), b(f), m_res(res), saveVector(true){
+            for(size_t i = 0; i < b.size(); i++){
+                double val = b[i];
+                norm_of_b += val * val;
+            }
+        }
 
         
 
@@ -426,7 +447,6 @@ class Residual{
                     norm += r * r;
                 }
             }
-            norm = sqrt(norm);
         }
         
         friend std::vector<double>& operator*(std::vector<double> &x_k, Residual &B)
@@ -437,7 +457,10 @@ class Residual{
         
 
         double Norm(){
-            return norm;
+            return sqrt(norm/norm_of_b);
+        }
+        void debug(){
+            std::cout<<norm_of_b<<std::endl;
         }
 };
 
@@ -450,31 +473,33 @@ class Solver{
         Residual<Vector> &m_res;
         size_t m_maxit;
         double m_tol;
+        int flag;
+        int m_step;
 
     public:
-        Solver(Iteration<Vector> &it,Residual<Vector> &res, size_t maxit, double tol) : m_it(it), m_res(res), m_maxit(maxit), m_tol(tol) {};
-        int Solve (std::vector<double> &x_k){
+        Solver(Iteration<Vector> &it,Residual<Vector> &res, size_t maxit, double tol, int step) : m_it(it), m_res(res), m_maxit(maxit), m_tol(tol), m_step(step) {};
+        void Solve (std::vector<double> &x_k){
             x_k=x_k*m_res;
             while(m_res.Norm() > m_tol){
                 if(m_maxit>0){
-                    for(int i = 0; i < 10; i++){
+                    for(int i = 0; i < m_step; i++){
                         x_k = x_k * m_it;
                         m_maxit -= 1;
                     }
                     x_k = x_k * m_res;
                 }
                 else{
-                    return 1;
-                }             
+                    flag = 1;
+                    return;
+                }
+                std::cout<<"curr res = "<<m_res.Norm()<<std::endl;           
             }
-
-            return 0;
+            flag = 0;
+            return;
         }
-        void Info(){
-            std::cout<<m_maxit<<" "<<std::endl;
-
+        int Status(){
+            return flag;
         }
-
         
         friend std::vector<double>& operator*(std::vector<double> &x_k, Solver &B)
         {
@@ -484,6 +509,56 @@ class Solver{
 
 };
 
+class InterpolationClass{
+    private:
+        PoissonMatrix<double> &m_A_inf, &m_A_sup;
+
+    public:
+        InterpolationClass(PoissonMatrix<double> &A_inf, PoissonMatrix<double> &A_sup): m_A_inf(A_inf), m_A_sup(A_sup){}
+
+        void interpolate(std::vector<double> &vec){
+            for(size_t i = 0; i < m_A_inf.rows() - m_A_inf.getWidth(); i++){
+                size_t index1 = m_A_inf.mask(i);
+                size_t index2 = m_A_inf.mask(i + m_A_inf.getWidth());
+                size_t index3 = (index1 + index2) / 2;
+                
+                if(! m_A_sup.isOnBoundary(index3)){
+                    vec[index3] = 0.5 * (vec[index1] + vec[index2]);
+                }else{
+                    //sol[index3] = f[index3];
+                    continue;
+                }
+            }
+            
+            size_t width = m_A_sup.getWidth();
+            for(size_t i = 0; i < m_A_sup.rows() / width; i++){
+                for(size_t j = i * width; j < (i + 1) * width - 1; j += 2){
+                    if(! m_A_sup.isOnBoundary(m_A_sup.mask(j+1)))
+                        vec[m_A_sup.mask(j + 1)] = 0.5 * (vec[m_A_sup.mask(j)] + vec[m_A_sup.mask(j + 2)]);
+                    else
+                        //sol[domain_sup.mask(j + 1)] = f[domain_sup.mask(j + 1)];
+                        continue;
+                }
+            }
+        }
+
+        friend std::vector<double>& operator*(std::vector<double> &x_k, InterpolationClass &B)
+        {
+            B.interpolate(x_k);
+            return x_k;
+        }
+    
+
+};
+
+
+template<class Vector>
+class MultiGridIteration : public Iteration<Vector>{
+    private:
+        PoissonMatrix<double> &A;
+        Vector &b;
+
+};
 
 }
 

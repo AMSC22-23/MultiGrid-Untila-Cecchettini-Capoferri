@@ -55,150 +55,93 @@ double g(const double x, const double y){
 
 
 int main(int argc, char** argv){
-    /*
+    
     size_t size = std::atoi(argv[1]);
-    //size_t size = 13;
     double width = 1.0;
 
-    
-    AMG::SquareDomain dominio_h(size,width,0);
-    AMG::SquareDomain dominio_2h(size,width,1);
-    AMG::SquareDomain dominio_4h(size,width,2);
+    //Let's define the domains on the three levels
+    AMG::SquareDomain dominio(size,width,0);
+    AMG::SquareDomain dominio_2h(dominio);
+    AMG::SquareDomain dominio_4h(dominio_2h);
 
-
-    AMG::PoissonMatrix<double> A_h(dominio_h,1.);
+    //Let's create the matrices
+    AMG::PoissonMatrix<double> A(dominio,1.);
     AMG::PoissonMatrix<double> A_2h(dominio_2h,1.);
     AMG::PoissonMatrix<double> A_4h(dominio_4h,1.);
     
-    AMG::DataVector<double> fvec(dominio_h, f, g);
+    //Now we need to create the known vector
+    AMG::DataVector<double> fvec(dominio, f, g);
 
-    //initial guess
-    std::vector<double> u(fvec.size(), 0.);
+    //Let's create the solution vector and ine for the residual (and for the error)
+    std::vector<double> u(A.rows(),0.);
+    std::vector<double> res(u.size());
+    std::vector<double> err(u.size(),0.);
+
+    //As a smoother we're gonna use Gauss Seidel
+    AMG::Gauss_Siedel_iteration<AMG::DataVector<double>> SMOOTH(A,fvec);
+
+    //We need a residual updater
+    AMG::Residual<AMG::DataVector<double>> RES(A,fvec,res);
+    u = u * RES;
+    std::cout<<RES.Norm()<<std::endl;
+
+    //Before starting the mg iterations we can define the interpolation operators
+    AMG::InterpolationClass INTERPOLATE_4h(A_4h,A_2h);
+    AMG::InterpolationClass INTERPOLATE_2h(A_2h,A);
     
-    //exact solution
-    std::vector<double> ue(fvec.size());
-    for(size_t i = 0; i < fvec.size(); i++){
-        auto [x, y] = dominio_h[i];
-        ue[i] = g(x, y);
-    }
-
-    int mgIterations = 0;
+    int mgIter = 10;
     int nu1 = 10;
     int nu2 = 20;
     int nu3 = 30;
-    int maxSolverIter = 300;
 
-    std::vector<double> res(u.size());
-    std::vector<double> hist;
-    hist.push_back(AMG::error(u,ue,dominio_h));
-
-    for(int j = 0; j < mgIterations; j++){
-        std::cout<<j<<std::endl;
-        std::vector<double> err(u.size(),0.);
-        // V-cycle multigrid iteration (3 levels)
-
-        // Do nu1 iterations on A_h x_h = b_h
-        for(int i = 0; i < nu1; i++){
-            AMG::gaussSeidelIteration<AMG::DataVector<double>>(A_h,fvec,u);
-
-        }
-
-        //compute the fine grid residual
-        AMG::residual<AMG::DataVector<double>>(u,fvec,A_h,res);
-
-        //solve for A_4h e_4h = r_4h
-        
-        for(int i = 0; i < maxSolverIter; i++){
-            AMG::gaussSeidelIteration<std::vector<double>>(A_4h,res,err);
-        }
-
-        
-        //interpolate 4h -> 2h
-        AMG::Interpolation(err,dominio_2h,dominio_4h);
-
-        //smooth on level 2h
-        for(int i = 0; i < nu2; i++){
-            AMG::gaussSeidelIteration<std::vector<double>>(A_2h,res,err);
-        }
-
-        
-
-        //interpolate 2h -> h
-        AMG::Interpolation(err,dominio_h,dominio_2h);
-
-        for(size_t i = 0; i < u.size(); i++){
-            u[i] += err[i];
-        }
-
-        //smooth on the fine grid
-        for(int i = 0; i < nu3; i++){
-            AMG::gaussSeidelIteration<AMG::DataVector<double>>(A_h,fvec,u);
-        }
-
-        //compute the true error to plot it
-        hist.push_back(AMG::error(u,ue,dominio_h));
-    }
-
-
-    
-    saveVectorOnFile(hist,"provaMG.txt");
-    */
-
-    //saveVectorOnFile(u,"x.mtx");
-
-    size_t size = std::atoi(argv[1]);
-    double width = 1.0;
-    int mg_iter = 10, nu1=10,nu2=20,nu3=30;
-    AMG::SquareDomain dominio_h(size,width,0);
-    AMG::SquareDomain dominio_2h(size,width,1);
-    AMG::SquareDomain dominio_4h(size,width,2);
-
-    AMG::PoissonMatrix<double> A_h(dominio_h,1.);
-    AMG::PoissonMatrix<double> A_2h(dominio_2h,1.);
-    AMG::PoissonMatrix<double> A_4h(dominio_4h,1.);
-
-    AMG::DataVector<double> fvec(dominio_h, f, g);
-
-    std::vector<double> u(fvec.size(), 0.);
-
-    std::vector<double> res(u.size());
-
-    AMG::Gauss_Siedel_iteration<AMG::DataVector<double>> GS_h(A_h, fvec);
-
-    AMG::Residual<AMG::DataVector<double>> r_h(A_h, fvec,res);
-    
+    //***UNTIL WE SOLVE A PROBLEM WE NEED TO CREATE A NEW RESIDUAL VECTOR***
     std::vector<double> res_4h(u.size());
 
+    for(int k = 0; k < mgIter; ++k){
+        //V-cycle 3 levels multigrid iteration
 
-    for(int i = 0; i< mg_iter; i++){
-       
-        for(int j=0; j<nu1; j++){
-            u=u*GS_h;
-        }
-        u=u*r_h;//calcolo res
-        std::cout<<r_h.Norm()<<std::endl;
-
-        std::vector<double> err(fvec.size(), 0.);
-        AMG::Gauss_Siedel_iteration<std::vector<double>> GS_4h(A_4h, res);
-        AMG::Residual<std::vector<double>> r_4h(A_4h, res, res_4h);
-        AMG::Solver<std::vector<double>> S_4h(GS_4h,r_4h,10000, 1.e-12);
-        
-        err=err*S_4h;
-        AMG::Interpolation(err, dominio_2h,dominio_4h);
-        AMG::Gauss_Siedel_iteration<std::vector<double>> GS_2h(A_2h,res);
-        for(int j=0;j<nu2;j++){
-            err=err*GS_2h;
-        }
-        AMG::Interpolation(err, dominio_h,dominio_2h);
-        for(size_t j=0; j<u.size(); j++){
-            u[j]+=err[j];
-        }
-        for(int j=0; j<nu3; j++){
-            u=u*GS_h;
+        //Let's start by smoothing in the finest level
+        for(int i = 0; i < nu1; i++){
+            u = u * SMOOTH;
         }
 
+        //Now we need to compute the residual
+        u = u * RES;
+
+        std::cout<<"Residual at iteration "<<k<<" = "<<RES.Norm()<<std::endl;
+        RES.debug();
+
+        //Now we have to compute A * err = res on the coarsest grid
+        AMG::Gauss_Siedel_iteration<std::vector<double>> GS_4h(A_4h,res);
+        AMG::Residual<std::vector<double>> RES_4H(A_4h,res,res_4h);
+        AMG::Solver<std::vector<double>> SOLVE(GS_4h,RES_4H,1000,1.e-6,1);
+
+        err = err * SOLVE;
+
+        //Once we solved the error on the coarsest level we can interpolate
+        err = err * INTERPOLATE_4h;
+
+        //After the interpolation we need to smooth the error
+        AMG::Gauss_Siedel_iteration<std::vector<double>> GS_2H(A_2h,res);
+        for(int i = 0; i < nu2; i++){
+            err = err * GS_2H;
+        }
+
+        //We can now interpolate again
+        err = err * INTERPOLATE_2h;
+
+        //We can now sum the error to our solution
+        for(size_t i = 0; i < u.size(); i++){
+            u[i] += err[i];
+            //set err to 0 to have a closer initial guess in the next iteration
+            err[i] = 0.;
+        }
+
+        //now we can smooth again the solution
+        for(int i = 0; i < nu3; i++){
+            u = u * SMOOTH;
+        }
     }
-   
 
     saveVectorOnFile(u,"x.mtx");
 
