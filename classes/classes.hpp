@@ -395,12 +395,13 @@ class Residual{
         Vector &b;
         std::vector<double> &m_res;
         bool saveVector;
+        double norm;
     
     public:
         Residual(PoissonMatrix<double> &A, Vector &f): m_A(A), b(f), saveVector(false){}
         Residual(PoissonMatrix<double> &A, Vector &f, std::vector<double> &res): m_A(A), b(f), m_res(res), saveVector(true){}
 
-        double norm;
+        
 
         void apply_iteration_to_vec(std::vector<double> &sol){
             norm = 0.;
@@ -415,7 +416,17 @@ class Residual{
                     m_res[index] = r;
                     norm += r * r;
                 }
+            }else{
+                for(size_t i = 0; i < m_A.rows(); i++){
+                    double sum = 0;
+                    for(const auto &j : m_A.nonZerosInRow(i)){
+                        sum += m_A.coeffRef(i, j) * sol[m_A.mask(j)];
+                    }
+                    double r = b[m_A.mask(i)] - sum;
+                    norm += r * r;
+                }
             }
+            norm = sqrt(norm);
         }
         
         friend std::vector<double>& operator*(std::vector<double> &x_k, Residual &B)
@@ -428,6 +439,51 @@ class Residual{
         double Norm(){
             return norm;
         }
+};
+
+
+template<class Vector>
+class Solver{
+
+    private:
+        PoissonMatrix<double> &m_A;
+        Vector &m_b;
+        Iteration<Vector> &m_it;
+        Residual<Vector> &m_res;
+        size_t m_maxit;
+        double m_tol;
+
+    public:
+        Solver(PoissonMatrix<double> &A, Vector &b, Iteration<Vector> &it,Residual<Vector> &res, size_t maxit, double tol) : m_A(A), m_b(b), m_it(it), m_res(res), m_maxit(maxit), m_tol(tol) {};
+        int Solve (std::vector<double> &x_k){
+            x_k=x_k*m_res;
+            while(m_res.Norm() > m_tol){
+                if(m_maxit>0){
+                    for(int i = 0; i < 10; i++){
+                        x_k = x_k * m_it;
+                        m_maxit -= 1;
+                    }
+                    x_k = x_k * m_res;
+                }
+                else{
+                    return 1;
+                }             
+            }
+
+            return 0;
+        }
+        void Info(){
+            std::cout<<m_maxit<<" "<<std::endl;
+
+        }
+
+        
+        friend std::vector<double>& operator*(std::vector<double> &x_k, Solver &B)
+        {
+            B.Solve(x_k);
+            return x_k;
+        }
+
 };
 
 
