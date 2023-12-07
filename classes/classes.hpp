@@ -446,15 +446,13 @@ template<class Vector>
 class Solver{
 
     private:
-        PoissonMatrix<double> &m_A;
-        Vector &m_b;
         Iteration<Vector> &m_it;
         Residual<Vector> &m_res;
         size_t m_maxit;
         double m_tol;
 
     public:
-        Solver(PoissonMatrix<double> &A, Vector &b, Iteration<Vector> &it,Residual<Vector> &res, size_t maxit, double tol) : m_A(A), m_b(b), m_it(it), m_res(res), m_maxit(maxit), m_tol(tol) {};
+        Solver(Iteration<Vector> &it,Residual<Vector> &res, size_t maxit, double tol) : m_it(it), m_res(res), m_maxit(maxit), m_tol(tol) {};
         int Solve (std::vector<double> &x_k){
             x_k=x_k*m_res;
             while(m_res.Norm() > m_tol){

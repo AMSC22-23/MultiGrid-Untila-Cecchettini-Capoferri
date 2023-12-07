@@ -148,27 +148,57 @@ int main(int argc, char** argv){
 
     size_t size = std::atoi(argv[1]);
     double width = 1.0;
-    AMG::SquareDomain dominio(size,width,0);
+    int mg_iter = 10, nu1=10,nu2=20,nu3=30;
+    AMG::SquareDomain dominio_h(size,width,0);
+    AMG::SquareDomain dominio_2h(size,width,1);
+    AMG::SquareDomain dominio_4h(size,width,2);
 
-    AMG::PoissonMatrix<double> A(dominio,1.);
+    AMG::PoissonMatrix<double> A_h(dominio_h,1.);
+    AMG::PoissonMatrix<double> A_2h(dominio_2h,1.);
+    AMG::PoissonMatrix<double> A_4h(dominio_4h,1.);
 
-    AMG::DataVector<double> fvec(dominio, f, g);
+    AMG::DataVector<double> fvec(dominio_h, f, g);
 
     std::vector<double> u(fvec.size(), 0.);
 
     std::vector<double> res(u.size());
 
-    AMG::Gauss_Siedel_iteration<AMG::DataVector<double>> GS(A,fvec);
-    AMG::Jacobi_iteration<AMG::DataVector<double>> J(A,fvec);
+    AMG::Gauss_Siedel_iteration<AMG::DataVector<double>> GS_h(A_h, fvec);
 
-    AMG::Residual<AMG::DataVector<double>> R(A,fvec,res);
-
-    AMG::Solver<AMG::DataVector<double>> S(A,fvec,GS,R,10000,1.e-12);
-
-    u = u * S;
+    AMG::Residual<AMG::DataVector<double>> r_h(A_h, fvec,res);
     
-    S.Info();
-    std::cout<<"Residual = "<<R.Norm()<<std::endl;
+    std::vector<double> res_4h(u.size());
+
+
+    for(int i = 0; i< mg_iter; i++){
+       
+        for(int j=0; j<nu1; j++){
+            u=u*GS_h;
+        }
+        u=u*r_h;//calcolo res
+        std::cout<<r_h.Norm()<<std::endl;
+
+        std::vector<double> err(fvec.size(), 0.);
+        AMG::Gauss_Siedel_iteration<std::vector<double>> GS_4h(A_4h, res);
+        AMG::Residual<std::vector<double>> r_4h(A_4h, res, res_4h);
+        AMG::Solver<std::vector<double>> S_4h(GS_4h,r_4h,10000, 1.e-12);
+        
+        err=err*S_4h;
+        AMG::Interpolation(err, dominio_2h,dominio_4h);
+        AMG::Gauss_Siedel_iteration<std::vector<double>> GS_2h(A_2h,res);
+        for(int j=0;j<nu2;j++){
+            err=err*GS_2h;
+        }
+        AMG::Interpolation(err, dominio_h,dominio_2h);
+        for(size_t j=0; j<u.size(); j++){
+            u[j]+=err[j];
+        }
+        for(int j=0; j<nu3; j++){
+            u=u*GS_h;
+        }
+
+    }
+   
 
     saveVectorOnFile(u,"x.mtx");
 
