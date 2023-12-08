@@ -59,6 +59,9 @@ int main(int argc, char** argv){
     size_t size = std::atoi(argv[1]);
     double width = 1.0;
 
+    //Create a vector to store residuals norm to plot them
+    std::vector<double> hist;
+
     //Let's define the domains on the three levels
     AMG::SquareDomain dominio(size,width,0);
     AMG::SquareDomain dominio_2h(dominio);
@@ -82,15 +85,17 @@ int main(int argc, char** argv){
 
     //We need a residual updater
     AMG::Residual<AMG::DataVector<double>> RES(A,fvec,res);
+    u * RES;
+    hist.push_back(RES.Norm());
 
     //Before starting the mg iterations we can define the interpolation operators
     AMG::InterpolationClass INTERPOLATE_4h(A_4h,A_2h);
     AMG::InterpolationClass INTERPOLATE_2h(A_2h,A);
     
-    int mgIter = 10;
+    int mgIter = 20;
     int nu1 = 10;
-    int nu2 = 20;
-    int nu3 = 30;
+    int nu2 = 10;
+    int nu3 = 10;
 
     //***UNTIL WE SOLVE A PROBLEM WE NEED TO CREATE A NEW RESIDUAL VECTOR***
     std::vector<double> res_4h(u.size());
@@ -106,12 +111,10 @@ int main(int argc, char** argv){
         //Now we need to compute the residual
         u = u * RES;
 
-        std::cout<<"Residual at iteration "<<k<<" = "<<RES.Norm()<<std::endl;
-
         //Now we have to compute A * err = res on the coarsest grid
         AMG::Gauss_Siedel_iteration<std::vector<double>> GS_4h(A_4h,res);
         AMG::Residual<std::vector<double>> RES_4H(A_4h,res,res_4h);
-        AMG::Solver<std::vector<double>> SOLVE(GS_4h,RES_4H,10000,1.e-6,10);
+        AMG::Solver<std::vector<double>> SOLVE(GS_4h,RES_4H,5000,1.e-8,10);
 
         err = err * SOLVE;
         std::cout<<"Coarse grid normalized residual "<<RES_4H.Norm()<<std::endl;
@@ -139,8 +142,11 @@ int main(int argc, char** argv){
         for(int i = 0; i < nu3; i++){
             u = u * SMOOTH;
         }
+        u = u * RES;
+        hist.push_back(RES.Norm());
     }
 
+    saveVectorOnFile(hist,"histMG3.txt");
     saveVectorOnFile(u,"x.mtx");
 
     return 0;
