@@ -550,12 +550,19 @@ class InterpolationClass{
 };
 
 
-template<class Vector>
-class MultiGridIteration : public Iteration<Vector>{
+template<class Vector, class Smoother>
+class SawtoothMGIteration : public Iteration<Vector>{
     private:
-        PoissonMatrix<double> &A;
+        std::vector<PoissonMatrix<double>> &A_level;
         Vector &b;
+        std::vector<Iteration> smoothers;
+        std::vector<int> &nu;
 
+    public:
+        void apply_iteration_to_vec(std::vector<double> &sol) const override{
+            //do nu1 iterations of the smoother
+            for(int i = 0; i < )
+        }
 };
 
 }

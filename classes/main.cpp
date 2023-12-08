@@ -44,13 +44,13 @@ std::vector<double> formatVector(std::vector<double> &in, AMG::Domain &domain){
 }
 
 double f(const double x, const double y){
-    //return 0.5;
-    return -5.0 * exp(x) * exp(-2.0 * y);
+    return 0.5;
+    //return -5.0 * exp(x) * exp(-2.0 * y);
 }
 
 double g(const double x, const double y){
-    //return 0.;
-    return exp(x) * exp(-2.0 * y);
+    return 0.;
+    //return exp(x) * exp(-2.0 * y);
 }
 
 
@@ -114,7 +114,7 @@ int main(int argc, char** argv){
         //Now we have to compute A * err = res on the coarsest grid
         AMG::Gauss_Siedel_iteration<std::vector<double>> GS_4h(A_4h,res);
         AMG::Residual<std::vector<double>> RES_4H(A_4h,res,res_4h);
-        AMG::Solver<std::vector<double>> SOLVE(GS_4h,RES_4H,5000,1.e-8,10);
+        AMG::Solver<std::vector<double>> SOLVE(GS_4h,RES_4H,5000,1.e-6,10);
 
         err = err * SOLVE;
         std::cout<<"Coarse grid normalized residual "<<RES_4H.Norm()<<std::endl;
