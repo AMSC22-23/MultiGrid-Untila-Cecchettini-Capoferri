@@ -153,7 +153,7 @@ int main(int argc, char** argv){
     matrici.push_back(A_2h);
     matrici.push_back(A_4h);
 
-    AMG::SawtoothMGIteration<AMG::DataVector<double>,AMG::Jacobi_iteration<AMG::DataVector<double>>> MG(matrici,fvec);
+    AMG::SawtoothMGIteration<AMG::DataVector<double>,AMG::Gauss_Siedel_iteration <AMG::DataVector<double>>, AMG::Gauss_Siedel_iteration <std::vector<double>>> MG(matrici,fvec);
 
     u = u * MG;
 

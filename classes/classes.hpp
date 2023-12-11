@@ -5,6 +5,8 @@
 #include <vector>
 #include <functional>
 #include <numeric>
+#include <memory>
+
 
 namespace AMG{
 
@@ -317,7 +319,7 @@ class Iteration{
         //inline Iteration(Vector &sol) : b(sol) {};
 
         virtual void apply_iteration_to_vec(std::vector<double> &sol) const = 0;
-        
+        virtual void set_vector(Vector &vec) = 0;
 
         inline friend std::vector<double>& operator*(std::vector<double> &x_k, const Iteration &B)
         {
@@ -340,9 +342,12 @@ class Gauss_Siedel_iteration : public Iteration<Vector>{
         Vector &b; // Ax = b
     public:
 
-        Gauss_Siedel_iteration(PoissonMatrix<double> &A, Vector &f) : m_A(A), b(f) {};
-
-       
+        Gauss_Siedel_iteration(PoissonMatrix<double> &A, Vector &f) : m_A(A), b(f) {}
+        Gauss_Siedel_iteration(PoissonMatrix<double> &A) : m_A(A) {}
+        void set_vector(Vector &vec) override{
+           // b=vec;
+        }
+        //Iteration.set(      
         void apply_iteration_to_vec(std::vector<double> &sol) const override{
             for(size_t i = 0; i < m_A.rows(); i++){
                 size_t index = m_A.mask(i);
@@ -374,7 +379,10 @@ class Jacobi_iteration : public Iteration<Vector>{
     public:
 
         Jacobi_iteration(PoissonMatrix<double> &A, Vector &f) : m_A(A), b(f) {};
-
+        Jacobi_iteration(PoissonMatrix<double> &A) : m_A(A) {}
+        void set_vector(Vector &vec) override{
+            b=vec;
+        }
        
         void apply_iteration_to_vec(std::vector<double> &sol) const override{
             std::vector<double> x_new(sol.size());
@@ -550,28 +558,35 @@ class InterpolationClass{
 };
 
 
-template<class Vector, class Smoother>
+template<class Vector, class Smoother1, class Smoother2>
 class SawtoothMGIteration : public Iteration<Vector>{
     private:
         std::vector<PoissonMatrix<double>> &A_level;
         Vector &b;
-        Smoother *fineGridSmoother;
+        std::vector<std::unique_ptr<Iteration<Vector>>> iterations;
+
         //std::vector<int> &nu;
 
     public:
         SawtoothMGIteration(std::vector<PoissonMatrix<double>> &matrices, Vector &knownVec): A_level(matrices), b(knownVec) {
-            fineGridSmoother = new Smoother(A_level[0],b);
+            iterations.push_back(std::make_unique<Smoother1>(A_level[0],b));
+            for(int i=1;i<A_level.size();i++){
+                 iterations.push_back(std::make_unique<Smoother2>(A_level[i]));   
+            }
+        }
+
+        void set_vector(Vector &vec) override{
+          //  b=vec;
         }
 
         void apply_iteration_to_vec(std::vector<double> &sol) const override{
             //do nu1 iterations of the smoother
-            for(int i = 0; i < 10; i++){
-                sol = sol * (*fineGridSmoother);
+            for(int i=0; i<100; i++){
+                sol=sol*(*iterations[0]);
             }
         }
 
         ~SawtoothMGIteration(){
-            delete fineGridSmoother;
         }
 };
 
