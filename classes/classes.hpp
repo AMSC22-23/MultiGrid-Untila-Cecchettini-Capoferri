@@ -555,13 +555,23 @@ class SawtoothMGIteration : public Iteration<Vector>{
     private:
         std::vector<PoissonMatrix<double>> &A_level;
         Vector &b;
-        std::vector<Iteration> smoothers;
-        std::vector<int> &nu;
+        Smoother *fineGridSmoother;
+        //std::vector<int> &nu;
 
     public:
+        SawtoothMGIteration(std::vector<PoissonMatrix<double>> &matrices, Vector &knownVec): A_level(matrices), b(knownVec) {
+            fineGridSmoother = new Smoother(A_level[0],b);
+        }
+
         void apply_iteration_to_vec(std::vector<double> &sol) const override{
             //do nu1 iterations of the smoother
-            for(int i = 0; i < )
+            for(int i = 0; i < 10; i++){
+                sol = sol * (*fineGridSmoother);
+            }
+        }
+
+        ~SawtoothMGIteration(){
+            delete fineGridSmoother;
         }
 };
 

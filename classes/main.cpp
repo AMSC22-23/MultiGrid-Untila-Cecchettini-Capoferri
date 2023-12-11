@@ -44,13 +44,13 @@ std::vector<double> formatVector(std::vector<double> &in, AMG::Domain &domain){
 }
 
 double f(const double x, const double y){
-    return 0.5;
-    //return -5.0 * exp(x) * exp(-2.0 * y);
+    //return 0.5;
+    return -5.0 * exp(x) * exp(-2.0 * y);
 }
 
 double g(const double x, const double y){
-    return 0.;
-    //return exp(x) * exp(-2.0 * y);
+    //return 0.;
+    return exp(x) * exp(-2.0 * y);
 }
 
 
@@ -92,7 +92,7 @@ int main(int argc, char** argv){
     AMG::InterpolationClass INTERPOLATE_4h(A_4h,A_2h);
     AMG::InterpolationClass INTERPOLATE_2h(A_2h,A);
     
-    int mgIter = 20;
+    int mgIter = 0;
     int nu1 = 10;
     int nu2 = 10;
     int nu3 = 10;
@@ -146,7 +146,17 @@ int main(int argc, char** argv){
         hist.push_back(RES.Norm());
     }
 
-    saveVectorOnFile(hist,"histMG3.txt");
+    //saveVectorOnFile(hist,"histMG3.txt");
+
+    std::vector<AMG::PoissonMatrix<double>> matrici;
+    matrici.push_back(A);
+    matrici.push_back(A_2h);
+    matrici.push_back(A_4h);
+
+    AMG::SawtoothMGIteration<AMG::DataVector<double>,AMG::Jacobi_iteration<AMG::DataVector<double>>> MG(matrici,fvec);
+
+    u = u * MG;
+
     saveVectorOnFile(u,"x.mtx");
 
     return 0;
