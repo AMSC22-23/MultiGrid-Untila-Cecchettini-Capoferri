@@ -2,6 +2,7 @@
 #include <tuple>
 #include <fstream>
 #include <cmath>
+#include <memory>
 #include "classes.hpp"
 
 
@@ -80,6 +81,7 @@ int main(int argc, char** argv){
     std::vector<double> res(u.size(),0.);
     std::vector<double> err(u.size(),0.);
 
+    /*
     //As a smoother we're gonna use Gauss Seidel
     AMG::Gauss_Siedel_iteration<AMG::DataVector<double>> SMOOTH(A,fvec);
 
@@ -92,15 +94,15 @@ int main(int argc, char** argv){
     AMG::InterpolationClass INTERPOLATE_4h(A_4h,A_2h);
     AMG::InterpolationClass INTERPOLATE_2h(A_2h,A);
     
-    int mgIter = 0;
-    int nu1 = 10;
+    int mgIter1 = 10;
+    int nu1 = 0;
     int nu2 = 10;
     int nu3 = 10;
 
     //***UNTIL WE SOLVE A PROBLEM WE NEED TO CREATE A NEW RESIDUAL VECTOR***
     std::vector<double> res_4h(u.size());
 
-    for(int k = 0; k < mgIter; ++k){
+    for(int k = 0; k < mgIter1; ++k){
         //V-cycle 3 levels multigrid iteration
 
         //Let's start by smoothing in the finest level
@@ -146,18 +148,85 @@ int main(int argc, char** argv){
         hist.push_back(RES.Norm());
     }
 
-    //saveVectorOnFile(hist,"histMG3.txt");
-
+    saveVectorOnFile(hist,"histMG3.txt");
+    */
+   
     std::vector<AMG::PoissonMatrix<double>> matrici;
     matrici.push_back(A);
     matrici.push_back(A_2h);
     matrici.push_back(A_4h);
 
-    AMG::SawtoothMGIteration<AMG::DataVector<double>,AMG::Gauss_Siedel_iteration <AMG::DataVector<double>>, AMG::Gauss_Siedel_iteration <std::vector<double>>> MG(matrici,fvec);
+    AMG::Residual<AMG::DataVector<double>> RES(matrici[0],fvec,res);
 
-    u = u * MG;
+    std::vector<double> coarse_res(u.size());
+    AMG::Residual<std::vector<double>> COARSE_RES(matrici.back(),res,coarse_res);
+
+    //create the smoothers
+    std::vector<std::unique_ptr<AMG::Iteration>> iterations(matrici.size());
+    iterations[0] = std::make_unique<AMG::Gauss_Siedel_iteration<AMG::DataVector<double>>>(matrici[0],fvec);
+    for(size_t j = 1; j < matrici.size(); j++){
+            iterations[j] = std::make_unique<AMG::Gauss_Siedel_iteration<std::vector<double>>>(matrici[j],res);
+    }
+    
+    //create solver on the coarsest grid
+    AMG::Solver<std::vector<double>> COARSE_SOLVER((*iterations.back()),COARSE_RES,2000,1.e-6,1);
+
+    //create the interpolators
+    std::vector<std::unique_ptr<AMG::InterpolationClass>> interpolators(matrici.size()-1);
+    for(size_t j = 0; j < matrici.size() - 1; j++){
+        interpolators[j] = std::make_unique<AMG::InterpolationClass>(matrici[j+1],matrici[j]);
+    }
+
+    int mgIter1 = 10;
+    int nu = 10;
+
+    u * RES;
+    hist.push_back(RES.Norm());
+
+    for(int i = 0; i < mgIter1; i++){
+        //pre smoothing
+        for(int j = 0; j < nu; j++){
+            u * (*iterations[0]);
+        }
+
+        u * RES;
+        std::cout<<RES.Norm()<<std::endl;
+        COARSE_RES.refresh_normalization_constant();
+        
+        err * COARSE_SOLVER * COARSE_RES;
+        std::cout<<COARSE_RES.Norm()<<std::endl;
+
+        /*
+        for(size_t j = matrici.size() - 1; j > 1; --j){
+            err * (*interpolators[j-1]);
+            for(int k = 0; k < nu; k++){
+                err * (*iterations[j-1]);
+            }
+        }
+        */
+        err * (*interpolators[1]);
+        for(int j = 0; j < nu; j++){
+            err * (*iterations[1]);
+        }
+
+        err * (*interpolators.back());
+
+        for(size_t j = 0; j < u.size(); j++){
+            u[j] += err[j];
+            err[j] = 0;
+        }
+
+        for(int j = 0; j < nu; j++){
+            u * (*iterations[0]);
+        }
+
+        u * RES;
+        hist.push_back(RES.Norm());
+    }
+    
 
     saveVectorOnFile(u,"x.mtx");
+    saveVectorOnFile(hist,"histMG3.txt");
 
     return 0;
 }
