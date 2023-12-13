@@ -46,16 +46,16 @@ std::vector<double> formatVector(std::vector<double> &in, AMG::Domain &domain){
 
 double f(const double x, const double y){
     //return 0.5;
-    //return -5.0 * exp(x) * exp(-2.0 * y);
-    double k = 50.;
-    double r = sqrt(x*x + y*y);
-    return -k*(cos(k * r) / r - k*sin(k * r));
+    return -5.0 * exp(x) * exp(-2.0 * y);
+    //double k = 50.;
+    //double r = sqrt(x*x + y*y);
+    //return -k*(cos(k * r) / r - k*sin(k * r));
 }
 
 double g(const double x, const double y){
     //return 0.;
-    //return exp(x) * exp(-2.0 * y);
-    return sin(50. * sqrt(x * x + y * y));
+    return exp(x) * exp(-2.0 * y);
+    //return sin(50. * sqrt(x * x + y * y));
 }
 
 
@@ -63,7 +63,7 @@ int main(int argc, char** argv){
     
     size_t size = std::atoi(argv[1]);
     double alpha = std::atof(argv[2]);
-    double width = 10.0;
+    double width = 1.0;
 
     //Create a vector to store residuals norm to plot them
     std::vector<double> hist;
@@ -74,6 +74,7 @@ int main(int argc, char** argv){
     AMG::SquareDomain dominio_4h(dominio_2h);
     AMG::SquareDomain dominio_8h(dominio_4h);
     AMG::SquareDomain dominio_16h(dominio_8h);
+
 
     //Let's create the matrices
     AMG::PoissonMatrix<double> A(dominio,alpha);
@@ -87,7 +88,7 @@ int main(int argc, char** argv){
     matrici.push_back(A_2h);
     matrici.push_back(A_4h);
     matrici.push_back(A_8h);
-    //matrici.push_back(A_16h);
+    matrici.push_back(A_16h);
     
     //Now we need to create the known vector
     AMG::DataVector<double> fvec(dominio, f, g);
@@ -104,11 +105,15 @@ int main(int argc, char** argv){
     u * RES;
     hist.push_back(RES.Norm());
 
+    
+
+    
     int mgiter = 20;
     for(int i = 0; i < mgiter; i++){
         u * MG * RES;
         hist.push_back(RES.Norm());
     }
+    
     
     saveVectorOnFile(hist,"MGGS4.txt");
     saveVectorOnFile(u,"x.mtx");

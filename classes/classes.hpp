@@ -25,7 +25,7 @@ class Domain{
         virtual const bool isOnBoundary(const size_t l) const = 0;
 
 		//to optimize the computation for each iteration of itterative solver we could need to know the non zero entries of a row
-        virtual const std::vector<size_t> inRowConnections(const size_t l) const = 0;
+        virtual const std::vector<size_t> &inRowConnections(const size_t l) = 0;
 
         virtual size_t mask(const size_t l) const = 0;
         virtual const size_t getWidth() const = 0;
@@ -46,6 +46,7 @@ class SquareDomain: public Domain{
     public:
         SquareDomain(const size_t size, const double length, const size_t level):m_size(size),step(1) , m_level(level), width(size),
         m_length(length), m_h(m_length / (m_size - 1)){
+            m_vec.reserve(5);
             for(size_t i = 0; i < level; i++){
                 width = (width + 1) / 2;
                 step *= 2;
@@ -71,19 +72,21 @@ class SquareDomain: public Domain{
             return (((i == 0) || (j == 0) || (i == (m_size-1)) || (j == (m_size-1))) ? true : false);
         }
 
-        const std::vector<size_t> inRowConnections(const size_t l) const override{
+        const std::vector<size_t> &inRowConnections(const size_t l) override{
             auto equivalent_l = mask(l);
-            std::vector<size_t> temp;
 			if(isOnBoundary(equivalent_l)){
-				temp.push_back(l);
+				m_vec = {l};
 			}else{
+                /*
 				temp.push_back(l - width);
 				temp.push_back(l - 1);
 				temp.push_back(l);
 				temp.push_back(l + 1);
 				temp.push_back(l + width);
+                */
+               m_vec = {l - width, l - 1, l, l + 1, l + width};
 			}
-			return temp;
+			return m_vec;
         }
 
         size_t mask(const size_t l) const override{
@@ -112,6 +115,7 @@ class SquareDomain: public Domain{
         size_t width;
         double m_length;
         double m_h;
+        std::vector<size_t> m_vec;
 
 };
 
@@ -150,7 +154,7 @@ class PoissonMatrix{
             
         }
 		
-		const std::vector<size_t> nonZerosInRow(const size_t row){
+		const std::vector<size_t> &nonZerosInRow(const size_t row){
 			return m_domain.inRowConnections(row);
 		}
 
@@ -409,7 +413,7 @@ class Residual{
         
     
     public:
-        Residual(PoissonMatrix<double> &A, Vector &f): m_A(A), b(f), saveVector(false), norm_of_b(0.){
+        Residual(PoissonMatrix<double> &A, Vector &f): m_A(A), b(f), m_res(NULL), saveVector(false), norm_of_b(0.){
             for(size_t i = 0; i < b.size(); i++){
                 double val = b[i];
                 norm_of_b += val * val;
@@ -596,7 +600,6 @@ class SawtoothMGIteration{
             
 
             RES = std::make_unique<Residual<Vector>>(A_level.at(0),b,res);
-            //COARSE_RES = std::make_unique<Residual<std::vector<double>>>(A_level.back(),res,coarse_res);
             COARSE_RES = std::make_unique<Residual<std::vector<double>>>(A_level.back(),res);
 
             COARSE_SOLVER = std::make_unique<AMG::Solver<std::vector<double>>>((*iterations.back()),(*COARSE_RES),2000,1.e-1,1);
