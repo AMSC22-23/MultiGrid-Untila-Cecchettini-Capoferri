@@ -47,14 +47,15 @@ std::vector<double> formatVector(std::vector<double> &in, AMG::Domain &domain){
 double f(const double x, const double y){
     //return 0.5;
     //return -5.0 * exp(x) * exp(-2.0 * y);
+    double k = 50.;
     double r = sqrt(x*x + y*y);
-    return -cos(r) / r + sin(r);
+    return -k*(cos(k * r) / r - k*sin(k * r));
 }
 
 double g(const double x, const double y){
     //return 0.;
     //return exp(x) * exp(-2.0 * y);
-    return sin(sqrt(x * x + y * y));
+    return sin(50. * sqrt(x * x + y * y));
 }
 
 
@@ -71,11 +72,22 @@ int main(int argc, char** argv){
     AMG::SquareDomain dominio(size,width,0);
     AMG::SquareDomain dominio_2h(dominio);
     AMG::SquareDomain dominio_4h(dominio_2h);
+    AMG::SquareDomain dominio_8h(dominio_4h);
+    AMG::SquareDomain dominio_16h(dominio_8h);
 
     //Let's create the matrices
     AMG::PoissonMatrix<double> A(dominio,alpha);
     AMG::PoissonMatrix<double> A_2h(dominio_2h,alpha);
     AMG::PoissonMatrix<double> A_4h(dominio_4h,alpha);
+    AMG::PoissonMatrix<double> A_8h(dominio_8h,alpha);
+    AMG::PoissonMatrix<double> A_16h(dominio_16h,alpha);
+
+    std::vector<AMG::PoissonMatrix<double>> matrici;
+    matrici.push_back(A);
+    matrici.push_back(A_2h);
+    matrici.push_back(A_4h);
+    matrici.push_back(A_8h);
+    //matrici.push_back(A_16h);
     
     //Now we need to create the known vector
     AMG::DataVector<double> fvec(dominio, f, g);
@@ -84,13 +96,7 @@ int main(int argc, char** argv){
     //Let's create the solution vector and ine for the residual (and for the error)
     std::vector<double> u(A.rows(),0.);
     std::vector<double> res(u.size(),0.);
-    //std::vector<double> err(u.size(),0.);
     
-   
-    std::vector<AMG::PoissonMatrix<double>> matrici;
-    matrici.push_back(A);
-    matrici.push_back(A_2h);
-    matrici.push_back(A_4h);
 
     AMG::SawtoothMGIteration<AMG::DataVector<double>,AMG::Gauss_Siedel_iteration<std::vector<double>>> MG(matrici,fvec);
     AMG::Residual<AMG::DataVector<double>> RES(matrici[0],fvec,res);
@@ -104,7 +110,7 @@ int main(int argc, char** argv){
         hist.push_back(RES.Norm());
     }
     
-    saveVectorOnFile(hist,"MGGS.txt");
+    saveVectorOnFile(hist,"MGGS4.txt");
     saveVectorOnFile(u,"x.mtx");
 
     return 0;

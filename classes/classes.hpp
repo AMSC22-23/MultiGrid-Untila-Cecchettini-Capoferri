@@ -402,7 +402,7 @@ class Residual{
     private:
         PoissonMatrix<double> &m_A;
         Vector &b;
-        std::vector<double> &m_res;
+        std::vector<double> *m_res;
         bool saveVector;
         double norm_of_b;
         double norm;
@@ -415,7 +415,7 @@ class Residual{
                 norm_of_b += val * val;
             }
         }
-        Residual(PoissonMatrix<double> &A, Vector &f, std::vector<double> &res): m_A(A), b(f), m_res(res), saveVector(true), norm_of_b(0.){
+        Residual(PoissonMatrix<double> &A, Vector &f, std::vector<double> &res): m_A(A), b(f), m_res(&res), saveVector(true), norm_of_b(0.){
             for(size_t i = 0; i < A.rows(); i++){
                 double val = b[A.mask(i)];
                 norm_of_b += val * val;
@@ -442,7 +442,7 @@ class Residual{
                         sum += m_A.coeffRef(i, j) * sol[m_A.mask(j)];
                     }
                     double r = b[index] - sum;
-                    m_res[index] = r;
+                    (m_res->at(index)) = r;
                     norm += r * r;
                 }
             }else{
@@ -567,7 +567,6 @@ class SawtoothMGIteration{
 
         std::vector<double> res;
         std::vector<double> err;
-        std::vector<double> coarse_res;
 
         std::vector<std::unique_ptr<SmootherClass<std::vector<double>>>> iterations;
         std::vector<std::unique_ptr<InterpolationClass>> interpolators;
@@ -584,7 +583,6 @@ class SawtoothMGIteration{
         SawtoothMGIteration(std::vector<PoissonMatrix<double>> &matrices, Vector &knownVec): A_level(matrices), b(knownVec) {
             res = std::vector<double>(b.size(),0.);
             err = std::vector<double>(b.size(),0.);
-            coarse_res = std::vector<double>(b.size(),0.);
 
             
             for(size_t j = 0; j < A_level.size(); j++){
@@ -598,7 +596,8 @@ class SawtoothMGIteration{
             
 
             RES = std::make_unique<Residual<Vector>>(A_level.at(0),b,res);
-            COARSE_RES = std::make_unique<Residual<std::vector<double>>>(A_level.back(),res,coarse_res);
+            //COARSE_RES = std::make_unique<Residual<std::vector<double>>>(A_level.back(),res,coarse_res);
+            COARSE_RES = std::make_unique<Residual<std::vector<double>>>(A_level.back(),res);
 
             COARSE_SOLVER = std::make_unique<AMG::Solver<std::vector<double>>>((*iterations.back()),(*COARSE_RES),2000,1.e-1,1);
         }
@@ -610,6 +609,7 @@ class SawtoothMGIteration{
 
             err * (*COARSE_SOLVER) * (*COARSE_RES);
             std::cout<<"Achieved residual on coarse grid: "<<COARSE_RES->Norm()<<std::endl;
+
 
             for(size_t j = A_level.size() - 1; j > 0; --j){
                 err * (*interpolators[j-1]);
