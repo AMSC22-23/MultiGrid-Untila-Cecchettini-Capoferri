@@ -211,7 +211,7 @@ class DataVector{
         std::vector<T> m_vec;
 };
 
-
+/*
 // un risolutore temporaneo
 
 template<class Vector>
@@ -308,11 +308,11 @@ double norm(Vector &u, PoissonMatrix<double> &A){
     return sqrt(sum);
 }
 
-
+*/
 
 // TODO: comment
 template<class Vector>
-class Iteration{
+class SmootherClass{
     protected:
         //Vector &b; // Ax = b
     public:
@@ -320,7 +320,7 @@ class Iteration{
 
         virtual void apply_iteration_to_vec(std::vector<double> &sol) const = 0;
 
-        inline friend std::vector<double>& operator*(std::vector<double> &x_k, const Iteration &B)
+        inline friend std::vector<double>& operator*(std::vector<double> &x_k, const SmootherClass &B)
         {
             B.apply_iteration_to_vec(x_k);
             return x_k;
@@ -335,7 +335,7 @@ class Iteration{
 
 
 template<class Vector>
-class Gauss_Siedel_iteration : public Iteration<Vector>{
+class Gauss_Siedel_iteration : public SmootherClass<Vector>{
     private:    
         PoissonMatrix<double> &m_A;
         Vector &b; // Ax = b
@@ -367,7 +367,7 @@ class Gauss_Siedel_iteration : public Iteration<Vector>{
 };
 
 template<class Vector>
-class Jacobi_iteration : public Iteration<Vector>{
+class Jacobi_iteration : public SmootherClass<Vector>{
     private:    
         PoissonMatrix<double> &m_A;
         Vector &b; // Ax = b
@@ -477,7 +477,7 @@ template<class Vector>
 class Solver{
 
     private:
-        Iteration<Vector> &m_it;
+        SmootherClass<Vector> &m_it;
         Residual<Vector> &m_res;
         size_t m_maxit;
         double m_tol;
@@ -485,7 +485,7 @@ class Solver{
         int m_step;
 
     public:
-        Solver(Iteration<Vector> &it,Residual<Vector> &res, size_t maxit, double tol, int step) : m_it(it), m_res(res), m_maxit(maxit), m_tol(tol), m_step(step) {};
+        Solver(SmootherClass<Vector> &it,Residual<Vector> &res, size_t maxit, double tol, int step) : m_it(it), m_res(res), m_maxit(maxit), m_tol(tol), m_step(step) {};
 
         void Solve (std::vector<double> &x_k){
             size_t counter = m_maxit;
@@ -569,14 +569,14 @@ class SawtoothMGIteration{
         std::vector<double> err;
         std::vector<double> coarse_res;
 
-        std::vector<std::unique_ptr<Iteration<std::vector<double>>>> iterations;
+        std::vector<std::unique_ptr<SmootherClass<std::vector<double>>>> iterations;
         std::vector<std::unique_ptr<InterpolationClass>> interpolators;
 
         std::unique_ptr<Residual<Vector>> RES;
         std::unique_ptr<Residual<std::vector<double>>> COARSE_RES;
 
         std::unique_ptr<Solver<std::vector<double>>> COARSE_SOLVER;
-        int nu = 10;
+        int nu = 5;
 
         //std::vector<int> &nu;
 
@@ -600,7 +600,7 @@ class SawtoothMGIteration{
             RES = std::make_unique<Residual<Vector>>(A_level.at(0),b,res);
             COARSE_RES = std::make_unique<Residual<std::vector<double>>>(A_level.back(),res,coarse_res);
 
-            COARSE_SOLVER = std::make_unique<AMG::Solver<std::vector<double>>>((*iterations.back()),(*COARSE_RES),2000,1.e-4,1);
+            COARSE_SOLVER = std::make_unique<AMG::Solver<std::vector<double>>>((*iterations.back()),(*COARSE_RES),2000,1.e-1,1);
         }
 
 
