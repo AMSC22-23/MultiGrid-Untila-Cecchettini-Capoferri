@@ -3,6 +3,8 @@
 
 #include "main.hpp"
 
+
+namespace MultiGrid {
 // TODO: comment 
 template<typename T>
 class PoissonMatrix{
@@ -72,5 +74,6 @@ class DataVector{
 
 };
 
+};
 
 #endif

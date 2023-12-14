@@ -3,6 +3,9 @@
 
 #include "main.hpp"
 
+
+namespace MultiGrid {
+
 using namespace std;
 
 class Domain{
@@ -86,5 +89,8 @@ class SquareDomain: public Domain{
         ~SquareDomain() = default;
 
 };
+
+};
+
 
 #endif

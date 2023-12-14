@@ -1,7 +1,10 @@
+#ifndef MULTIGRID_H
+#define MULTIGRID_H
+
 #include "main.hpp"
 
 
-
+namespace MultiGrid {
 class InterpolationClass{
     private:
         PoissonMatrix<double> &m_A_inf, &m_A_sup;
@@ -76,3 +79,7 @@ class SawtoothMGIteration{
         ~SawtoothMGIteration(){
         }
 };
+
+};
+
+#endif

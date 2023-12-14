@@ -1,5 +1,7 @@
 #include "solver.hpp"
 
+using namespace MultiGrid;
+
 
 template<class Vector>
 void Gauss_Siedel_iteration::apply_iteration_to_vec(std::vector<double> &sol) const override{

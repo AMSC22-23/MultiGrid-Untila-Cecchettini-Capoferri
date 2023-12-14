@@ -1,4 +1,10 @@
+#ifndef SOLVER_H
+#define SOLVER_H
+
 #include "main.hpp"
+
+
+namespace MultiGrid {
 
 // TODO: specific of what class does
 template<class Vector>
@@ -110,3 +116,6 @@ class Residual{
         }
     
 };
+
+};
+#endif

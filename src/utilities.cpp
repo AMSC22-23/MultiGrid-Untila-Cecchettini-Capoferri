@@ -2,7 +2,7 @@
 
 using namespace std;
 
-using namespace UTL;
+using namespace MultiGrid;
 
 void Initialization_for_N(int argc, char** argv, size_t &N, double alpha){
     string nn = "-n";

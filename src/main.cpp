@@ -18,21 +18,21 @@ int main(int argc, char** argv)
     std::vector<double> hist;
 
     //Let's define the domains on the three levels
-    AMG::SquareDomain dominio(size,width,0);
-    AMG::SquareDomain dominio_2h(dominio);
-    AMG::SquareDomain dominio_4h(dominio_2h);
-    AMG::SquareDomain dominio_8h(dominio_4h);
-    AMG::SquareDomain dominio_16h(dominio_8h);
+    MultiGrid::SquareDomain dominio(size,width,0);
+    MultiGrid::SquareDomain dominio_2h(dominio);
+    MultiGrid::SquareDomain dominio_4h(dominio_2h);
+    MultiGrid::SquareDomain dominio_8h(dominio_4h);
+    MultiGrid::SquareDomain dominio_16h(dominio_8h);
 
 
     //Let's create the matrices
-    AMG::PoissonMatrix<double> A(dominio,alpha);
-    AMG::PoissonMatrix<double> A_2h(dominio_2h,alpha);
-    AMG::PoissonMatrix<double> A_4h(dominio_4h,alpha);
-    AMG::PoissonMatrix<double> A_8h(dominio_8h,alpha);
-    AMG::PoissonMatrix<double> A_16h(dominio_16h,alpha);
+    MultiGrid::PoissonMatrix<double> A(dominio,alpha);
+    MultiGrid::PoissonMatrix<double> A_2h(dominio_2h,alpha);
+    MultiGrid::PoissonMatrix<double> A_4h(dominio_4h,alpha);
+    MultiGrid::PoissonMatrix<double> A_8h(dominio_8h,alpha);
+    MultiGrid::PoissonMatrix<double> A_16h(dominio_16h,alpha);
 
-    std::vector<AMG::PoissonMatrix<double>> matrici;
+    std::vector<MultiGrid::PoissonMatrix<double>> matrici;
     matrici.push_back(A);
     matrici.push_back(A_2h);
     matrici.push_back(A_4h);
@@ -40,7 +40,7 @@ int main(int argc, char** argv)
     matrici.push_back(A_16h);
     
     //Now we need to create the known vector
-    AMG::DataVector<double> fvec(dominio, f, g);
+    MultiGrid::DataVector<double> fvec(dominio, f, g);
 
     
     //Let's create the solution vector and ine for the residual (and for the error)
@@ -48,8 +48,8 @@ int main(int argc, char** argv)
     std::vector<double> res(u.size(),0.);
     
 
-    AMG::SawtoothMGIteration<AMG::DataVector<double>,AMG::Gauss_Siedel_iteration<std::vector<double>>> MG(matrici,fvec);
-    AMG::Residual<AMG::DataVector<double>> RES(matrici[0],fvec,res);
+    MultiGrid::SawtoothMGIteration<MultiGrid::DataVector<double>,MultiGrid::Gauss_Siedel_iteration<std::vector<double>>> MG(matrici,fvec);
+    MultiGrid::Residual<MultiGrid::DataVector<double>> RES(matrici[0],fvec,res);
 
     u * RES;
     hist.push_back(RES.Norm());

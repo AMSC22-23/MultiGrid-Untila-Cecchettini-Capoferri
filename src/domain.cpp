@@ -1,5 +1,6 @@
 #include "domain.hpp"
 
+using namespace MultiGrid;
 
 const std::vector<size_t> & SquareDomain::inRowConnections(const size_t l) const override{
     auto equivalent_l = mask(l);

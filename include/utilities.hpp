@@ -4,7 +4,7 @@
 #include "main.hpp"
 
 
-namespace UTL
+namespace MultiGrid
 {
     // TODO: Spiegazione funzionalità metodo
     void Initialization_for_N(int argc, char** argv, unsigned int &N){}
@@ -27,4 +27,4 @@ namespace UTL
     }
 } // namespace UTL
 
-
+#endif

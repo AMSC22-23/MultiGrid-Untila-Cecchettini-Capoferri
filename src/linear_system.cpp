@@ -1,6 +1,6 @@
 #include "linear_system.hpp"
 
-using namespace AMG;
+using namespace MultiGrid;
 
 using namespace std;
 
