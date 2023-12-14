@@ -21,3 +21,4 @@
 
 // define default discretization for our problem
 #define DEFAULT_N 100
+#define DEFAULT_ALPHA 1.0

@@ -4,8 +4,9 @@ using namespace std;
 
 using namespace UTL;
 
-void Initialization_for_N(int argc, char** argv, unsigned int &N){
+void Initialization_for_N(int argc, char** argv, size_t &N, double alpha){
     string nn = "-n";
+    string aa = "-a";
 
     if(argc < 2) cout<<"Inserted by default N = "<<DEFAULT_N<<endl;
     else{
@@ -17,6 +18,18 @@ void Initialization_for_N(int argc, char** argv, unsigned int &N){
                     N = std::stoi(argv[i+1]);
                 }catch(exception){
                     cout<<"Please, insert a number after -n"<<endl<<"Inserted by default N = 100"<<endl;
+                    N = DEFAULT_N;
+                    exit(1);
+                }
+                
+            }
+            else if(aa.compare(argv[i]) == 0 && ( i+1 < argc ) )
+            {
+                try{
+                    alpha = std::atof(argv[i+1]);
+                }catch(exception){
+                    cout<<"Please, insert a double after -a"<<endl<<"Inserted by default a = 1.0"<<endl;
+                    alpha = DEFAULT_ALPHA;
                     exit(1);
                 }
             }
