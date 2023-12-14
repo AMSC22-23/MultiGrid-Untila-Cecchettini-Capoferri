@@ -44,13 +44,7 @@ std::vector<double> formatVector(std::vector<double> &in, AMG::Domain &domain){
     return temp;
 }
 
-double f(const double x, const double y){
-    //return 0.5;
-    return -5.0 * exp(x) * exp(-2.0 * y);
-    //double k = 50.;
-    //double r = sqrt(x*x + y*y);
-    //return -k*(cos(k * r) / r - k*sin(k * r));
-}
+
 
 double g(const double x, const double y){
     //return 0.;

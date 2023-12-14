@@ -1,5 +1,5 @@
-#ifndef CLASSES_H
-#define CLASSES_H
+#ifndef DOMAIN_H
+#define DOMAIN_H
 
 #include <tuple>
 #include <vector>
@@ -7,7 +7,7 @@
 
 using namespace std;
 
-namespace AMG{
+namespace DMN{
 
 class Domain{
     public:
