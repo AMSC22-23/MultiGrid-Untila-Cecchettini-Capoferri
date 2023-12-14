@@ -5,8 +5,6 @@
 
 using namespace std;
 
-namespace DMN{
-
 class Domain{
     public:
         virtual std::tuple<double, double> coord(const size_t i, const size_t j) const = 0;
@@ -88,7 +86,5 @@ class SquareDomain: public Domain{
         ~SquareDomain() = default;
 
 };
-
-}
 
 #endif

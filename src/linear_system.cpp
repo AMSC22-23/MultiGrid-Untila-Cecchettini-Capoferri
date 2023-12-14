@@ -24,6 +24,5 @@ const T PoissonMatrix<T>::coeffRef(const size_t i, const size_t j){
     if((abs(k_i - k_j) == step) || (abs(l_i - l_j) == step))
         return - m_const_alfa / k;
     else
-        return 0.;
-    
+        return 0.; 
 }

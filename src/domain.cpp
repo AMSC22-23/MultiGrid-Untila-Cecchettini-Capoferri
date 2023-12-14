@@ -1,7 +1,5 @@
 #include "domain.hpp"
 
-using namespace AMG;
-
 
 const std::vector<size_t> & SquareDomain::inRowConnections(const size_t l) const override{
     auto equivalent_l = mask(l);
