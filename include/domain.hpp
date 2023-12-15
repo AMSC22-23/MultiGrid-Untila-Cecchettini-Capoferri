@@ -18,10 +18,11 @@
 // TODO: spiegazione cosa fa
 #include "linear_system.hpp"
 // TODO: spiegazione cosa fa
-#include "domain.hpp"
-namespace MultiGrid {
 
 using namespace std;
+
+
+namespace MultiGrid {
 
 class Domain{
     public:
@@ -91,10 +92,10 @@ class SquareDomain: public Domain{
             return step * (l / width) * m_size + step * (l % width);
         }
 
-        inline size_t getWidth() const override{ return width; }
+        inline const size_t getWidth() const override{ return width; }
 
-        inline size_t numBoundaryNodes() const override{return width * 4 - 4;}
-        inline size_t numConnections() const override{ return (4 * (width * width - numBoundaryNodes())); }
+        inline const size_t numBoundaryNodes() const override{return width * 4 - 4;}
+        inline const size_t numConnections() const override{ return (4 * (width * width - numBoundaryNodes())); }
         
         inline const size_t N() const override{return width * width;}
         inline const double h() const override{return m_h * step;}
@@ -106,6 +107,5 @@ class SquareDomain: public Domain{
 };
 
 };
-
 
 #endif
