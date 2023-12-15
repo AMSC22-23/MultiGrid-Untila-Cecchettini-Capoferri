@@ -3,23 +3,23 @@
 #include <fstream>
 #include <cmath>
 #include <memory>
-#include "classes.hpp"
-#include "utils.hpp"
+#include "./include/allClasses.hpp"
+
 
 
 
 
 double f(const double x, const double y){
-    return 0.5;
-    //return -5.0 * exp(x) * exp(-2.0 * y);
+    //return 0.5;
+    return -5.0 * exp(x) * exp(-2.0 * y);
     //double k = 50.;
     //double r = sqrt(x*x + y*y);
     //return -k*(cos(k * r) / r - k*sin(k * r));
 }
 
 double g(const double x, const double y){
-    return 0.;
-    //return exp(x) * exp(-2.0 * y);
+    //return 0.;
+    return exp(x) * exp(-2.0 * y);
     //return sin(50. * sqrt(x * x + y * y));
 }
 
@@ -79,9 +79,8 @@ int main(int argc, char** argv){
         hist.push_back(RES.Norm());
     }
     
-    using namespace Utils;
-    saveVectorOnFile(hist,"MGGS4.txt");
-    saveVectorOnFile(u,"x.mtx");
+    Utils::saveVectorOnFile(hist,"MGGS4.txt");
+    Utils::saveVectorOnFile(u,"x.mtx");
 
     return 0;
 }

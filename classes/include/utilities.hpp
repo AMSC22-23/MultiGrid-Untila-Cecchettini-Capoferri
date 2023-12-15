@@ -4,7 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include "./include/allClasses.hpp"
+#include "allClasses.hpp"
 
 namespace Utils{
 
