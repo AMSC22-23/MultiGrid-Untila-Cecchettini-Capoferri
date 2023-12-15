@@ -7,6 +7,8 @@
 #include <functional>
 #include <numeric>
 #include <memory>
+#include <math.h>
+
 
 // TODO: spiegazione cosa fa
 #include "multigrid.hpp"
@@ -16,8 +18,6 @@
 #include "solver.hpp"
 // TODO: spiegazione cosa fa
 #include "utilities.hpp"
-// TODO: spiegazione cosa fa
-#include "linear_system.hpp"
 // TODO: spiegazione cosa fa
 #include "domain.hpp"
 

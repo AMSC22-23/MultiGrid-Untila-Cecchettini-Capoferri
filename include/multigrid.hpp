@@ -7,8 +7,6 @@
 #include <numeric>
 #include <memory>
 
-// TODO: spiegazione cosa fa
-#include "multigrid.hpp"
 
 // TODO: spiegazione cosa fa
 

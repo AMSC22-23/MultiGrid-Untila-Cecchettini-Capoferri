@@ -7,18 +7,17 @@
 #include <numeric>
 #include <memory>
 
+
+#include "linear_system.hpp"
+// TODO: spiegazione cosa fa
+#include "domain.hpp"
 // TODO: spiegazione cosa fa
 #include "multigrid.hpp"
 
 // TODO: spiegazione cosa fa
-
-#include "solver.hpp"
-// TODO: spiegazione cosa fa
 #include "utilities.hpp"
 // TODO: spiegazione cosa fa
-#include "linear_system.hpp"
-// TODO: spiegazione cosa fa
-#include "domain.hpp"
+
 
 
 namespace MultiGrid {

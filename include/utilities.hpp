@@ -7,6 +7,7 @@
 #include <functional>
 #include <numeric>
 #include <memory>
+#include <math.h>
 
 // TODO: spiegazione cosa fa
 #include "multigrid.hpp"
@@ -20,6 +21,7 @@
 #include "domain.hpp"
 
 
+namespace MultiGrid{
     // TODO: Spiegazione funzionalità metodo
     void Initialization_for_N(int argc, char** argv, size_t &N, double &alpha);
 
@@ -40,5 +42,7 @@
         return -5.0 * exp(x) * exp(-2.0 * y);
     }
  // namespace UTL
+
+};
 
 #endif
