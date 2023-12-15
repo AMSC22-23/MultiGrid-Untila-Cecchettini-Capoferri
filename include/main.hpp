@@ -1,3 +1,6 @@
+#ifndef MAIN_H
+#define MAIN_H
+
 #include <iostream>
 #include <vector>
 #include <tuple>
@@ -22,3 +25,5 @@
 // define default discretization for our problem
 #define DEFAULT_N 100
 #define DEFAULT_ALPHA 1.0
+
+#endif

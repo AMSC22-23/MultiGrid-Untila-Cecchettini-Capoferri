@@ -1,9 +1,24 @@
 #ifndef DOMAIN_H
 #define DOMAIN_H
+#include <iostream>
+#include <vector>
+#include <tuple>
+#include <functional>
+#include <numeric>
+#include <memory>
 
-#include "main.hpp"
+// TODO: spiegazione cosa fa
+#include "multigrid.hpp"
 
+// TODO: spiegazione cosa fa
 
+#include "solver.hpp"
+// TODO: spiegazione cosa fa
+#include "utilities.hpp"
+// TODO: spiegazione cosa fa
+#include "linear_system.hpp"
+// TODO: spiegazione cosa fa
+#include "domain.hpp"
 namespace MultiGrid {
 
 using namespace std;

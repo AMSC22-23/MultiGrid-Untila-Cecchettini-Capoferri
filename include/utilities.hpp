@@ -1,24 +1,41 @@
 #ifndef UTILITIES_H
 #define UTILITIES_H
 
-#include "main.hpp"
+#include <iostream>
+#include <vector>
+#include <tuple>
+#include <functional>
+#include <numeric>
+#include <memory>
 
+// TODO: spiegazione cosa fa
+#include "multigrid.hpp"
+
+// TODO: spiegazione cosa fa
+
+#include "solver.hpp"
+// TODO: spiegazione cosa fa
+#include "utilities.hpp"
+// TODO: spiegazione cosa fa
+#include "linear_system.hpp"
+// TODO: spiegazione cosa fa
+#include "domain.hpp"
 
 namespace MultiGrid
 {
     // TODO: Spiegazione funzionalità metodo
-    void Initialization_for_N(int argc, char** argv, unsigned int &N){}
+    void Initialization_for_N(int argc, char** argv, unsigned int &N);
 
     // TODO: Spiegazione funzionalità metodo
     template<class SpMat>
-    void saveMatrixOnFile(SpMat A, std::string fileName){}
+    void saveMatrixOnFile(SpMat A, std::string fileName);
 
     // TODO: Spiegazione funzionalità metodo
     template<class Vector>
-    void saveVectorOnFile(Vector f, std::string fileName){}
+    void saveVectorOnFile(Vector f, std::string fileName);
 
     // TODO: Spiegazione funzionalità metodo
-    std::vector<double> formatVector(std::vector<double> &in, AMG::Domain &domain){}
+    std::vector<double> formatVector(std::vector<double> &in, AMG::Domain &domain);
 
 
     // TODO: Spiegazione funzionalità metodo
