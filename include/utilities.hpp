@@ -8,6 +8,7 @@
 #include <numeric>
 #include <memory>
 #include <math.h>
+#include <fstream>
 
 // TODO: spiegazione cosa fa
 #include "multigrid.hpp"

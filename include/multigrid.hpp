@@ -81,7 +81,7 @@ class SawtoothMGIteration{
             RES = std::make_unique<Residual<Vector>>(A_level.at(0),b,res);
             COARSE_RES = std::make_unique<Residual<std::vector<double>>>(A_level.back(),res);
 
-            COARSE_SOLVER = std::make_unique<AMG::Solver<std::vector<double>>>((*iterations.back()),(*COARSE_RES),2000,1.e-1,1);
+            COARSE_SOLVER = std::make_unique<Solver<std::vector<double>>>((*iterations.back()),(*COARSE_RES),2000,1.e-1,1);
         }
 
 

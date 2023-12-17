@@ -69,7 +69,7 @@ void saveVectorOnFile(Vector f, std::string fileName){
     file.close();
 }
 
-std::vector<double> formatVector(std::vector<double> &in, AMG::Domain &domain){
+std::vector<double> formatVector(std::vector<double> &in, Domain &domain){
     std::vector<double> temp;
     for(size_t i = 0; i < domain.N(); i++){
         temp.push_back(in[domain.mask(i)]);

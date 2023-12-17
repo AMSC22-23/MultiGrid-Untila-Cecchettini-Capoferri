@@ -33,8 +33,7 @@ void InterpolationClass::interpolate(std::vector<double> &vec){
 
 
 template<class Vector, class Smoother>
-
-void SawtoothMGIteration::apply_iteration_to_vec(std::vector<double> &sol) {
+void SawtoothMGIteration<Vector, Smoother>::apply_iteration_to_vec(std::vector<double> &sol) {
     sol * (*RES);
     COARSE_RES->refresh_normalization_constant();
 
