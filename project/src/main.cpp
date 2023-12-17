@@ -3,24 +3,23 @@
 #include <fstream>
 #include <cmath>
 #include <memory>
-#include "./include/allClasses.hpp"
-
+#include "allClasses.hpp"
 
 
 
 
 double f(const double x, const double y){
     //return 0.5;
-    return -5.0 * exp(x) * exp(-2.0 * y);
-    //double k = 50.;
-    //double r = sqrt(x*x + y*y);
-    //return -k*(cos(k * r) / r - k*sin(k * r));
+    //return -5.0 * exp(x) * exp(-2.0 * y);
+    double k = 2.;
+    double r = sqrt(x*x + y*y);
+    return -k*(cos(k * r) / r - k*sin(k * r));
 }
 
 double g(const double x, const double y){
     //return 0.;
-    return exp(x) * exp(-2.0 * y);
-    //return sin(50. * sqrt(x * x + y * y));
+    //return exp(x) * exp(-2.0 * y);
+    return sin(2. * sqrt(x * x + y * y));
 }
 
 
@@ -66,6 +65,7 @@ int main(int argc, char** argv){
 
     AMG::SawtoothMGIteration<AMG::DataVector<double>,AMG::Gauss_Siedel_iteration<std::vector<double>>> MG(matrici,fvec);
     AMG::Residual<AMG::DataVector<double>> RES(matrici[0],fvec,res);
+    AMG::Gauss_Siedel_iteration<AMG::DataVector<double>> GS(matrici.front(),fvec);
 
     u * RES;
     hist.push_back(RES.Norm());

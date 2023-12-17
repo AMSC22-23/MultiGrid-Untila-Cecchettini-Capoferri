@@ -5,16 +5,19 @@
 #include "allClasses.hpp"
 
 
-
 namespace AMG{
 
 
 template<typename T>
 class PoissonMatrix{
     public:
+        //PoissonMatrix(Domain &domain, const T const_alfa);
+        
         PoissonMatrix(Domain &domain, const T const_alfa):m_domain(domain), m_size(domain.N()), m_const_alfa(const_alfa),
         k(domain.h() * domain.h()){}
-
+        
+        //const T coeffRef(const size_t i, const size_t j);
+        
         const T coeffRef(const size_t i, const size_t j){
             //these are the entries of the matrix relative to the boundary conditions; we want them to not be changed
             //by the solvers, so they will be the only entries in the whole row
@@ -37,6 +40,7 @@ class PoissonMatrix{
                 return 0.;
             
         }
+        
 		
 		const std::vector<size_t> &nonZerosInRow(const size_t row){
 			return m_domain.inRowConnections(row);

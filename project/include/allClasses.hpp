@@ -1,6 +1,8 @@
 #ifndef ALL_H
 #define ALL_H
 
+#include <cmath>
+
 #include "utilities.hpp"
 #include "domain.hpp"
 #include "linearSystem.hpp"

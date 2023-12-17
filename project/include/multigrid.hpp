@@ -21,7 +21,8 @@ class InterpolationClass{
                 if(! m_A_sup.isOnBoundary(index3)){
                     vec[index3] = 0.5 * (vec[index1] + vec[index2]);
                 }else{
-                    continue;
+                    vec[index3] = 0.5 * (vec[index1] + vec[index2]);
+                    //continue;
                 }
             }
             
@@ -31,7 +32,8 @@ class InterpolationClass{
                     if(! m_A_sup.isOnBoundary(m_A_sup.mask(j+1)))
                         vec[m_A_sup.mask(j + 1)] = 0.5 * (vec[m_A_sup.mask(j)] + vec[m_A_sup.mask(j + 2)]);
                     else
-                        continue;
+                        vec[m_A_sup.mask(j + 1)] = 0.5 * (vec[m_A_sup.mask(j)] + vec[m_A_sup.mask(j + 2)]);
+                        //continue;
                 }
             }
         }
@@ -62,7 +64,7 @@ class SawtoothMGIteration{
         std::unique_ptr<Residual<std::vector<double>>> COARSE_RES;
 
         std::unique_ptr<Solver<std::vector<double>>> COARSE_SOLVER;
-        int nu = 20;
+        int nu = 5;
         //std::vector<int> &nu;
 
     public:
@@ -168,7 +170,7 @@ class SawtoothMGIteration{
             RES = std::make_unique<Residual<Vector>>(A_level.at(0),b,res);
             COARSE_RES = std::make_unique<Residual<std::vector<double>>>(A_level.back(),res);
 
-            COARSE_SOLVER = std::make_unique<AMG::Solver<std::vector<double>>>((*iterations.back()),(*COARSE_RES),2000,0.5,1);
+            COARSE_SOLVER = std::make_unique<AMG::Solver<std::vector<double>>>((*iterations.back()),(*COARSE_RES),2000,0.6,1);
 
             //for the gif
             temp = std::vector<double>(b.size());
