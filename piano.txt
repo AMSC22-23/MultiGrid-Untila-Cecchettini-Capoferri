@@ -1,0 +1,50 @@
+domain.hpp:------------------------------->domain.cpp
+    domain
+    squaredomain
+   
+
+
+Linearsystem.hpp:------------------------->Linearsystem.cpp
+     poissonmatrix
+     datavector
+     
+Solver.hpp-------------------------------->Solver.cpp
+    iteration
+    gaussaidel
+    jacobi
+    solver
+
+multigrid--------------------------------->multigrid.cpp
+    multigrid
+    interpolation
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

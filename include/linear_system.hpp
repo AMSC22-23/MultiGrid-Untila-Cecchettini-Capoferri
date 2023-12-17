@@ -1,6 +1,7 @@
 #ifndef LS_H
 #define LS_H
 
+<<<<<<< HEAD
 
 #include "allIncludes.hpp"
 
@@ -8,6 +9,30 @@
 namespace MultiGrid{
 
 
+=======
+#include <iostream>
+#include <vector>
+#include <tuple>
+#include <functional>
+#include <numeric>
+#include <memory>
+#include <math.h>
+
+
+// TODO: spiegazione cosa fa
+#include "multigrid.hpp"
+
+// TODO: spiegazione cosa fa
+
+#include "solver.hpp"
+// TODO: spiegazione cosa fa
+#include "utilities.hpp"
+// TODO: spiegazione cosa fa
+#include "domain.hpp"
+
+namespace MultiGrid {
+// TODO: comment 
+>>>>>>> 93daadda06d78812819edd8bb3abfea81b24b6fb
 template<typename T>
 class PoissonMatrix{
     public:
@@ -42,6 +67,7 @@ class PoissonMatrix{
         }
         
 		
+<<<<<<< HEAD
 		const std::vector<size_t> &nonZerosInRow(const size_t row){
 			return m_domain.inRowConnections(row);
 		}
@@ -59,6 +85,25 @@ class PoissonMatrix{
         }
 
         bool isOnBoundary(const size_t l){
+=======
+		inline const std::vector<size_t> &nonZerosInRow(const size_t row){
+			return m_domain.inRowConnections(row);
+		}
+
+        inline const size_t nonZeros(){
+            return m_size + m_domain.numConnections();
+        }
+
+        inline const size_t mask(const size_t l){
+            return m_domain.mask(l);
+        }
+
+        inline size_t getWidth(){
+            return m_domain.getWidth();
+        }
+
+        inline bool isOnBoundary(const size_t l){
+>>>>>>> 93daadda06d78812819edd8bb3abfea81b24b6fb
             return m_domain.isOnBoundary(l);
         }
 
@@ -86,7 +131,6 @@ class DataVector{
                 m_vec.push_back(val);
             }
         }
-       
 
         const T &operator[](const size_t i){
             return m_vec[i];
@@ -97,6 +141,7 @@ class DataVector{
         }
 
         ~DataVector() = default;
+<<<<<<< HEAD
     private:
         Domain &m_domain;
         std::function<T(double,double)> m_f;
@@ -109,5 +154,11 @@ class DataVector{
 
 }
 
+=======
+
+};
+
+};
+>>>>>>> 93daadda06d78812819edd8bb3abfea81b24b6fb
 
 #endif

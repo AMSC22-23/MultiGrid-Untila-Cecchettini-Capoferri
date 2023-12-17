@@ -1,10 +1,36 @@
 #ifndef DOMAIN_H
 #define DOMAIN_H
+<<<<<<< HEAD
 
+=======
+#include <iostream>
+#include <vector>
+#include <tuple>
+#include <functional>
+#include <numeric>
+#include <memory>
+
+// TODO: spiegazione cosa fa
+#include "multigrid.hpp"
+
+// TODO: spiegazione cosa fa
+
+#include "solver.hpp"
+// TODO: spiegazione cosa fa
+#include "utilities.hpp"
+// TODO: spiegazione cosa fa
+#include "linear_system.hpp"
+// TODO: spiegazione cosa fa
+>>>>>>> 93daadda06d78812819edd8bb3abfea81b24b6fb
 
 #include "allIncludes.hpp"
 
+<<<<<<< HEAD
 namespace MultiGrid{
+=======
+
+namespace MultiGrid {
+>>>>>>> 93daadda06d78812819edd8bb3abfea81b24b6fb
 
 class Domain{
     public:
@@ -22,11 +48,15 @@ class Domain{
         virtual const std::vector<size_t> &inRowConnections(const size_t l) = 0;
 
         virtual size_t mask(const size_t l) const = 0;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 93daadda06d78812819edd8bb3abfea81b24b6fb
         virtual const size_t getWidth() const = 0;
 
 		//some useful methods
         virtual const size_t numBoundaryNodes() const = 0;
+<<<<<<< HEAD
 
         virtual const size_t numConnections() const = 0;
 
@@ -34,6 +64,11 @@ class Domain{
 
         virtual const double h() const = 0;
 
+=======
+        virtual const size_t numConnections() const = 0;
+        virtual const size_t N() const = 0;
+        virtual const double h() const = 0;
+>>>>>>> 93daadda06d78812819edd8bb3abfea81b24b6fb
         virtual const size_t getStep() const = 0;
 };
 
@@ -47,6 +82,7 @@ class SquareDomain: public Domain{
         double m_length;
         double m_h;
         std::vector<size_t> m_vec;
+<<<<<<< HEAD
 
     public:
         SquareDomain(const size_t size, const double length, const size_t level);
@@ -54,6 +90,23 @@ class SquareDomain: public Domain{
         SquareDomain(const SquareDomain &dom);
 
         std::tuple<size_t, size_t> meshIdx(size_t l) const override;
+=======
+    
+    public:
+        inline SquareDomain(const size_t size, const double length, const size_t level):m_size(size),step(1) , m_level(level), width(size),
+                            m_length(length), m_h(m_length / (m_size - 1)){
+            m_vec.reserve(5);
+            for(size_t i = 0; i < level; i++){
+                width = (width + 1) / 2;
+                step *= 2;
+            }
+        }
+
+        inline SquareDomain(const SquareDomain &dom):SquareDomain(dom.m_size, dom.m_length, dom.m_level + 1){}
+
+
+        inline std::tuple<size_t, size_t> meshIdx(size_t l) const override{  return {l / m_size, l % m_size}; }
+>>>>>>> 93daadda06d78812819edd8bb3abfea81b24b6fb
 
 		//we could need an operator to get the coordinates of a specific node, for example if we have to map a function on the nodes
         std::tuple<double,double> coord(const size_t i, const size_t j) const override;
@@ -62,6 +115,7 @@ class SquareDomain: public Domain{
 
         const bool isOnBoundary(const size_t l) const override;
 
+<<<<<<< HEAD
         const std::vector<size_t> &inRowConnections(const size_t l) override;
 
         size_t mask(const size_t l) const override;
@@ -77,14 +131,40 @@ class SquareDomain: public Domain{
         const double h() const override;
 
         const size_t getStep() const override;
+=======
+        inline const bool isOnBoundary(const size_t l) const override{
+            auto [i, j] = meshIdx(l);
+            return (((i == 0) || (j == 0) || (i == (m_size-1)) || (j == (m_size-1))) ? true : false);
+        }
+
+        const std::vector<size_t> &inRowConnections(const size_t l) override;
+            
+        inline size_t mask(const size_t l) const override{
+            return step * (l / width) * m_size + step * (l % width);
+        }
+
+        inline const size_t getWidth() const override{ return width; }
+
+        inline const size_t numBoundaryNodes() const override{return width * 4 - 4;}
+        inline const size_t numConnections() const override{ return (4 * (width * width - numBoundaryNodes())); }
+        
+        inline const size_t N() const override{return width * width;}
+        inline const double h() const override{return m_h * step;}
+
+        inline const size_t getStep() const override{return step;}
+>>>>>>> 93daadda06d78812819edd8bb3abfea81b24b6fb
 
         ~SquareDomain() = default;
 
 
 };
 
+<<<<<<< HEAD
 
 }
+=======
+};
+>>>>>>> 93daadda06d78812819edd8bb3abfea81b24b6fb
 
 
 #endif
