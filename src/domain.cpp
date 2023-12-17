@@ -24,12 +24,12 @@ inline std::tuple<double,double> MultiGrid::SquareDomain::operator[](const size_
     return coord(i,j); 
 }
 
-inline const bool MultiGrid::SquareDomain::isOnBoundary(const size_t l) const{
+inline bool MultiGrid::SquareDomain::isOnBoundary(const size_t l) const{
     auto [i, j] = meshIdx(l);
     return (((i == 0) || (j == 0) || (i == (m_size-1)) || (j == (m_size-1))) ? true : false);
 }
 
-inline const std::vector<size_t> &MultiGrid::SquareDomain::inRowConnections(const size_t l){
+inline std::vector<size_t> &MultiGrid::SquareDomain::inRowConnections(const size_t l){
     auto equivalent_l = mask(l);
     if(isOnBoundary(equivalent_l)){
         m_vec = {l};
@@ -43,16 +43,16 @@ inline size_t MultiGrid::SquareDomain::mask(const size_t l) const{
     return step * (l / width) * m_size + step * (l % width);
 }
 
-inline const size_t MultiGrid::SquareDomain::getWidth() const{return width;}
+inline size_t MultiGrid::SquareDomain::getWidth() const{return width;}
 
-inline const size_t MultiGrid::SquareDomain::numBoundaryNodes() const{return width * 4 - 4;}
+inline size_t MultiGrid::SquareDomain::numBoundaryNodes() const{return width * 4 - 4;}
 
-inline const size_t MultiGrid::SquareDomain::numConnections() const{return (4 * (width * width - numBoundaryNodes()));}
+inline size_t MultiGrid::SquareDomain::numConnections() const{return (4 * (width * width - numBoundaryNodes()));}
 
-inline const size_t MultiGrid::SquareDomain::N() const{return width * width;}
+inline size_t MultiGrid::SquareDomain::N() const{return width * width;}
 
-inline const double MultiGrid::SquareDomain::h() const{return m_h * step;}
+inline double MultiGrid::SquareDomain::h() const{return m_h * step;}
 
-inline const size_t MultiGrid::SquareDomain::getStep() const{return step;}
+inline size_t MultiGrid::SquareDomain::getStep() const{return step;}
 
 

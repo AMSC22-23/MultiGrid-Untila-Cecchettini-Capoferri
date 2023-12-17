@@ -18,7 +18,7 @@ class PoissonMatrix{
         
         //const T coeffRef(const size_t i, const size_t j);
         
-        const T coeffRef(const size_t i, const size_t j){
+        T coeffRef(const size_t i, const size_t j){
             //these are the entries of the matrix relative to the boundary conditions; we want them to not be changed
             //by the solvers, so they will be the only entries in the whole row
             if(m_domain.isOnBoundary(m_domain.mask(i)))
@@ -46,15 +46,15 @@ class PoissonMatrix{
 			return m_domain.inRowConnections(row);
 		}
 
-        const size_t nonZeros(){
+        size_t nonZeros(){
             return m_size + m_domain.numConnections();
         }
 
-        const size_t mask(const size_t l){
+        size_t mask(const size_t l){
             return m_domain.mask(l);
         }
 
-        const size_t getWidth(){
+        size_t getWidth(){
             return m_domain.getWidth();
         }
 
@@ -62,8 +62,8 @@ class PoissonMatrix{
             return m_domain.isOnBoundary(l);
         }
 
-        const size_t rows(){return m_size;}
-        const size_t cols(){return m_size;}
+        size_t rows(){return m_size;}
+        size_t cols(){return m_size;}
 
         ~PoissonMatrix() = default;
 
@@ -92,7 +92,7 @@ class DataVector{
             return m_vec[i];
         }
 
-        const size_t size(){
+        size_t size(){
             return m_vec.size();
         }
 
