@@ -1,6 +1,5 @@
 #include "allIncludes.hpp"
 
-<<<<<<< HEAD
 //We need this first constructor to create a domain at a given level
 MultiGrid::SquareDomain::SquareDomain(const size_t size, const double length, const size_t level):m_size(size),step(1) , m_level(level), width(size),
 m_length(length), m_h(m_length / (m_size - 1)){
@@ -31,11 +30,6 @@ inline const bool MultiGrid::SquareDomain::isOnBoundary(const size_t l) const{
 }
 
 inline const std::vector<size_t> &MultiGrid::SquareDomain::inRowConnections(const size_t l){
-=======
-using namespace MultiGrid;
-
-const std::vector<size_t> & SquareDomain::inRowConnections(const size_t l) const override{
->>>>>>> 93daadda06d78812819edd8bb3abfea81b24b6fb
     auto equivalent_l = mask(l);
     if(isOnBoundary(equivalent_l)){
         m_vec = {l};
@@ -43,7 +37,6 @@ const std::vector<size_t> & SquareDomain::inRowConnections(const size_t l) const
         m_vec = {l - width, l - 1, l, l + 1, l + width};
     }
     return m_vec;
-<<<<<<< HEAD
 }
 
 inline size_t MultiGrid::SquareDomain::mask(const size_t l) const{
@@ -63,6 +56,3 @@ inline const double MultiGrid::SquareDomain::h() const{return m_h * step;}
 inline const size_t MultiGrid::SquareDomain::getStep() const{return step;}
 
 
-=======
-}
->>>>>>> 93daadda06d78812819edd8bb3abfea81b24b6fb
