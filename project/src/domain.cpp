@@ -13,14 +13,11 @@ m_length(length), m_h(m_length / (m_size - 1)){
 //This second constructor creates a subdomain of the given domain, but goes down by a level
 AMG::SquareDomain::SquareDomain(const SquareDomain &dom):SquareDomain(dom.m_size, dom.m_length, dom.m_level + 1){}
 
-
 inline std::tuple<size_t, size_t> AMG::SquareDomain::meshIdx(size_t l) const{
     return {l / m_size, l % m_size};
 }
 
 inline std::tuple<double,double> AMG::SquareDomain::coord(const size_t i, const size_t j) const {return {j* m_h, m_length - i * m_h};}
-
-
 
 inline std::tuple<double,double> AMG::SquareDomain::operator[](const size_t l) const{
     auto [i, j] = meshIdx(mask(l));
@@ -32,7 +29,6 @@ inline const bool AMG::SquareDomain::isOnBoundary(const size_t l) const{
     return (((i == 0) || (j == 0) || (i == (m_size-1)) || (j == (m_size-1))) ? true : false);
 }
 
-
 inline const std::vector<size_t> &AMG::SquareDomain::inRowConnections(const size_t l){
     auto equivalent_l = mask(l);
     if(isOnBoundary(equivalent_l)){
@@ -43,15 +39,11 @@ inline const std::vector<size_t> &AMG::SquareDomain::inRowConnections(const size
     return m_vec;
 }
 
-
-
 inline size_t AMG::SquareDomain::mask(const size_t l) const{
     return step * (l / width) * m_size + step * (l % width);
 }
 
-
 inline const size_t AMG::SquareDomain::getWidth() const{return width;}
-
 
 inline const size_t AMG::SquareDomain::numBoundaryNodes() const{return width * 4 - 4;}
 

@@ -2,11 +2,6 @@
 #define DOMAIN_H
 
 
-#include <tuple>
-#include <vector>
-#include <functional>
-#include <numeric>
-#include <memory>
 #include "allClasses.hpp"
 
 namespace AMG{

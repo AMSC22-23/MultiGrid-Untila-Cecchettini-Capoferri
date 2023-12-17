@@ -1,17 +1,10 @@
-#include <iostream>
-#include <tuple>
-#include <fstream>
-#include <cmath>
-#include <memory>
 #include "allClasses.hpp"
-
-
 
 
 double f(const double x, const double y){
     //return 0.5;
     //return -5.0 * exp(x) * exp(-2.0 * y);
-    double k = 2.;
+    double k = 50.;
     double r = sqrt(x*x + y*y);
     return -k*(cos(k * r) / r - k*sin(k * r));
 }
@@ -19,7 +12,7 @@ double f(const double x, const double y){
 double g(const double x, const double y){
     //return 0.;
     //return exp(x) * exp(-2.0 * y);
-    return sin(2. * sqrt(x * x + y * y));
+    return sin(50. * sqrt(x * x + y * y));
 }
 
 
@@ -32,7 +25,7 @@ int main(int argc, char** argv){
     //Create a vector to store residuals norm to plot them
     std::vector<double> hist;
 
-    //Let's define the domains on the three levels
+    //Let's define the domains on all levels
     AMG::SquareDomain dominio(size,width,0);
     AMG::SquareDomain dominio_2h(dominio);
     AMG::SquareDomain dominio_4h(dominio_2h);
@@ -58,18 +51,17 @@ int main(int argc, char** argv){
     AMG::DataVector<double> fvec(dominio, f, g);
 
     
-    //Let's create the solution vector and ine for the residual (and for the error)
+    //Let's create the solution vector and one for the residual
     std::vector<double> u(A.rows(),0.);
     std::vector<double> res(u.size(),0.);
     
 
     AMG::SawtoothMGIteration<AMG::DataVector<double>,AMG::Gauss_Siedel_iteration<std::vector<double>>> MG(matrici,fvec);
     AMG::Residual<AMG::DataVector<double>> RES(matrici[0],fvec,res);
-    AMG::Gauss_Siedel_iteration<AMG::DataVector<double>> GS(matrici.front(),fvec);
+    //AMG::Gauss_Siedel_iteration<AMG::DataVector<double>> MG(matrici.front(),fvec);
 
     u * RES;
     hist.push_back(RES.Norm());
-
     
 
     

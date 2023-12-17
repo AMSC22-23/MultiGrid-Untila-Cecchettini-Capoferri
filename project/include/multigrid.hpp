@@ -10,8 +10,12 @@ class InterpolationClass{
         PoissonMatrix<double> &m_A_inf, &m_A_sup;
 
     public:
-        InterpolationClass(PoissonMatrix<double> &A_inf, PoissonMatrix<double> &A_sup): m_A_inf(A_inf), m_A_sup(A_sup){}
+        //InterpolationClass(PoissonMatrix<double> &A_inf, PoissonMatrix<double> &A_sup): m_A_inf(A_inf), m_A_sup(A_sup){}
+        InterpolationClass(PoissonMatrix<double> &A_inf, PoissonMatrix<double> &A_sup);
 
+
+        void interpolate(std::vector<double> &vec);
+        /*
         void interpolate(std::vector<double> &vec){
             for(size_t i = 0; i < m_A_inf.rows() - m_A_inf.getWidth(); i++){
                 size_t index1 = m_A_inf.mask(i);
@@ -37,6 +41,7 @@ class InterpolationClass{
                 }
             }
         }
+        */
 
         friend std::vector<double>& operator*(std::vector<double> &x_k, InterpolationClass &B)
         {
@@ -65,7 +70,6 @@ class SawtoothMGIteration{
 
         std::unique_ptr<Solver<std::vector<double>>> COARSE_SOLVER;
         int nu = 5;
-        //std::vector<int> &nu;
 
     public:
         SawtoothMGIteration(std::vector<PoissonMatrix<double>> &matrices, Vector &knownVec): A_level(matrices), b(knownVec) {

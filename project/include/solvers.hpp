@@ -8,10 +8,7 @@ namespace AMG{
 
 template<class Vector>
 class SmootherClass{
-    protected:
-        //Vector &b; // Ax = b
     public:
-        //inline Iteration(Vector &sol) : b(sol) {};
 
         virtual void apply_iteration_to_vec(std::vector<double> &sol) const = 0;
 
@@ -19,12 +16,8 @@ class SmootherClass{
         {
             B.apply_iteration_to_vec(x_k);
             return x_k;
-        } // B is equivalent to iteration matrix
+        } // x^(k+1) = x^(k) * B
 
-        //virtual double Res_calc(std::vector<double> &sol) const = 0;
-
-        // return the norm of the residual
-        //virtual double apply_with_residual(std::vector<double> &sol) const = 0;
 };
 
 template<class Vector>
@@ -74,7 +67,6 @@ class Jacobi_iteration : public SmootherClass<Vector>{
             }
             sol=x_new;
         }
-         // TODO implementation
 
 
 // one iteration of GS
@@ -100,12 +92,14 @@ class Residual{
                 norm_of_b += val * val;
             }
         }
+
         Residual(PoissonMatrix<double> &A, Vector &f, std::vector<double> &res): m_A(A), b(f), m_res(&res), saveVector(true), norm_of_b(0.){
             for(size_t i = 0; i < A.rows(); i++){
                 double val = b[A.mask(i)];
                 norm_of_b += val * val;
             }
         }
+
         void refresh_normalization_constant(){
             double k = 0;
             for(size_t i = 0; i < m_A.rows(); i++){
