@@ -3,7 +3,7 @@
 
 AMG::InterpolationClass::InterpolationClass(PoissonMatrix<double> &A_inf, PoissonMatrix<double> &A_sup): m_A_inf(A_inf), m_A_sup(A_sup){}
 
-
+/*
 void AMG::InterpolationClass::interpolate(std::vector<double> &vec){
     for(size_t i = 0; i < m_A_inf.rows() - m_A_inf.getWidth(); i++){
         size_t index1 = m_A_inf.mask(i);
@@ -29,3 +29,4 @@ void AMG::InterpolationClass::interpolate(std::vector<double> &vec){
         }
     }
 }
+*/

@@ -4,7 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${mkEigenInc}"
+                "${mkEigenInc}",
+                "${workspaceFolder}/project/include"
             ],
             "defines": [],
             "compilerPath": "/u/sw/toolchains/gcc-glibc/11.2.0/prefix/bin/gcc",

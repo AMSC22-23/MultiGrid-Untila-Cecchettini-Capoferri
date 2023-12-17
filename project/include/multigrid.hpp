@@ -14,9 +14,9 @@ class InterpolationClass{
         InterpolationClass(PoissonMatrix<double> &A_inf, PoissonMatrix<double> &A_sup);
 
 
-        void interpolate(std::vector<double> &vec);
-        /*
-        void interpolate(std::vector<double> &vec){
+        //void interpolate(std::vector<double> &vec);
+        
+        inline void interpolate(std::vector<double> &vec){
             for(size_t i = 0; i < m_A_inf.rows() - m_A_inf.getWidth(); i++){
                 size_t index1 = m_A_inf.mask(i);
                 size_t index2 = m_A_inf.mask(i + m_A_inf.getWidth());
@@ -41,13 +41,16 @@ class InterpolationClass{
                 }
             }
         }
-        */
+        
 
+        //friend std::vector<double>& operator*(std::vector<double> &x_k, InterpolationClass &B);
+        
         friend std::vector<double>& operator*(std::vector<double> &x_k, InterpolationClass &B)
         {
             B.interpolate(x_k);
             return x_k;
         }
+        
     
 
 };
