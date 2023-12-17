@@ -1,4 +1,4 @@
-#include "System.hpp"
+#include "linear_system.hpp"
 
 //implementation of Gauss-Seidel method
 
