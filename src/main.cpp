@@ -5,29 +5,32 @@
 #include <numeric>
 #include <memory>
 
-// TODO: spiegazione cosa fa
-#include "multigrid.hpp"
-
-// TODO: spiegazione cosa fa
-
-#include "solver.hpp"
-// TODO: spiegazione cosa fa
-#include "utilities.hpp"
-// TODO: spiegazione cosa fa
-#include "linear_system.hpp"
-// TODO: spiegazione cosa fa
-#include "domain.hpp"
+#include "main.hpp"
 
 // to set, for the discretization of the domain, the N: -n number_of_elements
 
 
 using namespace std;
 
+double f(const double x, const double y){
+    //return 0.5;
+    //return -5.0 * exp(x) * exp(-2.0 * y);
+    double k = 2.;
+    double r = sqrt(x*x + y*y);
+    return -k*(cos(k * r) / r - k*sin(k * r));
+}
+
+double g(const double x, const double y){
+    //return 0.;
+    //return exp(x) * exp(-2.0 * y);
+    return sin(2. * sqrt(x * x + y * y));
+}
+
 int main(int argc, char** argv)
 {
     size_t size;
     double alpha; 
-    Initialization_for_N(argc, argv, size, alpha);
+    MultiGrid::Initialization_for_N(argc, argv, size, alpha);
     double width = 1.0;
 
     //Create a vector to store residuals norm to plot them
@@ -80,8 +83,10 @@ int main(int argc, char** argv)
     }
     
     
-    saveVectorOnFile(hist,"MGGS4.txt");
-    saveVectorOnFile(u,"x.mtx");
+    MultiGrid::saveVectorOnFile(hist,"MGGS4.txt");
+    MultiGrid::saveVectorOnFile(u,"x.mtx");
+
+    std::cout<<"Hello";
 
     return 0;
 }
