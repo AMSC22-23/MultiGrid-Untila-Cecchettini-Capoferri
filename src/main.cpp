@@ -1,58 +1,24 @@
 #include "allIncludes.hpp"
 
-// to set, for the discretization of the domain, the N: -n number_of_elements
-
-/*
-void Initialization_for_N(int argc, char** argv, unsigned int &N){
-    string nn = "-n";
-
-    if(argc < 2) cout<<"Inserted by default N = "<<DEFAULT_N<<endl;
-    else{
-        for(int i= 0; i < argc; i++)
-        {
-            if(nn.compare(argv[i]) == 0 && ( i+1 < argc ) )
-            {
-                try{
-                    N = stoi(argv[i+1]);
-                }catch(exception){
-                    cout<<"Please, insert a number after -n"<<endl<<"Inserted by default N = 100"<<endl;
-                    exit(1);
-                }
-            }
-            else if(nn.compare(argv[i]) == 0 && ( i+1 == argc )) {
-                cout<<"Please, insert a number after -n"<<endl<<"Inserted by default N = 100"<<endl;
-                exit(1);
-            }
-        } 
-    } 
-}
-
-using namespace std*/
-
-
+// definition of solution function 
 double f(const double x, const double y){
-    //return 0.5;
     return -5.0 * exp(x) * exp(-2.0 * y);
-    //double k = 50.;
-    //double r = sqrt(x*x + y*y);
-    //return -k*(cos(k * r) / r - k*sin(k * r));
 }
 
+// definition of border solution function
 double g(const double x, const double y){
-    //return 0.;
     return exp(x) * exp(-2.0 * y);
-    //return sin(50. * sqrt(x * x + y * y));
 }
 
 
 int main(int argc, char** argv)
 {
-    //unsigned int N;
-    //Initialization_for_N(argc, argv, N);
 
-    size_t size = std::atoi(argv[1]);
-    double alpha = std::atof(argv[2]);
-    double width = std::atof(argv[3]);
+    // initialization of principal parameters from the user
+    size_t size;
+    double alpha;
+    double width;
+    Utils::Initialization_for_N(argc, argv, size, alpha, width);
 
     //Create a vector to store residuals norm to plot them
     std::vector<double> hist;

@@ -49,14 +49,19 @@ class SquareDomain: public Domain{
         std::vector<size_t> m_vec;
 
     public:
+
+        //We need this first constructor to create a domain at a given level
         SquareDomain(const size_t size, const double length, const size_t level);
 
-        SquareDomain(const SquareDomain &dom);
+        //This second constructor creates a subdomain of the given domain, but goes down by a level
+        SquareDomain(const SquareDomain &dom):SquareDomain(dom.m_size, dom.m_length, dom.m_level + 1){}
 
-        std::tuple<size_t, size_t> meshIdx(size_t l) const override;
+        inline std::tuple<size_t, size_t> meshIdx(size_t l) const{
+            return {l / m_size, l % m_size};
+        }
 
 		//we could need an operator to get the coordinates of a specific node, for example if we have to map a function on the nodes
-        std::tuple<double,double> coord(const size_t i, const size_t j) const override;
+        inline std::tuple<double,double> coord(const size_t i, const size_t j) const {return {j* m_h, m_length - i * m_h};}
         
         std::tuple<double,double> operator[](const size_t l) const override;
 
@@ -64,25 +69,25 @@ class SquareDomain: public Domain{
 
         std::vector<size_t> &inRowConnections(const size_t l) override;
 
-        size_t mask(const size_t l) const override;
+        inline size_t mask(const size_t l) const{
+            return step * (l / width) * m_size + step * (l % width);
+        }
 
-        size_t getWidth() const override;
+        inline size_t getWidth() const{return width;}
 
-        size_t numBoundaryNodes() const override;
+        inline size_t numBoundaryNodes() const{return width * 4 - 4;}
 
-        size_t numConnections() const override;
+        inline size_t numConnections() const{return (4 * (width * width - numBoundaryNodes()));}
 
-        size_t N() const override;
+        inline size_t N() const{return width * width;}
 
-        double h() const override;
+        inline double h() const{return m_h * step;}
 
-        size_t getStep() const override;
+        inline size_t getStep() const{return step;}
 
         ~SquareDomain() = default;
 
-
 };
-
 
 }
 

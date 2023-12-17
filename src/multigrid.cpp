@@ -1,10 +1,6 @@
 #include "allIncludes.hpp"
 
-
-MultiGrid::InterpolationClass::InterpolationClass(PoissonMatrix<double> &A_inf, PoissonMatrix<double> &A_sup): m_A_inf(A_inf), m_A_sup(A_sup){}
-
-/*
-void AMG::InterpolationClass::interpolate(std::vector<double> &vec){
+void MultiGrid::InterpolationClass::interpolate(std::vector<double> &vec){
     for(size_t i = 0; i < m_A_inf.rows() - m_A_inf.getWidth(); i++){
         size_t index1 = m_A_inf.mask(i);
         size_t index2 = m_A_inf.mask(i + m_A_inf.getWidth());
@@ -29,4 +25,3 @@ void AMG::InterpolationClass::interpolate(std::vector<double> &vec){
         }
     }
 }
-*/

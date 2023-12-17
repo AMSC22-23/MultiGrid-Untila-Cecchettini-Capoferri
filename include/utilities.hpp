@@ -3,8 +3,12 @@
 
 
 #include "allIncludes.hpp"
+#include <iostream>
+#include <string>
 
 namespace Utils{
+
+void Initialization_for_N(int argc, char** argv, size_t &N, double &alpha, double &width);
 
 template<class SpMat>
 void saveMatrixOnFile(SpMat A, std::string fileName){
