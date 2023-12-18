@@ -1,13 +1,34 @@
-# Makefile
+CXX := g++
+CXXFLAGS := -Wall -Wextra -std=c++20 -O3
 
-TARGET = prova
-SOURCE = ./src/*
+# There are all var for directories declaration
+SRCDIR := src
+INCDIR := include
+BINDIR := bin
+TARGET := prova  # the name of executable
 
-${TARGET}: ${SOURCE}
-	g++ -Wall -O3 -I ./include -o ${TARGET} ${SOURCE}
+SRC := $(wildcard $(SRCDIR)/*.cpp)
+OBJ := $(patsubst $(SRCDIR)/%.cpp, $(BINDIR)/%.o, $(SRC))
+
+.PHONY: all clean
+
+all: $(TARGET)
+
+# Rules for linking
+$(TARGET): $(OBJ)
+	@mkdir -p $(BINDIR)
+	@$(CXX) $(CXXFLAGS) $^ -o $@
+
+# Rules for compiling
+$(BINDIR)/%.o: $(SRCDIR)/%.cpp
+	@mkdir -p $(BINDIR)
+	@$(CXX) $(CXXFLAGS) -I $(INCDIR) -c $< -o $@
 
 clean:
-	@rm -f ${TARGET}
+	@rm -rf $(BINDIR)
+	@rm $(TARGET)
 
 remake:
-	@rm -f ${TARGET} && make
+	@rm -rf $(BINDIR)
+	@rm $(TARGET)
+	@make

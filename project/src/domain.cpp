@@ -24,7 +24,7 @@ inline std::tuple<double,double> AMG::SquareDomain::operator[](const size_t l) c
     return coord(i,j); 
 }
 
-inline const bool AMG::SquareDomain::isOnBoundary(const size_t l) const{
+inline bool AMG::SquareDomain::isOnBoundary(const size_t l) const{
     auto [i, j] = meshIdx(l);
     return (((i == 0) || (j == 0) || (i == (m_size-1)) || (j == (m_size-1))) ? true : false);
 }
@@ -43,14 +43,14 @@ inline size_t AMG::SquareDomain::mask(const size_t l) const{
     return step * (l / width) * m_size + step * (l % width);
 }
 
-inline const size_t AMG::SquareDomain::getWidth() const{return width;}
+inline size_t AMG::SquareDomain::getWidth() const{return width;}
 
-inline const size_t AMG::SquareDomain::numBoundaryNodes() const{return width * 4 - 4;}
+inline size_t AMG::SquareDomain::numBoundaryNodes() const{return width * 4 - 4;}
 
-inline const size_t AMG::SquareDomain::numConnections() const{return (4 * (width * width - numBoundaryNodes()));}
+inline size_t AMG::SquareDomain::numConnections() const{return (4 * (width * width - numBoundaryNodes()));}
 
-inline const size_t AMG::SquareDomain::N() const{return width * width;}
+inline size_t AMG::SquareDomain::N() const{return width * width;}
 
-inline const double AMG::SquareDomain::h() const{return m_h * step;}
+inline double AMG::SquareDomain::h() const{return m_h * step;}
 
-inline const size_t AMG::SquareDomain::getStep() const{return step;}
+inline size_t AMG::SquareDomain::getStep() const{return step;}

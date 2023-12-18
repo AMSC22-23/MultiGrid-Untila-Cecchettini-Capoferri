@@ -2,17 +2,17 @@
 
 
 double f(const double x, const double y){
-    return 0.5;
-    //return -5.0 * exp(x) * exp(-2.0 * y);
-    //double k = 50.;
+    //return 0.5;
+    return -5.0 * exp(x) * exp(-2.0 * y);
+    //double k = 30.;
     //double r = sqrt(x*x + y*y);
     //return -k*(cos(k * r) / r - k*sin(k * r));
 }
 
 double g(const double x, const double y){
-    return 0.;
-    //return exp(x) * exp(-2.0 * y);
-    //return sin(50. * sqrt(x * x + y * y));
+    //return 0.;
+    return exp(x) * exp(-2.0 * y);
+    //return sin(30. * sqrt(x * x + y * y));
 }
 
 
@@ -56,7 +56,7 @@ int main(int argc, char** argv){
     std::vector<double> res(u.size(),0.);
     
 
-    AMG::SawtoothMGIteration<AMG::DataVector<double>,AMG::Gauss_Siedel_iteration<std::vector<double>>> MG(matrici,fvec);
+    AMG::SawtoothMGIteration<AMG::DataVector<double>,AMG::Jacobi_iteration<std::vector<double>>> MG(matrici,fvec);
     AMG::Residual<AMG::DataVector<double>> RES(matrici[0],fvec,res);
 
     u * RES;
@@ -69,7 +69,8 @@ int main(int argc, char** argv){
         u * MG * RES;
         hist.push_back(RES.Norm());
     }
-    
+
+
     Utils::saveVectorOnFile(hist,"MGGS4.txt");
     Utils::saveVectorOnFile(u,"x.mtx");
 

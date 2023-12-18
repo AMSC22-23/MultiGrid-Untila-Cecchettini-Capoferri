@@ -72,7 +72,7 @@ class SawtoothMGIteration{
         std::unique_ptr<Residual<std::vector<double>>> COARSE_RES;
 
         std::unique_ptr<Solver<std::vector<double>>> COARSE_SOLVER;
-        int nu = 5;
+        int nu = 50;
 
     public:
         SawtoothMGIteration(std::vector<PoissonMatrix<double>> &matrices, Vector &knownVec): A_level(matrices), b(knownVec) {
@@ -90,7 +90,7 @@ class SawtoothMGIteration{
             RES = std::make_unique<Residual<Vector>>(A_level.at(0),b,res);
             COARSE_RES = std::make_unique<Residual<std::vector<double>>>(A_level.back(),res);
 
-            COARSE_SOLVER = std::make_unique<AMG::Solver<std::vector<double>>>((*iterations.back()),(*COARSE_RES),2000,1.e-1,1);
+            COARSE_SOLVER = std::make_unique<AMG::Solver<std::vector<double>>>((*iterations.back()),(*COARSE_RES),2000,1.e-6,1);
         }        
 
         void apply_iteration_to_vec(std::vector<double> &sol) {
