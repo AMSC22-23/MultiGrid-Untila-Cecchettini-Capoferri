@@ -2,7 +2,7 @@
 #define SOLVERS_H
 
 #include "allIncludes.hpp"
-
+#include <omp.h>
 
 namespace MultiGrid{
 
@@ -49,6 +49,7 @@ class Jacobi_iteration : public SmootherClass<Vector>{
     private:    
         PoissonMatrix<double> &m_A;
         Vector &b; // Ax = b
+
     public:
 
         Jacobi_iteration(PoissonMatrix<double> &A, Vector &f) : m_A(A), b(f) {};
@@ -68,7 +69,25 @@ class Jacobi_iteration : public SmootherClass<Vector>{
             sol=x_new;
         }
 
+        void apply_iteration_to_vec_parallel(std::vector<double> &sol){
+            std::vector<double> x_new(sol.size());
+            
+            #pragma omp parallel{ 
+                #pragma omp for          
+                for(size_t i = 0; i < m_A.rows(); i++){
+                    size_t index = m_A.mask(i);
+                    double sum = 0;
 
+                    for(const auto &id : m_A.nonZerosInRow(i)){
+                        if(id != i){
+                            sum += m_A.coeffRef(i,id) * sol[m_A.mask(id)];
+                        }
+                    }
+                    x_new[index] = (this->b[index] - sum) / m_A.coeffRef(i,i);
+                }
+            }
+            sol=x_new;
+        }
 // one iteration of GS
 
 };
