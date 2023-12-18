@@ -23,7 +23,7 @@ void Utils::Initialization_for_N(int argc, char** argv, size_t &N, double &alpha
                     N = std::stoi(argv[i+1]);
                     std::cout<<"Inserted N = "<<N<<std::endl;
                 }catch(std::exception){
-                    std::cout<<"Please, insert a number after -n"<<std::endl<<"Inserted by default N = "<<DEFAULT_N<<std::endl;
+                    std::cout<<"Please, insert a number after -n"<<std::endl;
                     std::exit(1);
                 }
                 
@@ -34,7 +34,7 @@ void Utils::Initialization_for_N(int argc, char** argv, size_t &N, double &alpha
                     alpha = std::atof(argv[i+1]);
                     std::cout<<"Inserted alpha = "<<alpha<<std::endl;
                 }catch(std::exception){
-                    std::cout<<"Please, insert a double after -a"<<std::endl<<"Inserted by default alpha = "<<DEFAULT_ALPHA<<std::endl;
+                    std::cout<<"Please, insert a double after -a"<<std::endl;
                     std::exit(1);
                 }
             }
@@ -44,12 +44,12 @@ void Utils::Initialization_for_N(int argc, char** argv, size_t &N, double &alpha
                     width = std::atof(argv[i+1]);
                     std::cout<<"Inserted width = "<<width<<std::endl;
                 }catch(std::exception){
-                    std::cout<<"Please, insert a double after -w"<<std::endl<<"Inserted by default width = "<<DEFAULT_WIDTH<<std::endl;
+                    std::cout<<"Please, insert a double after -w"<<std::endl;
                     std::exit(1);
                 }
             }
             else if(nn.compare(argv[i]) == 0 && ( i+1 == argc )) {
-                std::cout<<"Please, insert something"<<std::endl<<"Inserted all parameters by default"<<std::endl;
+                std::cout<<"Please, insert something"<<std::endl;
                 exit(1);
             }
         } 

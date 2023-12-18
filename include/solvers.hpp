@@ -2,7 +2,29 @@
 #define SOLVERS_H
 
 #include "allIncludes.hpp"
-#include <omp.h>
+
+/*// versione ancora da ridefinire e testare
+template<class Matrix, class Vector>
+void apply_iteration_to_vec_parallel(std::vector<double> &sol, Matrix m_A, Vector b){
+    std::vector<double> x_new(sol.size());
+
+    #pragma omp parallel shared(x_new, sol)
+
+        #pragma omp parallel for
+        for(size_t i = 0; i < m_A.rows(); i++){
+            size_t index = m_A.mask(i);
+            double sum = 0;
+
+            for(const auto &id : m_A.nonZerosInRow(i)){
+                if(id != i){
+                    sum += m_A.coeffRef(i, id) * sol[m_A.mask(id)];
+                }
+            }
+            x_new[index] = (b[index] - sum) / m_A.coeffRef(i, i);
+        }
+        sol = x_new;
+    
+}*/
 
 namespace MultiGrid{
 
@@ -69,28 +91,21 @@ class Jacobi_iteration : public SmootherClass<Vector>{
             sol=x_new;
         }
 
-        void apply_iteration_to_vec_parallel(std::vector<double> &sol){
-            std::vector<double> x_new(sol.size());
-            
-            #pragma omp parallel{ 
-                #pragma omp for          
-                for(size_t i = 0; i < m_A.rows(); i++){
-                    size_t index = m_A.mask(i);
-                    double sum = 0;
-
-                    for(const auto &id : m_A.nonZerosInRow(i)){
-                        if(id != i){
-                            sum += m_A.coeffRef(i,id) * sol[m_A.mask(id)];
-                        }
-                    }
-                    x_new[index] = (this->b[index] - sum) / m_A.coeffRef(i,i);
-                }
-            }
-            sol=x_new;
+        /*
+        void apply_iteration_to_vec_parallel_jacobi(std::vector<double> &sol){
+            apply_iteration_to_vec_parallel(sol, this->m_A, this->b);
         }
+        */
+        
+
+        
+            
+            
+        
 // one iteration of GS
 
 };
+
 
 
 template<class Vector>
@@ -215,7 +230,9 @@ class Solver{
 
 };
 
-
 }
+
+
+
 
 #endif

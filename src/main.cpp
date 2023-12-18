@@ -54,7 +54,7 @@ int main(int argc, char** argv)
     std::vector<double> res(u.size(),0.);
     
 
-    MultiGrid::SawtoothMGIteration<MultiGrid::DataVector<double>,MultiGrid::Gauss_Siedel_iteration<std::vector<double>>> MG(matrici,fvec);
+    MultiGrid::SawtoothMGIteration<MultiGrid::DataVector<double>,MultiGrid::Jacobi_iteration<std::vector<double>>> MG(matrici,fvec);
     MultiGrid::Residual<MultiGrid::DataVector<double>> RES(matrici[0],fvec,res);
 
     u * RES;
