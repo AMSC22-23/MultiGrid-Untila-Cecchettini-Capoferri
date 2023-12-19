@@ -17,27 +17,39 @@ class InterpolationClass{
         //void interpolate(std::vector<double> &vec);
         
         inline void interpolate(std::vector<double> &vec){
+            #ifdef _OPENMP
+            #pragma omp parallel for
+            #endif
             for(size_t i = 0; i < m_A_inf.rows() - m_A_inf.getWidth(); i++){
                 size_t index1 = m_A_inf.mask(i);
                 size_t index2 = m_A_inf.mask(i + m_A_inf.getWidth());
                 size_t index3 = (index1 + index2) / 2;
-                
+
+                vec[index3] = 0.5 * (vec[index1] + vec[index2]);
+                /*
                 if(! m_A_sup.isOnBoundary(index3)){
                     vec[index3] = 0.5 * (vec[index1] + vec[index2]);
                 }else{
                     vec[index3] = 0.5 * (vec[index1] + vec[index2]);
                     //continue;
                 }
+                */
             }
             
             size_t width = m_A_sup.getWidth();
+            #ifdef _OPENMP
+            //#pragma omp parallel for
+            #endif
             for(size_t i = 0; i < m_A_sup.rows() / width; i++){
                 for(size_t j = i * width; j < (i + 1) * width - 1; j += 2){
+                    vec[m_A_sup.mask(j + 1)] = 0.5 * (vec[m_A_sup.mask(j)] + vec[m_A_sup.mask(j + 2)]);
+                    /*
                     if(! m_A_sup.isOnBoundary(m_A_sup.mask(j+1)))
                         vec[m_A_sup.mask(j + 1)] = 0.5 * (vec[m_A_sup.mask(j)] + vec[m_A_sup.mask(j + 2)]);
                     else
                         vec[m_A_sup.mask(j + 1)] = 0.5 * (vec[m_A_sup.mask(j)] + vec[m_A_sup.mask(j + 2)]);
                         //continue;
+                    */
                 }
             }
         }
@@ -72,7 +84,7 @@ class SawtoothMGIteration{
         std::unique_ptr<Residual<std::vector<double>>> COARSE_RES;
 
         std::unique_ptr<Solver<std::vector<double>>> COARSE_SOLVER;
-        int nu = 50;
+        int nu = 5;
 
     public:
         SawtoothMGIteration(std::vector<PoissonMatrix<double>> &matrices, Vector &knownVec): A_level(matrices), b(knownVec) {
@@ -90,7 +102,7 @@ class SawtoothMGIteration{
             RES = std::make_unique<Residual<Vector>>(A_level.at(0),b,res);
             COARSE_RES = std::make_unique<Residual<std::vector<double>>>(A_level.back(),res);
 
-            COARSE_SOLVER = std::make_unique<AMG::Solver<std::vector<double>>>((*iterations.back()),(*COARSE_RES),2000,1.e-6,1);
+            COARSE_SOLVER = std::make_unique<AMG::Solver<std::vector<double>>>((*iterations.back()),(*COARSE_RES),2000,1.e-1,1);
         }        
 
         void apply_iteration_to_vec(std::vector<double> &sol) {

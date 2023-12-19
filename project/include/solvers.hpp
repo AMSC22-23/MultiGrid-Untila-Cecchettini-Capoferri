@@ -101,11 +101,15 @@ class Residual{
 
         void refresh_normalization_constant(){
             double k = 0;
+            #ifdef _OPENMP
+            #pragma omp parallel for reduction(+:k)
+            #endif
             for(size_t i = 0; i < m_A.rows(); i++){
                 double val = b[m_A.mask(i)];
                 k += val * val;
             }
             norm_of_b = k;
+            
         }
 
         
@@ -124,6 +128,9 @@ class Residual{
                     norm += r * r;
                 }
             }else{
+                #ifdef _OPENMP
+                //#pragma omp parallel for reduction(+:norm)
+                #endif
                 for(size_t i = 0; i < m_A.rows(); i++){
                     double sum = 0;
                     for(const auto &j : m_A.nonZerosInRow(i)){
@@ -181,7 +188,7 @@ class Solver{
                 }         
             }
             flag = 0;
-            std::cout<<"Num of iterations: "<<(m_maxit-counter)<<std::endl;
+            //std::cout<<"Num of iterations: "<<(m_maxit-counter)<<std::endl;
             return;
         }
         int Status(){

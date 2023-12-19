@@ -17,6 +17,10 @@ double g(const double x, const double y){
 
 
 int main(int argc, char** argv){
+
+    #ifdef _OPENMP
+    std::cout<<"Openmp enabled"<<std::endl;
+    #endif
     
     size_t size = std::atoi(argv[1]);
     double alpha = std::atof(argv[2]);
@@ -56,7 +60,7 @@ int main(int argc, char** argv){
     std::vector<double> res(u.size(),0.);
     
 
-    AMG::SawtoothMGIteration<AMG::DataVector<double>,AMG::Jacobi_iteration<std::vector<double>>> MG(matrici,fvec);
+    AMG::SawtoothMGIteration<AMG::DataVector<double>,AMG::Gauss_Siedel_iteration<std::vector<double>>> MG(matrici,fvec);
     AMG::Residual<AMG::DataVector<double>> RES(matrici[0],fvec,res);
 
     u * RES;
