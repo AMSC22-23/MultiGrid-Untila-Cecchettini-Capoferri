@@ -3,6 +3,7 @@
 
 #include "allIncludes.hpp"
 
+//@note: do not leave large commented pieces of code
 /*// versione ancora da ridefinire e testare
 template<class Matrix, class Vector>
 void apply_iteration_to_vec_parallel(std::vector<double> &sol, Matrix m_A, Vector b){
@@ -41,7 +42,7 @@ class SmootherClass{
 };
 
 template<class Vector>
-class Gauss_Siedel_iteration : public SmootherClass<Vector>{
+class Gauss_Siedel_iteration : public SmootherClass<Vector>{ // it is "Seidel"
     private:    
         PoissonMatrix<double> &m_A;
         Vector &b; // Ax = b
@@ -106,6 +107,8 @@ class Residual{
         
     
     public:
+        //@note: in C++ `NULL` is depracated, prefer `nullptr`
+        //@note: why you need this version of the constructor?
         Residual(PoissonMatrix<double> &A, Vector &f): m_A(A), b(f), m_res(NULL), saveVector(false), norm_of_b(0.){
             for(size_t i = 0; i < b.size(); i++){
                 double val = b[i];

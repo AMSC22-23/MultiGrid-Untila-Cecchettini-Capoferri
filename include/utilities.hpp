@@ -10,6 +10,7 @@ namespace Utils{
 
 void Initialization_for_N(int argc, char** argv, size_t &N, double &alpha, double &width);
 
+//@note: should pass by const reference to avoid copies
 template<class SpMat>
 void saveMatrixOnFile(SpMat A, std::string fileName){
 
@@ -26,6 +27,7 @@ void saveMatrixOnFile(SpMat A, std::string fileName){
     file.close();
 }
 
+//@note: should pass by const reference to avoid copies
 template<class Vector>
 void saveVectorOnFile(Vector f, std::string fileName){
     

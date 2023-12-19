@@ -2,6 +2,7 @@
 
 // definition of solution function 
 double f(const double x, const double y){
+    //@note: explicitly use the std:: namespace for math functions
     return -5.0 * exp(x) * exp(-2.0 * y);
 }
 
@@ -68,6 +69,10 @@ int main(int argc, char** argv)
     
     int mgiter = 20;
     for(int i = 0; i < mgiter; i++){
+        //@note: this could be a very nice syntax but for the moment
+        // it lacks a bit of expressivity, in that you cannot understand easily
+        // what is changing and what is staying constant and which is the order
+        // of the two multiplications.
         u * MG * RES;
         hist.push_back(RES.Norm());
     }
