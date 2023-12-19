@@ -113,7 +113,6 @@ class Residual{
         double norm_of_b;
         double norm;
         
-    
     public:
         Residual(PoissonMatrix<double> &A, Vector &f): m_A(A), b(f), m_res(NULL), saveVector(false), norm_of_b(0.){
             for(size_t i = 0; i < b.size(); i++){
@@ -142,49 +141,45 @@ class Residual{
         }     
 
 
-       void apply_iteration_to_vec(std::vector<double> &sol){
+        void apply_iteration_to_vec(std::vector<double> &sol){
             norm = 0.;
             if(saveVector){
-                double tmp = 0;
                 #ifdef _OPENMP
-                #pragma omp parallel for reduction(+:tmp)
+                #pragma omp parallel for reduction(+:norm)
                 #endif
                 for(size_t i = 0; i < m_A.rows(); i++){
                     size_t index = m_A.mask(i);
                     double sum = 0;
-                    if(m_A.isOnBoundary(m_A.mask(i))){
-                        sum = m_A.coeffRef(i,i) * sol[m_A.mask(i)];
+                    if(m_A.isOnBoundary(index)){
+                        sum = m_A.coeffRef(i,i) * sol[index];
                     }else{
-                        for(const auto &j : m_A.nonZerosInRow(i)){
+                        for(const auto &j : m_A.nonZerosInRow_a(i)){
                             sum += m_A.coeffRef(i, j) * sol[m_A.mask(j)];
                         }
                     }
                     double r = b[index] - sum;
                     (m_res->at(index)) = r;
-                    tmp += r * r;
+                    norm += r * r;
                 }
-                norm = tmp;
             }else{
-                double tmp = 0;
                 #ifdef _OPENMP
-                #pragma omp parallel for reduction(+:tmp)
+                #pragma omp parallel for reduction(+:norm)
                 #endif
                 for(size_t i = 0; i < m_A.rows(); i++){
+                    size_t index = m_A.mask(i);
                     double sum = 0;
-                    if(m_A.isOnBoundary(m_A.mask(i))){
-                        sum = m_A.coeffRef(i,i) * sol[m_A.mask(i)];
+                    if(m_A.isOnBoundary(index)){
+                        sum = m_A.coeffRef(i,i) * sol[index];
                     }else{
-                        for(const auto &j : m_A.nonZerosInRow(i)){
+                        for(const auto &j : m_A.nonZerosInRow_a(i)){
                             sum += m_A.coeffRef(i, j) * sol[m_A.mask(j)];
                         }
                     }
-                    double r = b[m_A.mask(i)] - sum;
-                    tmp += r * r;
+                    double r = b[index] - sum;
+                    norm += r * r;
                 }
-                norm = tmp;
             }
         }
-
 
         
         friend std::vector<double>& operator*(std::vector<double> &x_k, Residual &B)
@@ -196,9 +191,6 @@ class Residual{
 
         double Norm(){
             return sqrt(norm/norm_of_b);
-        }
-        void debug(){
-            std::cout<<norm_of_b<<std::endl;
         }
 };
 

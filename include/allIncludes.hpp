@@ -9,6 +9,7 @@
 #include <numeric>
 #include <memory>
 #include <fstream>
+#include <chrono>
 
 #ifdef _OPENMP
 #include <omp.h>

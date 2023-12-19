@@ -13,7 +13,7 @@ double g(const double x, const double y){
 
 int main(int argc, char** argv)
 {
-
+    
     // initialization of principal parameters from the user
     size_t size;
     double alpha;
@@ -24,6 +24,7 @@ int main(int argc, char** argv)
     std::cout<<"Openmp enabled"<<std::endl;
     #endif
 
+    auto start = std::chrono::high_resolution_clock::now();
     //Create a vector to store residuals norm to plot them
     std::vector<double> hist;
 
@@ -61,6 +62,14 @@ int main(int argc, char** argv)
     MultiGrid::SawtoothMGIteration<MultiGrid::DataVector<double>,MultiGrid::Gauss_Siedel_iteration<std::vector<double>>> MG(matrici,fvec);
     MultiGrid::Residual<MultiGrid::DataVector<double>> RES(matrici[0],fvec,res);
 
+    
+    auto end = std::chrono::high_resolution_clock::now();
+
+    std::chrono::duration<double> init_time = end - start;
+    std::cout<<"Initialization time: "<<init_time.count()<<" seconds"<<std::endl;
+
+    start = std::chrono::high_resolution_clock::now();
+    
     u * RES;
     hist.push_back(RES.Norm());
     
@@ -71,7 +80,14 @@ int main(int argc, char** argv)
         u * MG * RES;
         hist.push_back(RES.Norm());
     }
+
     
+    end = std::chrono::high_resolution_clock::now();
+
+    std::chrono::duration<double> solve_time = end - start;
+    std::cout<<"Solving elapsed time: "<<solve_time.count()<<" seconds"<<std::endl;
+    
+
     Utils::saveVectorOnFile(hist,"MGGS4.txt");
     Utils::saveVectorOnFile(u,"x.mtx");
 
