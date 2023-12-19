@@ -25,6 +25,14 @@ $(BINDIR)/%.o: $(SRCDIR)/%.cpp
 	@mkdir -p $(BINDIR)
 	@$(CXX) $(CXXFLAGS) -I $(INCDIR) -c $< -o $@
 
+parallel: CXXFLAGS := $(CXXFLAGSPAR)
+parallel: all
+
 clean:
 	@rm -rf $(BINDIR)
 	@rm $(TARGET)
+
+remake:
+	@rm -rf $(BINDIR)
+	@rm $(TARGET)
+	@make

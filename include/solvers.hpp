@@ -102,6 +102,39 @@ class Jacobi_iteration : public SmootherClass<Vector>{
 // one iteration of jacobi
 };
 
+template<class Vector>
+class Parallel_Jacobi_iteration : public SmootherClass<Vector>{
+    private:    
+        PoissonMatrix<double> &m_A;
+        Vector &b; // Ax = b
+        std::vector<double> temp;
+    public:
+
+        Parallel_Jacobi_iteration(PoissonMatrix<double> &A, Vector &f) : m_A(A), b(f) {
+            temp = std::vector<double>(b.size(),0.);
+        }
+        void apply_iteration_to_vec(std::vector<double> &sol) override{
+            #ifdef _OPENMP
+            #pragma omp parallel for
+            #endif
+            for(size_t i = 0; i < m_A.rows(); i++){
+                size_t index = m_A.mask(i);
+                double sum = 0;
+                if(m_A.isOnBoundary(m_A.mask(i))){
+                    sum = 0;
+                }else{
+                    for(const auto &id : m_A.nonZerosInRow_a(i)){
+                        if(id != i){
+                            sum += m_A.coeffRef(i,id) * sol[m_A.mask(id)];
+                        }
+                    }
+                }
+                temp[index] = (this->b[index] - sum) / m_A.coeffRef(i,i);
+            }
+            sol.swap(temp);
+        }
+};
+
 
 template<class Vector>
 class Residual{
