@@ -8,8 +8,6 @@ template<class Matrix, class Vector>
 void apply_iteration_to_vec_parallel(std::vector<double> &sol, Matrix m_A, Vector b){
     std::vector<double> x_new(sol.size());
 
-    #pragma omp parallel shared(x_new, sol)
-
         #pragma omp parallel for
         for(size_t i = 0; i < m_A.rows(); i++){
             size_t index = m_A.mask(i);
@@ -32,9 +30,9 @@ template<class Vector>
 class SmootherClass{
     public:
 
-        virtual void apply_iteration_to_vec(std::vector<double> &sol) const = 0;
+        virtual void apply_iteration_to_vec(std::vector<double> &sol) = 0;
 
-        inline friend std::vector<double>& operator*(std::vector<double> &x_k, const SmootherClass &B)
+        inline friend std::vector<double>& operator*(std::vector<double> &x_k, SmootherClass &B)
         {
             B.apply_iteration_to_vec(x_k);
             return x_k;
@@ -51,7 +49,7 @@ class Gauss_Siedel_iteration : public SmootherClass<Vector>{
 
         Gauss_Siedel_iteration(PoissonMatrix<double> &A, Vector &f) : m_A(A), b(f) {}
         //Iteration.set(      
-        void apply_iteration_to_vec(std::vector<double> &sol) const override{
+        void apply_iteration_to_vec(std::vector<double> &sol) override{
             for(size_t i = 0; i < m_A.rows(); i++){
                 size_t index = m_A.mask(i);
                 double sum = 0;
@@ -71,13 +69,14 @@ class Jacobi_iteration : public SmootherClass<Vector>{
     private:    
         PoissonMatrix<double> &m_A;
         Vector &b; // Ax = b
-
+        std::vector<double> temp;
     public:
 
-        Jacobi_iteration(PoissonMatrix<double> &A, Vector &f) : m_A(A), b(f) {};
+        Jacobi_iteration(PoissonMatrix<double> &A, Vector &f) : m_A(A), b(f) {
+            temp = std::vector<double>(b.size(),0.);
+        }
        
-        void apply_iteration_to_vec(std::vector<double> &sol) const override{
-            std::vector<double> x_new(sol.size());
+        void apply_iteration_to_vec(std::vector<double> &sol) override{
             for(size_t i = 0; i < m_A.rows(); i++){
                 size_t index = m_A.mask(i);
                 double sum = 0;
@@ -86,24 +85,11 @@ class Jacobi_iteration : public SmootherClass<Vector>{
                         sum += m_A.coeffRef(i,id) * sol[m_A.mask(id)];
                     }
                 }
-                x_new[index] = (this->b[index] - sum) / m_A.coeffRef(i,i);
+                temp[index] = (this->b[index] - sum) / m_A.coeffRef(i,i);
             }
-            sol=x_new;
+            sol.swap(temp);
         }
-
-        /*
-        void apply_iteration_to_vec_parallel_jacobi(std::vector<double> &sol){
-            apply_iteration_to_vec_parallel(sol, this->m_A, this->b);
-        }
-        */
-        
-
-        
-            
-            
-        
-// one iteration of GS
-
+// one iteration of jacobi
 };
 
 
@@ -136,6 +122,9 @@ class Residual{
 
         void refresh_normalization_constant(){
             double k = 0;
+            #ifdef _OPENMP
+            #pragma omp parallel for reduction(+:k)
+            #endif
             for(size_t i = 0; i < m_A.rows(); i++){
                 double val = b[m_A.mask(i)];
                 k += val * val;

@@ -3,7 +3,9 @@
 //We need this first constructor to create a domain at a given level
 MultiGrid::SquareDomain::SquareDomain(const size_t size, const double length, const size_t level):m_size(size),step(1) , m_level(level), width(size),
 m_length(length), m_h(m_length / (m_size - 1)){
+    #ifndef _OPENMP
     m_vec.reserve(5);
+    #endif
     for(size_t i = 0; i < level; i++){
         width = (width + 1) / 2;
         step *= 2;
@@ -20,6 +22,8 @@ bool MultiGrid::SquareDomain::isOnBoundary(const size_t l) const{
     return (((i == 0) || (j == 0) || (i == (m_size-1)) || (j == (m_size-1))) ? true : false);
 }
 
+
+#ifndef _OPENMP
 std::vector<size_t> &MultiGrid::SquareDomain::inRowConnections(const size_t l){
     auto equivalent_l = mask(l);
     if(isOnBoundary(equivalent_l)){
@@ -29,7 +33,21 @@ std::vector<size_t> &MultiGrid::SquareDomain::inRowConnections(const size_t l){
     }
     return m_vec;
 }
+#else
 
+//to finish
+std::array<size_t,5> MultiGrid::SquareDomain::inRowConnections(const size_t l){
+    auto equivalent_l = mask(l);
+    if(isOnBoundary(equivalent_l)){
+        m_vec = {l};
+    }else{
+        m_vec = {l - width, l - 1, l, l + 1, l + width};
+    }
+    return m_vec;
+}
+
+
+#endif
 
 
 

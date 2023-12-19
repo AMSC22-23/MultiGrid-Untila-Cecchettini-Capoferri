@@ -9,7 +9,10 @@
 #include <numeric>
 #include <memory>
 #include <fstream>
+
+#ifdef _OPENMP
 #include <omp.h>
+#endif
 
 
 #include "utilities.hpp"

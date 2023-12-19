@@ -1,5 +1,6 @@
 CXX := g++
 CXXFLAGS := -Wall -Wextra -std=c++20 -O3
+CXXFLAGSPAR := -Wall -Wextra -std=c++20 -O3 -fopenmp
 
 # There are all var for directories declaration
 SRCDIR := src
