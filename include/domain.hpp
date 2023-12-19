@@ -19,11 +19,10 @@ class Domain{
         virtual bool isOnBoundary(const size_t l) const = 0;
 
 		//to optimize the computation for each iteration of itterative solver we could need to know the non zero entries of a row
-        #ifndef _OPENMP
         virtual std::vector<size_t> &inRowConnections(const size_t l) = 0;
-        #else
-        virtual std::array<size_t,5> &inRowConnections(const size_t l) = 0;
-        #endif
+
+        virtual std::array<size_t,5> inRowConnections_a(const size_t l) = 0;
+
 
         virtual size_t mask(const size_t l) const = 0;
 
@@ -50,9 +49,8 @@ class SquareDomain: public Domain{
         size_t width;
         double m_length;
         double m_h;
-        #ifndef _OPENMP
         std::vector<size_t> m_vec;
-        #endif
+
 
     public:
 
@@ -73,11 +71,9 @@ class SquareDomain: public Domain{
 
         bool isOnBoundary(const size_t l) const override;
 
-        #ifndef _OPENMP
         std::vector<size_t> &inRowConnections(const size_t l) override;
-        #else
-        std::array<size_t,5> inRowConnections(const sieze_t l) override;
-        #endif
+
+        std::array<size_t,5> inRowConnections_a(const size_t l) override;
 
         inline size_t mask(const size_t l) const{
             return step * (l / width) * m_size + step * (l % width);

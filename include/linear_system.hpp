@@ -41,10 +41,14 @@ class PoissonMatrix{
             
         }
         
-		
 		const std::vector<size_t> &nonZerosInRow(const size_t row){
 			return m_domain.inRowConnections(row);
 		}
+
+        const std::array<size_t,5> nonZerosInRow_a(const size_t row){
+			return m_domain.inRowConnections_a(row);
+		}
+
 
         size_t nonZeros(){
             return m_size + m_domain.numConnections();

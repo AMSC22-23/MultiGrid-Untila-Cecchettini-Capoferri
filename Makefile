@@ -1,5 +1,5 @@
 CXX := g++
-CXXFLAGS := -Wall -Wextra -std=c++20 -O3
+CXXFLAGS := -Wall -Wextra -std=c++20 -O3 #-fopenmp -DOMP_NUM_THREADS=1
 CXXFLAGSPAR := -Wall -Wextra -std=c++20 -O3 -fopenmp
 
 # There are all var for directories declaration

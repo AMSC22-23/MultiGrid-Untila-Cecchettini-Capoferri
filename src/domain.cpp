@@ -23,7 +23,6 @@ bool MultiGrid::SquareDomain::isOnBoundary(const size_t l) const{
 }
 
 
-#ifndef _OPENMP
 std::vector<size_t> &MultiGrid::SquareDomain::inRowConnections(const size_t l){
     auto equivalent_l = mask(l);
     if(isOnBoundary(equivalent_l)){
@@ -33,22 +32,10 @@ std::vector<size_t> &MultiGrid::SquareDomain::inRowConnections(const size_t l){
     }
     return m_vec;
 }
-#else
 
-//to finish
-std::array<size_t,5> MultiGrid::SquareDomain::inRowConnections(const size_t l){
-    auto equivalent_l = mask(l);
-    if(isOnBoundary(equivalent_l)){
-        m_vec = {l};
-    }else{
-        m_vec = {l - width, l - 1, l, l + 1, l + width};
-    }
-    return m_vec;
+std::array<size_t,5> MultiGrid::SquareDomain::inRowConnections_a(const size_t l){
+    return {l - width, l - 1, l, l + 1, l + width};
 }
-
-
-#endif
-
 
 
 

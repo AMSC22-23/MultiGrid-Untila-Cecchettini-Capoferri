@@ -40,6 +40,7 @@ class SmootherClass{
 
 };
 
+
 template<class Vector>
 class Gauss_Siedel_iteration : public SmootherClass<Vector>{
     private:    
@@ -48,20 +49,25 @@ class Gauss_Siedel_iteration : public SmootherClass<Vector>{
     public:
 
         Gauss_Siedel_iteration(PoissonMatrix<double> &A, Vector &f) : m_A(A), b(f) {}
-        //Iteration.set(      
+        
         void apply_iteration_to_vec(std::vector<double> &sol) override{
             for(size_t i = 0; i < m_A.rows(); i++){
                 size_t index = m_A.mask(i);
                 double sum = 0;
-                for(const auto &id : m_A.nonZerosInRow(i)){
-                    if(id != i){
-                        sum += m_A.coeffRef(i,id) * sol[m_A.mask(id)];
+                if(m_A.isOnBoundary(m_A.mask(i))){
+                    sum = 0;
+                }else{
+                    for(const auto &id : m_A.nonZerosInRow_a(i)){
+                        if(id != i){
+                            sum += m_A.coeffRef(i,id) * sol[m_A.mask(id)];
+                        }
                     }
                 }
                 sol[index] = (this->b[index] - sum) / m_A.coeffRef(i,i);
             }
         }
 };
+
 
 
 template<class Vector>
@@ -80,9 +86,13 @@ class Jacobi_iteration : public SmootherClass<Vector>{
             for(size_t i = 0; i < m_A.rows(); i++){
                 size_t index = m_A.mask(i);
                 double sum = 0;
-                for(const auto &id : m_A.nonZerosInRow(i)){
-                    if(id != i){
-                        sum += m_A.coeffRef(i,id) * sol[m_A.mask(id)];
+                if(m_A.isOnBoundary(m_A.mask(i))){
+                    sum = 0;
+                }else{
+                    for(const auto &id : m_A.nonZerosInRow_a(i)){
+                        if(id != i){
+                            sum += m_A.coeffRef(i,id) * sol[m_A.mask(id)];
+                        }
                     }
                 }
                 temp[index] = (this->b[index] - sum) / m_A.coeffRef(i,i);
@@ -91,7 +101,6 @@ class Jacobi_iteration : public SmootherClass<Vector>{
         }
 // one iteration of jacobi
 };
-
 
 
 template<class Vector>
@@ -130,34 +139,53 @@ class Residual{
                 k += val * val;
             }
             norm_of_b = k;
-        }
+        }     
 
-        
 
-        void apply_iteration_to_vec(std::vector<double> &sol){
+       void apply_iteration_to_vec(std::vector<double> &sol){
             norm = 0.;
             if(saveVector){
+                double tmp = 0;
+                #ifdef _OPENMP
+                #pragma omp parallel for reduction(+:tmp)
+                #endif
                 for(size_t i = 0; i < m_A.rows(); i++){
                     size_t index = m_A.mask(i);
                     double sum = 0;
-                    for(const auto &j : m_A.nonZerosInRow(i)){
-                        sum += m_A.coeffRef(i, j) * sol[m_A.mask(j)];
+                    if(m_A.isOnBoundary(m_A.mask(i))){
+                        sum = m_A.coeffRef(i,i) * sol[m_A.mask(i)];
+                    }else{
+                        for(const auto &j : m_A.nonZerosInRow(i)){
+                            sum += m_A.coeffRef(i, j) * sol[m_A.mask(j)];
+                        }
                     }
                     double r = b[index] - sum;
                     (m_res->at(index)) = r;
-                    norm += r * r;
+                    tmp += r * r;
                 }
+                norm = tmp;
             }else{
+                double tmp = 0;
+                #ifdef _OPENMP
+                #pragma omp parallel for reduction(+:tmp)
+                #endif
                 for(size_t i = 0; i < m_A.rows(); i++){
                     double sum = 0;
-                    for(const auto &j : m_A.nonZerosInRow(i)){
-                        sum += m_A.coeffRef(i, j) * sol[m_A.mask(j)];
+                    if(m_A.isOnBoundary(m_A.mask(i))){
+                        sum = m_A.coeffRef(i,i) * sol[m_A.mask(i)];
+                    }else{
+                        for(const auto &j : m_A.nonZerosInRow(i)){
+                            sum += m_A.coeffRef(i, j) * sol[m_A.mask(j)];
+                        }
                     }
                     double r = b[m_A.mask(i)] - sum;
-                    norm += r * r;
+                    tmp += r * r;
                 }
+                norm = tmp;
             }
         }
+
+
         
         friend std::vector<double>& operator*(std::vector<double> &x_k, Residual &B)
         {
