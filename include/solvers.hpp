@@ -22,13 +22,13 @@ class SmootherClass{
 
 
 template<class Vector>
-class Gauss_Siedel_iteration : public SmootherClass<Vector>{
+class Gauss_Seidel_iteration : public SmootherClass<Vector>{
     private:    
         PoissonMatrix<double> &m_A;
         Vector &b; // Ax = b
     public:
 
-        Gauss_Siedel_iteration(PoissonMatrix<double> &A, Vector &f) : m_A(A), b(f) {}
+        Gauss_Seidel_iteration(PoissonMatrix<double> &A, Vector &f) : m_A(A), b(f) {}
         
         void apply_iteration_to_vec(std::vector<double> &sol) override{
             for(size_t i = 0; i < m_A.rows(); i++){

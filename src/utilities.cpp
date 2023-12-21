@@ -115,8 +115,8 @@ void Utils::init_test_functions(std::function<double(const double, const double)
         g = functions_to_choose_to_test[1];
         break;
     case 2:
-        f = functions_to_choose_to_test[2];
-        g = functions_to_choose_to_test[3];
+        f = functions_to_choose_to_test[3];
+        g = functions_to_choose_to_test[2];
         break;
     case 3:
         f = functions_to_choose_to_test[4];
