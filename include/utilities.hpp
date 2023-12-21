@@ -6,9 +6,15 @@
 #include <iostream>
 #include <string>
 
+#define DEFAULT_N 400
+#define DEFAULT_ALPHA 10.0
+#define DEFAULT_WIDTH 10.0
+#define DEFAULT_LEVEL 2
+#define DEFAULT_TEST 1
+
 namespace Utils{
 
-void Initialization_for_N(int argc, char** argv, size_t &N, double &alpha, double &width);
+void Initialization_for_N(int argc, char** argv, size_t &N, double &alpha, double &width, unsigned char &level, unsigned char &functions_to_test);
 
 template<class SpMat>
 void saveMatrixOnFile(SpMat A, std::string fileName){

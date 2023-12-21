@@ -1,15 +1,5 @@
 #include "allIncludes.hpp"
 
-// definition of solution function 
-double f(const double x, const double y){
-    return -5.0 * exp(x) * exp(-2.0 * y);
-}
-
-// definition of border solution function
-double g(const double x, const double y){
-    return exp(x) * exp(-2.0 * y);
-}
-
 
 int main(int argc, char** argv)
 {
@@ -18,7 +8,10 @@ int main(int argc, char** argv)
     size_t size;
     double alpha;
     double width;
-    Utils::Initialization_for_N(argc, argv, size, alpha, width);
+    unsigned char level, test_functions;
+    std::function<double(const double, const double)> f;
+    std::function<double(const double, const double)> g;
+    Utils::Initialization_for_N(argc, argv, size, alpha, width, level, test_functions);
 
     #ifdef _OPENMP
     std::cout<<"Openmp enabled"<<std::endl;
