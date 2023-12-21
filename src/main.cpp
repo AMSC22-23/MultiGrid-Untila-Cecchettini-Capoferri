@@ -59,8 +59,11 @@ int main(int argc, char** argv)
     std::vector<double> res(u.size(),0.);
     
 
-    MultiGrid::SawtoothMGIteration<MultiGrid::DataVector<double>,MultiGrid::Gauss_Siedel_iteration<std::vector<double>>> MG(matrici,fvec);
+    MultiGrid::SawtoothMGIteration<MultiGrid::DataVector<double>,MultiGrid::Jacobi_iteration<std::vector<double>>> MG(matrici,fvec);
     MultiGrid::Residual<MultiGrid::DataVector<double>> RES(matrici[0],fvec,res);
+
+    //We also need a smoother for the pre-smoothing
+    MultiGrid::Gauss_Siedel_iteration<MultiGrid::DataVector<double>> GS(matrici.front(),fvec);
 
     
     auto end = std::chrono::high_resolution_clock::now();
@@ -77,7 +80,8 @@ int main(int argc, char** argv)
     
     int mgiter = 20;
     for(int i = 0; i < mgiter; i++){
-        u * MG * RES;
+        u * GS * GS * MG;                   
+        u * RES;                            
         hist.push_back(RES.Norm());
     }
 
