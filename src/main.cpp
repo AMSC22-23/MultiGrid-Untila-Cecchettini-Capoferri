@@ -8,10 +8,10 @@ int main(int argc, char** argv)
     size_t size;
     double alpha;
     double width;
-    int level, test_functions;
+    int levels, test_functions;
     std::function<double(const double, const double)> f;
     std::function<double(const double, const double)> g;
-    Utils::Initialization_for_N(argc, argv, size, alpha, width, level, test_functions);
+    Utils::Initialization_for_N(argc, argv, size, alpha, width, levels, test_functions);
     Utils::init_test_functions(f, g, test_functions);
 
 
@@ -20,42 +20,34 @@ int main(int argc, char** argv)
     #endif
 
     auto start = std::chrono::high_resolution_clock::now();
+
     //Create a vector to store residuals norm to plot them
     std::vector<double> hist;
 
-    //Let's define the domains on all levels
-    MultiGrid::SquareDomain dominio(size,width,0);
-    MultiGrid::SquareDomain dominio_2h(dominio);
-    MultiGrid::SquareDomain dominio_4h(dominio_2h);
-    MultiGrid::SquareDomain dominio_8h(dominio_4h);
-    MultiGrid::SquareDomain dominio_16h(dominio_8h);
+    
+    std::vector<MultiGrid::SquareDomain> domains;
 
-
-    //Let's create the matrices
-    MultiGrid::PoissonMatrix<double> A(dominio,alpha);
-    MultiGrid::PoissonMatrix<double> A_2h(dominio_2h,alpha);
-    MultiGrid::PoissonMatrix<double> A_4h(dominio_4h,alpha);
-    MultiGrid::PoissonMatrix<double> A_8h(dominio_8h,alpha);
-    MultiGrid::PoissonMatrix<double> A_16h(dominio_16h,alpha);
-
+    for(int i = 0; i < levels; i++){
+        domains.push_back(MultiGrid::SquareDomain(size,width,i));
+    }
+    
     std::vector<MultiGrid::PoissonMatrix<double>> matrici;
-    matrici.push_back(A);
-    matrici.push_back(A_2h);
-    matrici.push_back(A_4h);
-    matrici.push_back(A_8h);
-    matrici.push_back(A_16h);
+
+    for(auto &domain : domains){
+        matrici.push_back(MultiGrid::PoissonMatrix<double>(domain,alpha));
+    }
     
     //Now we need to create the known vector
-    MultiGrid::DataVector<double> fvec(dominio, f, g);
+    MultiGrid::DataVector<double> fvec(domains.front(), f, g);
 
     
     //Let's create the solution vector and one for the residual
-    std::vector<double> u(A.rows(),0.);
+    std::vector<double> u(matrici.front().rows(),0.);
     std::vector<double> res(u.size(),0.);
     
 
     MultiGrid::SawtoothMGIteration<MultiGrid::DataVector<double>,MultiGrid::Jacobi_iteration<std::vector<double>>> MG(matrici,fvec);
-    MultiGrid::Residual<MultiGrid::DataVector<double>> RES(matrici[0],fvec,res);
+    MultiGrid::Residual<MultiGrid::DataVector<double>> RES(matrici.front(),fvec,res);
 
     //We also need a smoother for the pre-smoothing
     MultiGrid::Gauss_Siedel_iteration<MultiGrid::DataVector<double>> GS(matrici.front(),fvec);

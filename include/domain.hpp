@@ -58,7 +58,7 @@ class SquareDomain: public Domain{
         SquareDomain(const size_t size, const double length, const size_t level);
 
         //This second constructor creates a subdomain of the given domain, but goes down by a level
-        SquareDomain(const SquareDomain &dom):SquareDomain(dom.m_size, dom.m_length, dom.m_level + 1){}
+        SquareDomain(const SquareDomain &dom, const size_t level):SquareDomain(dom.m_size, dom.m_length, level){}
 
         inline std::tuple<size_t, size_t> meshIdx(size_t l) const{
             return {l / m_size, l % m_size};
