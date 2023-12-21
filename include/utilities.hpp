@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string>
 
-#define DEFAULT_N 400
+#define DEFAULT_N 200 // 2^m + 1 , m numero livelli multigrid
 #define DEFAULT_ALPHA 10.0
 #define DEFAULT_WIDTH 10.0
 #define DEFAULT_LEVEL 2
@@ -14,7 +14,7 @@
 
 namespace Utils{
 
-void Initialization_for_N(int argc, char** argv, size_t &N, double &alpha, double &width, unsigned char &level, unsigned char &functions_to_test);
+void Initialization_for_N(int argc, char** argv, size_t &N, double &alpha, double &width, int &level, int &functions_to_test);
 
 template<class SpMat>
 void saveMatrixOnFile(SpMat A, std::string fileName){
@@ -44,6 +44,11 @@ void saveVectorOnFile(Vector f, std::string fileName){
     }
     file.close();
 }
+
+void init_test_functions(std::function<double(const double, const double)> &f, std::function<double(const double, const double)> &g, int i);
+
+
+
 
 }
 

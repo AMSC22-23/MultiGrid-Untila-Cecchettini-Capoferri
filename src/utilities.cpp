@@ -1,6 +1,6 @@
 #include "allIncludes.hpp"
 
-void Utils::Initialization_for_N(int argc, char** argv, size_t &N, double &alpha, double &width, unsigned char &level, unsigned char &functions_to_test){
+void Utils::Initialization_for_N(int argc, char** argv, size_t &N, double &alpha, double &width, int &level, int &functions_to_test){
     std::string nn = "-n";
     std::string aa = "-a";
     std::string ww = "-w";
@@ -51,7 +51,7 @@ void Utils::Initialization_for_N(int argc, char** argv, size_t &N, double &alpha
                     level = std::stoi(argv[i+1]);
                     std::cout<<"Inserted level = "<<level<<std::endl;
                 }catch(std::exception&){
-                    std::cout<<"Please, insert a double after -ml"<<std::endl;
+                    std::cout<<"Please, insert a number after -ml"<<std::endl;
                     std::exit(1);
                 }
             }
@@ -93,3 +93,39 @@ void Utils::Initialization_for_N(int argc, char** argv, size_t &N, double &alpha
     } 
 }
 
+
+void Utils::init_test_functions(std::function<double(const double, const double)> &f, std::function<double(const double, const double)> &g, int i)
+{
+    using function_to_c = std::function<double(const double, const double)>;
+    std::array< function_to_c,  6> functions_to_choose_to_test ={
+        [] (const double x, const double y) {  return -5.0 * exp(x) * exp(-2.0 * y); }, 
+        [] (const double x, const double y) { return exp(x) * exp(-2.0 * y); }, 
+        [] (const double x, const double y) { return sin(30. * sqrt(x * x + y * y)); }, 
+        [] (const double x, const double y) { double k = 30.;
+            double r = sqrt(x*x + y*y);
+            return -k*(cos(k * r) / r - k*sin(k * r));}, 
+        [] (const double x, const double y) { return 1.; },
+        [] (const double x, const double y) { return 0.; }
+    };  
+
+    switch (i)
+    {
+    case 1:
+        f = functions_to_choose_to_test[0];
+        g = functions_to_choose_to_test[1];
+        break;
+    case 2:
+        f = functions_to_choose_to_test[2];
+        g = functions_to_choose_to_test[3];
+        break;
+    case 3:
+        f = functions_to_choose_to_test[4];
+        g = functions_to_choose_to_test[5];
+        break;
+    default:
+        f = functions_to_choose_to_test[4];
+        g = functions_to_choose_to_test[5];
+        break;
+    }
+
+}

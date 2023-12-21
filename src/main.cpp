@@ -8,10 +8,12 @@ int main(int argc, char** argv)
     size_t size;
     double alpha;
     double width;
-    unsigned char level, test_functions;
+    int level, test_functions;
     std::function<double(const double, const double)> f;
     std::function<double(const double, const double)> g;
     Utils::Initialization_for_N(argc, argv, size, alpha, width, level, test_functions);
+    Utils::init_test_functions(f, g, test_functions);
+
 
     #ifdef _OPENMP
     std::cout<<"Openmp enabled"<<std::endl;
