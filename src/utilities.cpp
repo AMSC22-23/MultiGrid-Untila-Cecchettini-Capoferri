@@ -80,8 +80,10 @@ void Utils::Initialization_for_N(int argc, char** argv, size_t &N, double &alpha
                 std::cout << "Usage: ./Multigrid [OPTIONS]\n"<<std::endl
                 << "Options:"<<std::endl
                 << "  -n, insert number of spaces"<<std::endl
-                << "  -a, insert the length of the rectangle domain"<<std::endl
+                << "  -a, specifies differential constant"<<std::endl
                 << "  -w, insert the Width of the rectangle domain"<<std::endl
+                << "  -ml, insert multigrid level"<<std::endl
+                << "  -test, insert type of function in input to test it"<<std::endl
                 << "  --help, Display this help message"<<std::endl;
                 std::exit(1);
             }
