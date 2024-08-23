@@ -84,7 +84,7 @@ testCase = 3 # number of available test
 ## Step 1: veriry PHP installation on your localhost
 Run cmd: php -v
 
-if it report an error install in your linux machine with:
+if it reports an error, install php in your linux machine with:
 
 sudo apt update
 sudo apt install php php-cli php-fpm php-mysql php-xml php-mbstring
