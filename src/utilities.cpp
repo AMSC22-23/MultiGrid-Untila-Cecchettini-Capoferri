@@ -63,6 +63,8 @@ void Utils::Initialization_for_N(int argc, char** argv, size_t &N, double &alpha
                 try{
                     sm = static_cast<SMOOTHERS>(std::stoi(argv[i+1]));
                     std::cout<<"Inserted Smoother number = "<<sm<<std::endl;
+                    if(sm >= SMOOTHERS::SMOOTHERS_END)
+                        sm = DEFAULT_METHOD;
                 }catch(std::exception&){
                     std::cout<<"Please, insert a number after -smt"<<std::endl;
                     std::exit(1);

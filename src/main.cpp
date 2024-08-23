@@ -9,10 +9,10 @@ int main(int argc, char** argv)
     double alpha;
     double width;
     int levels, test_functions;
-    SMOOTHERS smooter;
+    SMOOTHERS smoother;
     std::function<double(const double, const double)> f;
     std::function<double(const double, const double)> g;
-    Utils::Initialization_for_N(argc, argv, size, alpha, width, levels, test_functions, smooter);
+    Utils::Initialization_for_N(argc, argv, size, alpha, width, levels, test_functions, smoother);
     Utils::init_test_functions(f, g, test_functions);
 
 
@@ -50,14 +50,15 @@ int main(int argc, char** argv)
     
 
     //Now we can create a multigrid iteration and the residual calculator (just to report the history of convergence)
-    MultiGrid::SawtoothMGIteration<MultiGrid::DataVector<double>,MultiGrid::Jacobi_iteration<std::vector<double>>> MG(matrici,fvec);
+    MultiGrid::SawtoothMGIteration<MultiGrid::DataVector<double>,MultiGrid::Gauss_Seidel_iteration<std::vector<double>>> MG0(matrici,fvec);
+    MultiGrid::SawtoothMGIteration<MultiGrid::DataVector<double>,MultiGrid::Jacobi_iteration<std::vector<double>>> MG1(matrici,fvec);
+
     MultiGrid::Residual<MultiGrid::DataVector<double>> RES(matrici.front(),fvec,res);
+    
 
     //We also need a smoother for the pre-smoothing
     MultiGrid::Gauss_Seidel_iteration<MultiGrid::DataVector<double>> GS(matrici.front(),fvec);
 
-
-    
     auto end = std::chrono::high_resolution_clock::now();
 
     std::chrono::duration<double> init_time = end - start;
@@ -72,13 +73,36 @@ int main(int argc, char** argv)
     
     //Then we can start our iterations
     int mgiter = 20;
-    for(int i = 0; i < mgiter; i++){
-        u * GS * GS * MG;                   
-        u * RES;                            
-        hist.push_back(RES.Norm());
+
+
+    switch (smoother)
+    {
+
+        case Gauss_Siedel:
+            std::cout<<"GS iters"<<std::endl;   
+            for(int i = 0; i < mgiter; i++){
+                u * GS * GS * MG0;                   
+                u * RES;                            
+                hist.push_back(RES.Norm());
+            }
+            break;
+        case Jacobi:
+            std::cout<<"Jacobi iters"<<std::endl;
+            for(int i = 0; i < mgiter; i++){
+                u * GS * GS * MG1;                   
+                u * RES;                            
+                hist.push_back(RES.Norm());
+            }
+            break;
+        
+        case CG:
+
+            break;
+    
+    default:
+        break;
     }
 
-    
     end = std::chrono::high_resolution_clock::now();
 
     std::chrono::duration<double> solve_time = end - start;
