@@ -6,15 +6,23 @@
 #include <iostream>
 #include <string>
 
+enum SMOOTHERS {
+    Gauss_Siedel,
+    Jacobi,
+    CG,
+    SMOOTHERS_END
+};
+
 #define DEFAULT_N 200 // 2^m + 1 , m numero livelli multigrid
 #define DEFAULT_ALPHA 10.0
 #define DEFAULT_WIDTH 10.0
 #define DEFAULT_LEVEL 2
 #define DEFAULT_TEST 1
+#define DEFAULT_METHOD Gauss_Siedel
 
 namespace Utils{
 
-void Initialization_for_N(int argc, char** argv, size_t &N, double &alpha, double &width, int &level, int &functions_to_test);
+void Initialization_for_N(int argc, char** argv, size_t &N, double &alpha, double &width, int &level, int &functions_to_test, SMOOTHERS &sm);
 
 template<class SpMat>
 void saveMatrixOnFile(SpMat A, std::string fileName){

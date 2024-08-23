@@ -9,9 +9,10 @@ int main(int argc, char** argv)
     double alpha;
     double width;
     int levels, test_functions;
+    SMOOTHERS smooter;
     std::function<double(const double, const double)> f;
     std::function<double(const double, const double)> g;
-    Utils::Initialization_for_N(argc, argv, size, alpha, width, levels, test_functions);
+    Utils::Initialization_for_N(argc, argv, size, alpha, width, levels, test_functions, smooter);
     Utils::init_test_functions(f, g, test_functions);
 
 

@@ -1,10 +1,11 @@
 #include "allIncludes.hpp"
 
-void Utils::Initialization_for_N(int argc, char** argv, size_t &N, double &alpha, double &width, int &level, int &functions_to_test){
+void Utils::Initialization_for_N(int argc, char** argv, size_t &N, double &alpha, double &width, int &level, int &functions_to_test, SMOOTHERS &sm){
     std::string nn = "-n";
     std::string aa = "-a";
     std::string ww = "-w";
     std::string lv = "-ml";
+    std::string smooth = "-smt";
     std::string help = "--help";
     std::string fti = "-test";
     alpha = DEFAULT_ALPHA;
@@ -12,6 +13,7 @@ void Utils::Initialization_for_N(int argc, char** argv, size_t &N, double &alpha
     width = DEFAULT_WIDTH;
     level = DEFAULT_LEVEL;
     functions_to_test = DEFAULT_TEST;
+    sm = DEFAULT_METHOD;
 
     if(argc < 2)
     {
@@ -20,6 +22,7 @@ void Utils::Initialization_for_N(int argc, char** argv, size_t &N, double &alpha
         std::cout<<"Inserted by default width = "<<DEFAULT_WIDTH<<std::endl;
         std::cout<<"Inserted by default multigrid level = "<<DEFAULT_LEVEL<<std::endl;
         std::cout<<"Inserted by default test number "<<DEFAULT_TEST<<std::endl;
+        std::cout<<"Inserted by default Smooter number "<<DEFAULT_METHOD<<std::endl;
     } 
     else{
         for(int i= 0; i < argc; i++)
@@ -55,6 +58,16 @@ void Utils::Initialization_for_N(int argc, char** argv, size_t &N, double &alpha
                     std::exit(1);
                 }
             }
+            else if(smooth.compare(argv[i]) == 0 && ( i+1 < argc ) )
+            {
+                try{
+                    sm = static_cast<SMOOTHERS>(std::stoi(argv[i+1]));
+                    std::cout<<"Inserted Smoother number = "<<sm<<std::endl;
+                }catch(std::exception&){
+                    std::cout<<"Please, insert a number after -smt"<<std::endl;
+                    std::exit(1);
+                }
+            }
             else if(fti.compare(argv[i]) == 0 && ( i+1 < argc ) )
             {
                 try{
@@ -84,6 +97,7 @@ void Utils::Initialization_for_N(int argc, char** argv, size_t &N, double &alpha
                 << "  -w, insert the Width of the rectangle domain"<<std::endl
                 << "  -ml, insert multigrid level"<<std::endl
                 << "  -test, insert type of function in input to test it"<<std::endl
+                << "  -smt, you can choose your favourite smoother"<<std::endl
                 << "  --help, Display this help message"<<std::endl;
                 std::exit(1);
             }
