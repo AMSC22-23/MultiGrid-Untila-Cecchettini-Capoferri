@@ -39,7 +39,7 @@ int main(int argc, char** argv)
     }
     
 
-    //Now we need to create the known vector
+    //Now we need to create the known vector (forzante)
     MultiGrid::DataVector<double> fvec(domains.front(), f, g);
 
     
@@ -48,12 +48,13 @@ int main(int argc, char** argv)
     std::vector<double> res(u.size(),0.);
     
 
-    //Now we can create a multigrid iteration and the residual caluclator (just to report the history of convergence)
+    //Now we can create a multigrid iteration and the residual calculator (just to report the history of convergence)
     MultiGrid::SawtoothMGIteration<MultiGrid::DataVector<double>,MultiGrid::Jacobi_iteration<std::vector<double>>> MG(matrici,fvec);
     MultiGrid::Residual<MultiGrid::DataVector<double>> RES(matrici.front(),fvec,res);
 
     //We also need a smoother for the pre-smoothing
     MultiGrid::Gauss_Seidel_iteration<MultiGrid::DataVector<double>> GS(matrici.front(),fvec);
+
 
     
     auto end = std::chrono::high_resolution_clock::now();

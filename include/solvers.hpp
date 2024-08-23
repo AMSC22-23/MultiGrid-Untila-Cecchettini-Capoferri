@@ -32,7 +32,7 @@ class Gauss_Seidel_iteration : public SmootherClass<Vector>{
         
         void apply_iteration_to_vec(std::vector<double> &sol) override{
             for(size_t i = 0; i < m_A.rows(); i++){
-                size_t index = m_A.mask(i);
+                size_t index = m_A.mask(i); // application of multigrid
                 double sum = 0;
                 if(m_A.isOnBoundary(m_A.mask(i))){
                     sum = 0;

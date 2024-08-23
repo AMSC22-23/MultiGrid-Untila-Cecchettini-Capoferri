@@ -64,7 +64,8 @@ $$g(x, y) = -k \left( \frac{\cos(kr)}{r} - k\sin(kr) \right)$$
 $$f(x,y) = 1$$
 $$g(x,y) = 0$$
 
-Upon completion, refer to the "result" file to examine the matrix solution. Additionally, a 3D graphic representation of the solution is available for visualization.
+Upon completion, refer to the "result" file to examine the matrix solution. Additionally, a 3D graphic representation of the solution is available for visualization. 
+Note that f is the function defined within the domain, while g specifies the function on the boundary.
 
 ### Example of initialization in ipynb file
 
