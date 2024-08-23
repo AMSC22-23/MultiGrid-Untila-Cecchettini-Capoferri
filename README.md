@@ -77,3 +77,19 @@ width = 10. # dimension of squared domain
 testCase = 3 # number of available test
 
 ```
+
+
+# Run with interface
+
+## Step 1: veriry PHP installation on your localhost
+Run cmd: php -v
+
+if it report an error install in your linux machine with:
+
+sudo apt update
+sudo apt install php php-cli php-fpm php-mysql php-xml php-mbstring
+
+then re-run: php -v
+
+After that, run in your linux terminal: php -S localhost:8000
+Then access the interface via browser at the url: http://localhost:8000/home.php

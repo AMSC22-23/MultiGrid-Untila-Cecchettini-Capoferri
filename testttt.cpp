@@ -2,6 +2,7 @@
 #include <vector>
 #include <cmath>
 #include <cassert>
+#include <functional>
 
 // Prodotto scalare di due vettori
 double dot(const std::vector<double>& v1, const std::vector<double>& v2) {
@@ -64,8 +65,20 @@ std::vector<double> conjugateGradient(const std::vector<std::vector<double>>& A,
     return x;
 }
 
-int main() {
+
+
+int main(int argc, char* argv[]) {
     // Esempio di utilizzo
+
+    int x1 = 10;
+    int y1 = 20;
+    double (*funcPtr)(double, double);
+
+    funcPtr = createMultiplier();
+
+    int result = funcPtr(x1, y1);
+    std::cout << "Result: " << result << std::endl;
+
     std::vector<std::vector<double>> A = {
         {4, 1, 0},
         {1, 3, 1},
