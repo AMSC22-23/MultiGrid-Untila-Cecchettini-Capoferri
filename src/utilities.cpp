@@ -32,8 +32,13 @@ void Utils::Initialization_for_N(int argc, char** argv, size_t &N, double &alpha
                 try{
                     N = std::stoi(argv[i+1]);
                     std::cout<<"Inserted N = "<<N<<std::endl;
+                    if(N <= 0)
+                    {
+                        std::cout<<"Error: Please, insert a valid N value"<<std::endl;
+                        std::exit(1);
+                    }
                 }catch(std::exception&){
-                    std::cout<<"Please, insert a number after -n"<<std::endl;
+                    std::cout<<"Error: Please, insert a number after -n"<<std::endl;
                     std::exit(1);
                 }
                 
@@ -44,7 +49,7 @@ void Utils::Initialization_for_N(int argc, char** argv, size_t &N, double &alpha
                     alpha = std::atof(argv[i+1]);
                     std::cout<<"Inserted alpha = "<<alpha<<std::endl;
                 }catch(std::exception&){
-                    std::cout<<"Please, insert a double after -a"<<std::endl;
+                    std::cout<<"Error: Please, insert a double after -a"<<std::endl;
                     std::exit(1);
                 }
             }
@@ -53,8 +58,13 @@ void Utils::Initialization_for_N(int argc, char** argv, size_t &N, double &alpha
                 try{
                     level = std::stoi(argv[i+1]);
                     std::cout<<"Inserted level = "<<level<<std::endl;
+                    if(level <= 0)
+                    {
+                        std::cout<<"Error: Please, insert a valid level"<<std::endl;
+                        std::exit(1);
+                    }
                 }catch(std::exception&){
-                    std::cout<<"Please, insert a number after -ml"<<std::endl;
+                    std::cout<<"Error: Please, insert a number after -ml"<<std::endl;
                     std::exit(1);
                 }
             }
@@ -66,7 +76,7 @@ void Utils::Initialization_for_N(int argc, char** argv, size_t &N, double &alpha
                     if(sm >= SMOOTHERS::SMOOTHERS_END)
                         sm = DEFAULT_METHOD;
                 }catch(std::exception&){
-                    std::cout<<"Please, insert a number after -smt"<<std::endl;
+                    std::cout<<"Error: Please, insert a number after -smt"<<std::endl;
                     std::exit(1);
                 }
             }
@@ -75,8 +85,13 @@ void Utils::Initialization_for_N(int argc, char** argv, size_t &N, double &alpha
                 try{
                     functions_to_test = std::stoi(argv[i+1]);
                     std::cout<<"Inserted test number = "<<functions_to_test<<std::endl;
+                    if(functions_to_test <= 0)
+                    {
+                        std::cout<<"Error: Please, insert a valid test number"<<std::endl;
+                        std::exit(1);
+                    }
                 }catch(std::exception&){
-                    std::cout<<"Please, insert a double after -test"<<std::endl;
+                    std::cout<<"Error: Please, insert a double after -test"<<std::endl;
                     std::exit(1);
                 }
             }
@@ -85,8 +100,13 @@ void Utils::Initialization_for_N(int argc, char** argv, size_t &N, double &alpha
                 try{
                     width = std::atof(argv[i+1]);
                     std::cout<<"Inserted width = "<<width<<std::endl;
+                    if(width <= 0)
+                    {
+                        std::cout<<"Error: Please, insert a valid width"<<std::endl;
+                        std::exit(1);
+                    }
                 }catch(std::exception&){
-                    std::cout<<"Please, insert a double after -w"<<std::endl;
+                    std::cout<<"Error: Please, insert a double after -w"<<std::endl;
                     std::exit(1);
                 }
             }
@@ -104,7 +124,7 @@ void Utils::Initialization_for_N(int argc, char** argv, size_t &N, double &alpha
                 std::exit(1);
             }
             else if(nn.compare(argv[i]) == 0 && ( i+1 == argc )) {
-                std::cout<<"Please, insert something"<<std::endl;
+                std::cout<<"Error: Please, insert something"<<std::endl;
                 exit(1);
             }
         } 

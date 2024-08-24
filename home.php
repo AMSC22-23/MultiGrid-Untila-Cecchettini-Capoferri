@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <!---Coding By CodingLab | www.codinglabweb.com--->
 <html lang="en">
+  <?php $testError = " "; ?>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,14 +13,8 @@
   </head>
   <script>
     function onClickOfBut() {
-      var element = document.getElementById("LoadingMessage");
+      document.getElementById("LoadingMessage").innerText = "Please, wait a second ...";
 
-      // Check the current display style
-      if (element.style.display === "none") {
-          element.style.display = "block"; // Make it visible
-      } else {
-          element.style.display = "none"; // Hide it
-      }
     }
   </script>
   <body>
@@ -79,7 +74,6 @@
         <button>Submit</button>
         
       </form>
-      <h4 id="LoadingMessage" style="display: none; color red;">Please, wait a second ...</h4>
       <?php
         $output = null;  
         
@@ -96,9 +90,16 @@
           $test = $_POST["test_selection"];
           $smoot = $_POST["smoother"];
           $output = shell_exec("./Multigrid -n $N -a $a -w $w -ml $l -test $test -smt $smoot");
-          echo '<script type="text/javascript">',
-                'onClickOfBut();',
-                '</script>';
+
+          if (stripos($output, 'Error:') !== false)
+          {
+            
+            $testError = substr($output, stripos($output, 'Error:'));;
+            $output = null;
+          }else{
+            $testError = " ";
+          }
+            
         }
         
         
@@ -115,6 +116,7 @@
         }
         
       ?>
+      <h4 id="LoadingMessage" style="color: red;"><?php echo $testError; ?></h4>
     </section>
     
     <script>
