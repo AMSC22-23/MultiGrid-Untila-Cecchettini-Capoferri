@@ -10,10 +10,22 @@
     <link rel="stylesheet" href="styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
+  <script>
+    function onClickOfBut() {
+      var element = document.getElementById("LoadingMessage");
+
+      // Check the current display style
+      if (element.style.display === "none") {
+          element.style.display = "block"; // Make it visible
+      } else {
+          element.style.display = "none"; // Hide it
+      }
+    }
+  </script>
   <body>
     <section class="container">
       <header>Multigrid Inputs</header>
-      <form action="home.php" class="form" method="post">
+      <form action="home.php" class="form" method="post" onsubmit="onClickOfBut()">
         <div class="input-box">
           <label>Insert a valid N:</label>
           <input type="number" name="N" placeholder="Enter N value" required />
@@ -67,21 +79,26 @@
         <button>Submit</button>
         
       </form>
+      <h4 id="LoadingMessage" style="display: none; color red;">Please, wait a second ...</h4>
       <?php
         $output = null;  
+        
         if (isset($_POST["N"]))
         {
-            $N = (int)$_POST["N"];
-            $l = (int)$_POST["level"];
-            for($temp = 1; $temp < $l; $temp++ )
-            {
-                $N = $N * 2 - 1;
-            }
-            $a = $_POST["a"];
-            $w = $_POST["width"];
-            $test = $_POST["test_selection"];
-            $smoot = $_POST["smoother"];
-            $output = shell_exec("./Multigrid -n $N -a $a -w $w -ml $l -test $test -smt $smoot");
+          $N = (int)$_POST["N"];
+          $l = (int)$_POST["level"];
+          for($temp = 1; $temp < $l; $temp++ )
+          {
+              $N = $N * 2 - 1;
+          }
+          $a = $_POST["a"];
+          $w = $_POST["width"];
+          $test = $_POST["test_selection"];
+          $smoot = $_POST["smoother"];
+          $output = shell_exec("./Multigrid -n $N -a $a -w $w -ml $l -test $test -smt $smoot");
+          echo '<script type="text/javascript">',
+                'onClickOfBut();',
+                '</script>';
         }
         
         
@@ -93,15 +110,6 @@
             </a>';
 
             echo '<a href="MGGS4.txt" download="MGGS4.txt" class="download-button">
-                Download convergence file
-            </a>';
-        }else{
-            echo '<canvas style="visibility: hidden;" id="myChart" width="400" height="200"></canvas>';
-            echo '<a style="visibility: hidden;" href="x.mtx" download="x.mtx" class="download-button">
-                Download solution file
-            </a>';
-
-            echo '<a style="visibility: hidden;" href="MGGS4.txt" download="MGGS4.txt" class="download-button">
                 Download convergence file
             </a>';
         }
