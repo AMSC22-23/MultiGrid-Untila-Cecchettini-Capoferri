@@ -51,6 +51,7 @@ int main(int argc, char** argv)
 
     //Now we can create a multigrid iteration and the residual calculator (just to report the history of convergence)
     MultiGrid::SawtoothMGIteration<MultiGrid::DataVector<double>,MultiGrid::Gauss_Seidel_iteration<std::vector<double>>> MG0(matrici,fvec);
+    MultiGrid::SawtoothMGIteration<MultiGrid::DataVector<double>,MultiGrid::BiCGSTAB<std::vector<double>>> MG2(matrici,fvec);
     MultiGrid::SawtoothMGIteration<MultiGrid::DataVector<double>,MultiGrid::Jacobi_iteration<std::vector<double>>> MG1(matrici,fvec);
 
     MultiGrid::Residual<MultiGrid::DataVector<double>> RES(matrici.front(),fvec,res);
@@ -96,7 +97,14 @@ int main(int argc, char** argv)
             break;
         
         case CG:
-
+            std::cout<<"GMRes"<<std::endl;
+            for(int i = 0; i < mgiter; i++){
+                std::cout<<"step1"<<std::endl;
+                u * GS * GS * MG2;     
+                std::cout<<"step2"<<std::endl;              
+                u * RES;                            
+                hist.push_back(RES.Norm());
+            }  
             break;
     
     default:

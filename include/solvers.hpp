@@ -82,6 +82,241 @@ class Jacobi_iteration : public SmootherClass<Vector>{
             sol.swap(temp);
         }
 };
+/*
+//Conjugate
+template<class Vector>
+class ConjugateGradient : public SmootherClass<Vector> {
+private:
+    PoissonMatrix<double> &m_A;    // Riferimento alla matrice dei coefficienti
+    Vector &b;                     // Riferimento al vettore dei termini noti
+    std::vector<double> r;         // Vettore del residuo
+    std::vector<double> p;         // Vettore della direzione di ricerca
+    std::vector<double> Ap;        // Vettore per il prodotto matrice-vettore A*p
+    double tol;                    // Tolleranza per la convergenza
+
+public:
+    // Costruttore che inizializza la matrice A e il vettore b
+    ConjugateGradient(PoissonMatrix<double> &A, Vector &f, double tolerance = 1e-3) 
+        : m_A(A), b(f), tol(tolerance) {
+        size_t size = b.size();
+        r.resize(size, 0.0);
+        p.resize(size, 0.0);
+        Ap.resize(size, 0.0);
+    }
+
+    // Metodo principale che applica l'algoritmo dei gradienti coniugati
+    void apply_iteration_to_vec(std::vector<double> &sol) override {
+        size_t size = sol.size();
+        std::cout<<"sono entrato in cong."<<std::endl;
+        // Calcola il residuo iniziale r = b - A * sol
+        for (size_t i = 0; i < size; ++i) {
+            double sum = 0.0;
+            for (const auto &id : m_A.nonZerosInRow_a(i)) {
+                sum += m_A.coeffRef(i, id) * sol[m_A.mask(id)];
+            }
+            r[i] = b[i] - sum;
+        }
+        std::cout<<"sono entrato in cong2."<<std::endl;
+        // Inizializza p = r
+        p = r;
+
+        // Calcola rsold = r^T * r
+        double rsold = dot(r, r);
+
+        // Iterazioni principali del metodo dei gradienti coniugati
+        for (size_t k = 0; k < size; ++k) {
+            //Calcola Ap = A * p
+            for (size_t i = 0; i < size; ++i) {
+                double sum = 0.0;
+                for (const auto &id : m_A.nonZerosInRow_a(i)) {
+                    sum += m_A.coeffRef(i, id) * p[m_A.mask(id)];
+                }
+                Ap[i] = sum;
+            }
+
+            // Calcola alpha = rsold / (p^T * Ap)
+            double alpha = rsold / dot(p, Ap);
+
+            // Aggiorna la soluzione sol = sol + alpha * p
+            for (size_t i = 0; i < size; ++i) {
+                sol[i] += alpha * p[i];
+                std::cout<<sol[i]<<std::endl;
+            }
+
+            // Aggiorna il residuo r = r - alpha * Ap
+            for (size_t i = 0; i < size; ++i) {
+                r[i] -= alpha * Ap[i];
+                
+            }
+            std::cout<<"sono entrato in cong3b."<<std::endl;
+            
+            // Calcola rsnew = r^T * r
+            double rsnew = dot(r, r);
+
+            // Controlla la condizione di arresto
+            if (std::sqrt(rsnew) < tol) {
+                std::cout<<"sono entrato in cong3."<<std::endl;
+                break;  // Convergenza raggiunta
+            }
+
+            // Step 10: Calcola beta = rsnew / rsold
+            double beta = rsnew / rsold;
+
+            // Step 11: Aggiorna la direzione p = r + beta * p
+            for (size_t i = 0; i < size; ++i) {
+                p[i] = r[i] + beta * p[i];
+            }
+
+            rsold = rsnew;  // Aggiorna rsold per la prossima iterazione
+        }
+
+    }
+
+private:
+    // Funzione per calcolare il prodotto scalare tra due vettori
+    double dot(const std::vector<double> &v1, const std::vector<double> &v2) const {
+        double sum = 0.0;
+        for (size_t i = 0; i < v1.size(); ++i) {
+            sum += v1[i] * v2[i];
+        }
+        return sum;
+    }
+};*/
+template<class Vector>
+class BiCGSTAB : public SmootherClass<Vector> {
+private:
+    PoissonMatrix<double> &m_A;
+    Vector &b;
+    std::vector<double> r;        // Residuo
+    std::vector<double> r_tilde;  // Residuo trasposto
+    std::vector<double> p;        // Direzione di ricerca
+    std::vector<double> v;        // Vettore intermedio
+    std::vector<double> s;        // Vettore intermedio
+    std::vector<double> t;        // Vettore intermedio
+    double rho_old;               // Variabile per memorizzare il valore precedente di rho
+    double alpha;                 // Fattore di scala per la direzione p
+    double beta;                  // Fattore di scala per aggiornare p
+    double omega;                 // Fattore di scala per il termine di correzione
+    double tol;                   // Tolleranza per la convergenza
+
+public:
+    BiCGSTAB(PoissonMatrix<double> &A, Vector &f, double tolerance = 1e-3)
+        : m_A(A), b(f), tol(tolerance) {
+        size_t size = m_A.rows();  // Dimensione della sotto-matrice
+        r.resize(size, 0.0);
+        r_tilde.resize(size, 0.0);
+        p.resize(size, 0.0);
+        v.resize(size, 0.0);
+        s.resize(size, 0.0);
+        t.resize(size, 0.0);
+    }
+
+    void apply_iteration_to_vec(std::vector<double> &sol) override {
+        size_t size = r.size();  // Dimensione dei vettori di lavoro
+        std::cout << "Avviamento del metodo BiCGSTAB." << std::endl;
+
+        // Calcola il residuo iniziale r = b - A * sol
+        for (size_t i = 0; i < size; ++i) {
+            double sum = 0.0;
+            for (const auto &id : m_A.nonZerosInRow_a(i)) {
+                sum += m_A.coeffRef(i, id) * sol[m_A.mask(id)];
+            }
+            r[i] = b[m_A.mask(i)] - sum;
+        }
+
+        // Inizializza r_tilde = r
+        r_tilde = r;
+
+        // Inizializza p a 0
+        std::fill(p.begin(), p.end(), 0.0);
+
+        // Calcola rho_0 = dot(r_tilde, r)
+        double rho_0 = dot(r_tilde, r);
+        rho_old = rho_0;
+        omega = 1.0; // Inizializzazione di omega
+        alpha = 1.0; // Inizializzazione di alpha
+
+        // Iterazioni principali del metodo BiCGSTAB
+        for (size_t k = 0; k < size; ++k) {
+            // Calcola rho = dot(r_tilde, r)
+            double rho = dot(r_tilde, r);
+
+            // Calcola beta = (rho / rho_old) * (alpha / omega), evita divisione per zero
+            beta = (rho_old != 0 && omega != 0) ? (rho / rho_old) * (alpha / omega) : 0.0;
+
+            // Aggiorna p = r + beta * (p - omega * v)
+            for (size_t i = 0; i < size; ++i) {
+                p[i] = r[i] + beta * (p[i] - omega * v[i]);
+            }
+
+            // Calcola v = A * p
+            for (size_t i = 0; i < size; ++i) {
+                double sum = 0.0;
+                for (const auto &id : m_A.nonZerosInRow_a(i)) {
+                    sum += m_A.coeffRef(i, id) * p[id];
+                }
+                v[i] = sum;
+            }
+
+            // Calcola alpha = rho / dot(r_tilde, v), evita divisione per zero
+            double dot_r_tilde_v = dot(r_tilde, v);
+            alpha = (dot_r_tilde_v != 0) ? (rho / dot_r_tilde_v) : 0.0;
+
+            // Calcola s = r - alpha * v
+            for (size_t i = 0; i < size; ++i) {
+                s[i] = r[i] - alpha * v[i];
+            }
+
+            // Calcola t = A * s
+            for (size_t i = 0; i < size; ++i) {
+                double sum = 0.0;
+                for (const auto &id : m_A.nonZerosInRow_a(i)) {
+                    sum += m_A.coeffRef(i, id) * s[id];
+                }
+                t[i] = sum;
+            }
+
+            // Calcola omega = dot(t, s) / dot(t, t), evita divisione per zero
+            double dot_t_t = dot(t, t);
+            omega = (dot_t_t != 0) ? (dot(t, s) / dot_t_t) : 0.0;
+
+            // Aggiorna la soluzione sol = sol + alpha * p + omega * s
+            for (size_t i = 0; i < size; ++i) {
+                size_t sol_index = m_A.mask(i); // usa mask per mappare l'indice
+                sol[sol_index] += alpha * p[i] + omega * s[i];
+            }
+
+            // Aggiorna il residuo r = s - omega * t
+            for (size_t i = 0; i < size; ++i) {
+                r[i] = s[i] - omega * t[i];
+            }
+
+            // Calcola rho_old per la prossima iterazione
+            rho_old = rho;
+
+            // Controlla la condizione di arresto
+            double residual_norm = std::sqrt(dot(r, r));
+            std::cout << "Norma del residuo: " << residual_norm << std::endl;
+            if (residual_norm < tol) {
+                std::cout << "Convergenza raggiunta." << std::endl;
+                break;
+            }
+        }
+    }
+
+private:
+    double dot(const std::vector<double> &v1, const std::vector<double> &v2) const {
+        double sum = 0.0;
+        for (size_t i = 0; i < v1.size(); ++i) {
+            sum += v1[i] * v2[i];
+        }
+        return sum;
+    }
+};
+
+u
+
+
 
 
 template<class Vector>
