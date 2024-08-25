@@ -9,7 +9,7 @@
 enum SMOOTHERS {
     Gauss_Siedel,
     Jacobi,
-    CG,
+    BiCGSTAB,
     SMOOTHERS_END
 };
 

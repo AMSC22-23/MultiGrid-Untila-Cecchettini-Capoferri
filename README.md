@@ -87,9 +87,10 @@ Run cmd: php -v
 if it reports an error, install php in your linux machine with:
 
 sudo apt update
-sudo apt install php php-cli php-fpm php-mysql php-xml php-mbstring
+sudo apt install php php-cli php-fpm php-xml php-mbstring
 
 then re-run: php -v
 
+Choose the dir /WebInterface
 After that, run in your linux terminal: php -S localhost:8000
 Then access the interface via browser at the url: http://localhost:8000/home.php

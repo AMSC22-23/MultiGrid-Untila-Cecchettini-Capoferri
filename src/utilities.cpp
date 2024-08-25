@@ -85,7 +85,7 @@ void Utils::Initialization_for_N(int argc, char** argv, size_t &N, double &alpha
                 try{
                     functions_to_test = std::stoi(argv[i+1]);
                     std::cout<<"Inserted test number = "<<functions_to_test<<std::endl;
-                    if(functions_to_test <= 0)
+                    if(functions_to_test < 0)
                     {
                         std::cout<<"Error: Please, insert a valid test number"<<std::endl;
                         std::exit(1);
@@ -136,34 +136,22 @@ void Utils::init_test_functions(std::function<double(const double, const double)
 {
     using function_to_c = std::function<double(const double, const double)>;
     std::array< function_to_c,  6> functions_to_choose_to_test ={
-        [] (const double x, const double y) {  return -5.0 * exp(x) * exp(-2.0 * y); }, 
-        [] (const double x, const double y) { return exp(x) * exp(-2.0 * y); }, 
-        [] (const double x, const double y) { return sin(30. * sqrt(x * x + y * y)); }, 
-        [] (const double x, const double y) { double k = 30.;
-            double r = sqrt(x*x + y*y);
-            return -k*(cos(k * r) / r - k*sin(k * r));}, 
+        // FFF
         [] (const double x, const double y) { return 1.; },
-        [] (const double x, const double y) { return 0.; }
+        [] (const double x, const double y) { return 0.; },
+        [] (const double x, const double y) { return -5.0 * exp(x) * exp(-2.0 * y); }, 
+        [] (const double x, const double y) { return exp(x) * exp(-2.0 * y); }, 
+        [] (const double x, const double y) { return -30.*(cos(30. * sqrt(x*x + y*y)) / sqrt(x*x + y*y) - 30.*sin(30. * sqrt(x*x + y*y)));}, 
+        [] (const double x, const double y) { return sin(30. * sqrt(x * x + y * y)); }
+        // END
     };  
 
-    switch (i)
-    {
-    case 1:
+    try{
+        f = functions_to_choose_to_test[i*2];
+        g = functions_to_choose_to_test[i*2 + 1];
+    }catch(std::exception&){
         f = functions_to_choose_to_test[0];
         g = functions_to_choose_to_test[1];
-        break;
-    case 2:
-        f = functions_to_choose_to_test[3];
-        g = functions_to_choose_to_test[2];
-        break;
-    case 3:
-        f = functions_to_choose_to_test[4];
-        g = functions_to_choose_to_test[5];
-        break;
-    default:
-        f = functions_to_choose_to_test[4];
-        g = functions_to_choose_to_test[5];
-        break;
     }
 
 }

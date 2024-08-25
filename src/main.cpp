@@ -52,6 +52,7 @@ int main(int argc, char** argv)
     //Now we can create a multigrid iteration and the residual calculator (just to report the history of convergence)
     MultiGrid::SawtoothMGIteration<MultiGrid::DataVector<double>,MultiGrid::Gauss_Seidel_iteration<std::vector<double>>> MG0(matrici,fvec);
     MultiGrid::SawtoothMGIteration<MultiGrid::DataVector<double>,MultiGrid::Jacobi_iteration<std::vector<double>>> MG1(matrici,fvec);
+    MultiGrid::SawtoothMGIteration<MultiGrid::DataVector<double>,MultiGrid::BiCGSTAB<std::vector<double>>> MG2(matrici,fvec);
 
     MultiGrid::Residual<MultiGrid::DataVector<double>> RES(matrici.front(),fvec,res);
     
@@ -72,7 +73,7 @@ int main(int argc, char** argv)
     hist.push_back(RES.Norm());
     
     //Then we can start our iterations
-    int mgiter = 20;
+    int MaxIter = 20;
 
 
     switch (smoother)
@@ -80,33 +81,46 @@ int main(int argc, char** argv)
 
         case Gauss_Siedel:
             std::cout<<"GS iters"<<std::endl;   
-            for(int i = 0; i < mgiter; i++){
+            for(int i = 0; i < MaxIter; i++){
                 u * GS * GS * MG0;                   
                 u * RES;                            
                 hist.push_back(RES.Norm());
+                if(hist.back() <= TOL)
+                    break;
             }
             break;
         case Jacobi:
             std::cout<<"Jacobi iters"<<std::endl;
-            for(int i = 0; i < mgiter; i++){
+            for(int i = 0; i < MaxIter; i++){
                 u * GS * GS * MG1;                   
                 u * RES;                            
                 hist.push_back(RES.Norm());
+                if(hist.back() <= TOL)
+                    break;
             }
             break;
         
-        case CG:
-
+        case BiCGSTAB:
+            std::cout<<"BiCGSTAB iters"<<std::endl;
+            for(int i = 0; i < MaxIter; i++){
+                u * GS * GS * MG1;                   
+                u * RES;                            
+                hist.push_back(RES.Norm());
+                if(hist.back() <= TOL)
+                    break;
+            }
             break;
     
-    default:
-        break;
+        default:
+            break;
     }
 
     end = std::chrono::high_resolution_clock::now();
 
     std::chrono::duration<double> solve_time = end - start;
-    std::cout<<"Solving elapsed time: "<<solve_time.count()<<" seconds"<<std::endl;
+    std::cout<<"||Solving elapsed time: "<<solve_time.count()<<" sec<br>"<<std::endl;
+    std::cout<<"Tol: "<< TOL<<"<br>"<<std::endl;
+    std::cout<<"Max iter: "<< MaxIter << "<br>"<< std::endl;
     
 
     //After solving the problem we can export the solution and the history

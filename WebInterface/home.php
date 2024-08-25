@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <!---Coding By CodingLab | www.codinglabweb.com--->
 <html lang="en">
-  <?php $testError = " "; ?>
+  <?php 
+    $testError = " "; 
+  ?>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -46,10 +48,19 @@
             <div class="select-box">
               <select name="test_selection">
                 <option hidden>Tests</option>
-                <option value="1">f = -5.0 * exp(x) * exp(-2.0 * y) ;
-                        g = exp(x) * exp(-2.0 * y)
-                </option>
-                <option value="3">f = 1.0 ; g = 0.0</option>
+                <?php
+                  include 'FuncHandle.php';
+                  $count = 0;
+                  foreach($allFunctions as $funcs) {
+                    if($count%2 == 0)
+                    {
+                      echo '<option '. $funcs;
+                    }else{
+                      echo $funcs . '</option>';
+                    }
+                    $count++;
+                  }
+                ?>
               </select>
             </div>
           </div>
@@ -67,7 +78,7 @@
             </div>
             <div class="gender">
               <input type="radio" id="check-other" name="smoother" value="2" />
-              <label for="check-other">CG</label>
+              <label for="check-other">BiCGSTAB</label>
             </div>
           </div>
         </div>
@@ -89,12 +100,13 @@
           $w = $_POST["width"];
           $test = $_POST["test_selection"];
           $smoot = $_POST["smoother"];
-          $output = shell_exec("./Multigrid -n $N -a $a -w $w -ml $l -test $test -smt $smoot");
+          $output = shell_exec("./../Multigrid -n $N -a $a -w $w -ml $l -test $test -smt $smoot");
 
+          
           if (stripos($output, 'Error:') !== false)
           {
             
-            $testError = substr($output, stripos($output, 'Error:'));;
+            $testError = substr($output, stripos($output, 'Error:'));
             $output = null;
           }else{
             $testError = " ";
@@ -105,12 +117,14 @@
         
         if ($output != null)
         {
+            $toStamp = substr($output, stripos($output, '||') + 2);
+            echo "<h4>$toStamp</h4>";
             echo '<canvas  id="myChart" width="400" height="200"></canvas>';
             echo '<a href="x.mtx" download="x.mtx" class="download-button">
                 Download solution file
             </a>';
 
-            echo '<a href="MGGS4.txt" download="MGGS4.txt" class="download-button">
+            echo '<a href="../MGGS4.txt" download="../MGGS4.txt" class="download-button">
                 Download convergence file
             </a>';
         }
@@ -122,7 +136,7 @@
     <script>
         // Function to fetch and parse the data
         async function fetchData() {
-            const response = await fetch('MGGS4.txt'); // Fetch the data file
+            const response = await fetch('../MGGS4.txt'); // Fetch the data file
             const text = await response.text(); // Get the file content as text
 
             // Parse the text into an array of numbers
