@@ -1,9 +1,12 @@
-#include "allIncludes.hpp"
+//#include "allIncludes.hpp"
+#include <iostream>
+#include <array>
+
 
 
 int main(int argc, char** argv)
 {
-    
+    /*
     // initialization of principal parameters from the user
     size_t size;
     double alpha;
@@ -88,5 +91,20 @@ int main(int argc, char** argv)
     Utils::saveVectorOnFile(hist,"MGGS4.txt");
     Utils::saveVectorOnFile(u,"x.mtx");
 
+    return 0;
+    */
+    
+    
+    typedef struct{
+        double x;
+        double y;
+    } Point;
+
+    typedef struct{
+        std::array<Point, 3> triangle;
+        bool is_on_boundary;
+    } FE;
+
+    Point p = {1.0, 2.0};
     return 0;
 }
