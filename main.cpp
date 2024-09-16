@@ -188,7 +188,28 @@ class Gauss_Seidel_iteration : public SmootherClass<Vector>{
         }
 };
 
-const double forcing_term(const double &/*x*/, const double &/*y*/)
+const double boundary_function(const double &x, const double &y)
+{
+    /*
+    const double k = 1;
+    double r = sqrt(x * x + y * y);
+    return - k * (cos(k * r) / r - k * sin(k * r));
+    */
+    //return x + y;
+    return  std::sin(5 * std::sqrt(x * x + y * y));
+    //return exp(x) * exp(-2 * y);
+    //return 0.0;
+}
+
+const double forcing_term(const double &x, const double &y)
+{
+    //return -5 * exp(x) * exp(-2 * y);
+    //return 0.0;
+    return -5 * ((std::cos(5 * std::sqrt(x * x + y * y)) / std::sqrt(x * x + y * y)) - 
+        (5 * std::sin(5 * std::sqrt(x * x + y * y))));
+}
+
+const double alpha(const double &/*x*/, const double &/*y*/)
 {
     return 1.0;
 }
@@ -196,7 +217,7 @@ const double forcing_term(const double &/*x*/, const double &/*y*/)
 int main()
 {    
     TriangularMesh mesh;
-    mesh.import_from_msh("mesh-u-40.msh");
+    mesh.import_from_msh("mesh.msh");
     //mesh.export_to_vtu();
     std::cout << "Mesh imported! There are " << mesh.n_nodes() << " nodes and "
         << mesh.n_elements() << " elements." << std::endl;
@@ -205,10 +226,12 @@ int main()
     // Initializing the matrix
     std::cout << "Initializing the matrix" << std::endl;
     Matrix A_temp(mesh.n_nodes() - mesh.n_b_nodes(), mesh.n_nodes() - mesh.n_b_nodes());
+    //Matrix B_temp(mesh.n_nodes() - mesh.n_b_nodes(), mesh.n_nodes());
     std::vector<double> rhs(mesh.n_nodes() - mesh.n_b_nodes());
 
     for (const auto &element : mesh.get_elements_indexes())
     {
+        bool element_on_boundary = false;
         double element_area = fabs(
             ((mesh.get_nodes()[element[1]].x * mesh.get_nodes()[element[2]].y) - 
                 (mesh.get_nodes()[element[2]].x * mesh.get_nodes()[element[1]].y)) +
@@ -217,11 +240,24 @@ int main()
             ((mesh.get_nodes()[element[0]].x * mesh.get_nodes()[element[1]].y) - 
                 (mesh.get_nodes()[element[0]].y * mesh.get_nodes()[element[1]].x))
         );
+
+        double alpha_integral = element_area *
+            (alpha(mesh.get_nodes()[element[0]].x, mesh.get_nodes()[element[0]].y) + 
+            alpha(mesh.get_nodes()[element[1]].x, mesh.get_nodes()[element[1]].y) + 
+            alpha(mesh.get_nodes()[element[2]].x, mesh.get_nodes()[element[2]].y)) / 3;
+            
         std::array< std::array<double, 2>, 3> gradients;
-        std::array<double, 3> basis_function_values;
+        
         for (size_t i = 0; i < 3; ++i)
         {
             size_t j, k;
+
+            bool node_on_boundary = false;
+            if (mesh.get_nodes()[element[i]].is_on_boundary)
+            {
+                element_on_boundary = true;
+                node_on_boundary = true;
+            }
 
             switch (i)
             {
@@ -242,12 +278,12 @@ int main()
             std::array<double, 3> vj; 
             vj[0] = mesh.get_nodes()[element[j]].x - mesh.get_nodes()[element[i]].x;
             vj[1] = mesh.get_nodes()[element[j]].y - mesh.get_nodes()[element[i]].y;
-            vj[2] = -1.0;
+            vj[2] = - 1.0;
 
             std::array<double, 3> vk; 
             vk[0] = mesh.get_nodes()[element[k]].x - mesh.get_nodes()[element[i]].x;
             vk[1] = mesh.get_nodes()[element[k]].y - mesh.get_nodes()[element[i]].y;
-            vk[2] = -1.0;
+            vk[2] = - 1.0;
 
             // normal vector
             std::array<double, 3> n_vec;
@@ -258,7 +294,6 @@ int main()
             gradients[i][0] = - n_vec[0] / n_vec[2];
             gradients[i][1] = - n_vec[1] / n_vec[2];
 
-            basis_function_values[i] = 1;
         }
         for (size_t i = 0; i < 3; ++i)
         {
@@ -269,16 +304,43 @@ int main()
                 {
                     if (!mesh.get_nodes()[element[j]].is_on_boundary)
                     {
+                        // still not implemented the quadrature rule 
                         A_temp.at(mesh.get_nodes()[element[i]].set_index, mesh.get_nodes()[element[j]].set_index) += 
-                            element_area * (gradients[i][0] * gradients[j][0] + 
-                                gradients[i][1] * gradients[j][1]);
+                            alpha_integral *                              // integral of alpha on the element
+                            (gradients[i][0] * gradients[j][0] + 
+                            gradients[i][1] * gradients[j][1]) / 3;
+                                              
                     }
                 }
 
-                // in this specific case f = 1;
-                // TODO: implementation of 2D quadrature formulas
                 rhs.at(mesh.get_nodes()[element[i]].set_index) += 
-                    element_area / 3;       // volume of the corresponding tetrahedro
+                    forcing_term(mesh.get_nodes()[element[i]].x, mesh.get_nodes()[element[i]].y) * 
+                    element_area / 3;               // volume of the corresponding tetrahedron
+
+            }
+
+        }
+        // Dirichlet boundary condition
+        if (element_on_boundary)
+        {
+            for (size_t i = 0; i < 3; ++i)
+            {
+                if (!mesh.get_nodes()[element[i]].is_on_boundary)
+                {
+                    // F - Bg
+                    for (size_t j = 0; j < 3; ++j)
+                    {
+                        if(mesh.get_nodes()[element[j]].is_on_boundary)
+                        {
+
+                            rhs.at(mesh.get_nodes()[element[i]].set_index) -=
+                                boundary_function(mesh.get_nodes()[element[j]].x,
+                                    mesh.get_nodes()[element[j]].y) * alpha_integral *
+                                (gradients[i][0] * gradients[j][0] +
+                                gradients[i][1] * gradients[j][1]) / 3;
+                        }
+                    }
+                }
             }
         }
 
@@ -287,29 +349,25 @@ int main()
     //A_temp.print();
     std::cout << "Counting non zero elements..." << std::endl;
     A_temp.count_non_zeros();
-    std::cout << "There are "<< A_temp.non_zeros() << " non zero elements." << std::endl;
+    //B_temp.count_non_zeros();
+    std::cout << "There are " << A_temp.non_zeros() << " non zero elements." << std::endl;
     
     std::cout << "Compressing the matrix..." << std::endl;
     CSRMatrix A(A_temp);
+    //CSRMatrix B(B_temp);
     A.copy_from(A_temp);
-    std::cout << "Matrix compressed successfully!" <<std::endl;
-
-    //A.print();
-
-    /*
-    for (size_t i = 0; i < A.rows(); ++i)
-    {   
-        std::cout << "Row " << i << ":" << std::endl;
-        std::cout << A.nonZerosInRow(i) << std::endl;
-    }
-    */
+    //B.copy_from(B_temp);
+    std::cout << "Matrix compressed successfully!" << std::endl;
 
     Gauss_Seidel_iteration< std::vector<double> > GS(A, rhs);
     std::vector<double> sol(mesh.n_nodes() - mesh.n_b_nodes());
 
     //std::cout << sol << std::endl;
+    std::cout << " " << std::endl;
+    //A.print();
+    //B.print();
 
-    for (int i = 0; i < 1000; ++i)
+    for (int i = 0; i < 5000; ++i)
     {
         sol * GS;
     }
@@ -523,7 +581,7 @@ void TriangularMesh::import_from_msh(const std::string &mesh_file_name)
                     
                     if (1 == element_type)
                     {
-                        // these are boundary elements, I discard them for now
+                        // These are boundary elements
                         mesh_file >> temp;
                         nodes.at(stoi(temp) - 1).is_on_boundary = true;
 
@@ -547,9 +605,6 @@ void TriangularMesh::import_from_msh(const std::string &mesh_file_name)
                         //std::cout << temp << std::endl;
                         triangle[2] = stoi(temp) - 1;
                         
-                        
-                        //elements.push_back(FE{{&nodes[triangle[0]], &nodes[triangle[1]],
-                        //    &nodes[triangle[2]]}, false});
                         
                         element_indexes.push_back(triangle);
                     }
@@ -654,7 +709,7 @@ void TriangularMesh::export_to_vtu(const std::vector<double> &sol)
     {   
         double value;
         if (node.is_on_boundary)
-            value = 0.0;
+            value = boundary_function(node.x, node.y);
         else
             value = sol.at(node.set_index);
         outfile << value << std::endl;
@@ -681,4 +736,3 @@ void TriangularMesh::export_to_vtu(const std::vector<double> &sol)
 
     outfile.close();
 }
-
