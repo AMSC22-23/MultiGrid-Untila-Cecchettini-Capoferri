@@ -22,6 +22,69 @@ class InterpolationClass{
 
 };
 
+template<typename T>
+class AMG{
+    private:
+        PoissonMatrix<T> &m_A;
+        std::vector<T> res;
+        double epsilon;
+    
+    public:
+
+        AMG(PoissonMatrix<T> &A, double epsilonI) : m_A(A), epsilon(epsilonI)  {}
+
+        int getRandomInit(int max){
+            std::random_device rd;
+
+            // Initialize a random number generator with the random device
+            std::mt19937 gen(rd());
+            // Create a uniform distribution within the specified range
+            std::uniform_int_distribution<> distr(0, max);
+
+            // Generate a random number within the range
+            return distr(gen);
+        }
+
+        std::vector<T> valueStrongConnection(int NodeIndex, unsigned char multi){
+            T max = 0;
+            std::vector<size_t> R = m_A.nonZerosInRow(NodeIndex);
+            for(int i=0 ; i < R.size(); i++)
+            {
+                if(i != NodeIndex && std::abs(m_A.coeffRef(NodeIndex,R[i])) > max)
+                    max = std::abs(m_A.coeffRef(NodeIndex,R[i]));
+            }
+            // compute strong connections
+            std::vector<T> Ret; //m_a.cols
+            for(int i=0; i < R.size(); i++)
+            {
+                if(i != NodeIndex && std::abs(m_A.coeffRef(NodeIndex,R[i])) >= epsilon*max)
+                {
+                    Ret.push_back(1*multi);
+                }else if(i == NodeIndex || multi == 1){
+                    Ret.push_back(0);
+                }else{
+                    Ret.push_back(1);
+                }
+            }
+            return Ret;
+        }
+
+        T evaluateNode(int NodeIndex, std::vector<T> allNodes)
+        {
+            std::vector<T> R = valueStrongConnection(NodeIndex,1); // is a vector with position i-th equal to 1 if strongly connected, 0 otherwise
+
+            if (allNodes.size() != R.size()) {
+                std::cerr << "Vectors must be of the same length!" << std::endl;
+                return -1;
+            }
+
+            return inner_product(R.begin(), R.end(), allNodes.begin(), 0);
+        }
+
+        void AMGIteration();
+
+};
+
 #ifndef CREATE_GIF
 template<class Vector, class Smoother>
 class SawtoothMGIteration{

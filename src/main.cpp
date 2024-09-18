@@ -1,8 +1,37 @@
 #include "allIncludes.hpp"
 
+template <typename T>
+void printVector(std::vector<T> result){
+    std::cout << "Vector elements: ";
+    for (int i : result) {
+        std::cout << i << " ";
+    }
+    std::cout << std::endl;
+}
 
 int main(int argc, char** argv)
 {
+    size_t size = 25;
+    double alpha = 1.;
+    double width = 10.0;
+    int levels = 1;
+
+    std::vector<MultiGrid::SquareDomain> domains;
+    for(int i = 0; i < levels; i++){
+        domains.push_back(MultiGrid::SquareDomain(size,width,i));
+    }
+    
+    //Then we can create the matrices
+    std::vector<MultiGrid::PoissonMatrix<double>> matrici;
+    for(auto &domain : domains){
+        matrici.push_back(MultiGrid::PoissonMatrix<double>(domain,alpha));
+    }
+
+    MultiGrid::AMG M(matrici[0], 0.25);
+
+    std::vector<double> a =  M.valueStrongConnection(80,1);
+    printVector(a);
+    /*
     
     // initialization of principal parameters from the user
     size_t size;
@@ -126,6 +155,6 @@ int main(int argc, char** argv)
     //After solving the problem we can export the solution and the history
     Utils::saveVectorOnFile(hist,"MGGS4.txt");
     Utils::saveVectorOnFile(u,"x.mtx");
-
+    */
     return 0;
 }

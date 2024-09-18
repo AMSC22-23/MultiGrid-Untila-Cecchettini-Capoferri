@@ -9,6 +9,7 @@
 #include <numeric>
 #include <memory>
 #include <fstream>
+#include <random>
 #include <chrono>
 
 #ifdef _OPENMP
