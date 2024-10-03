@@ -77,6 +77,15 @@
         "chrono": "cpp",
         "forward_list": "cpp",
         "iomanip": "cpp",
-        "optional": "cpp"
+        "optional": "cpp",
+        "strstream": "cpp",
+        "bitset": "cpp",
+        "condition_variable": "cpp",
+        "set": "cpp",
+        "unordered_set": "cpp",
+        "semaphore": "cpp",
+        "cfenv": "cpp",
+        "typeindex": "cpp",
+        "variant": "cpp"
     }
 }
