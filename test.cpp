@@ -12,35 +12,29 @@
 /// @return a vector with position i-th equal to 1 if strongly connected, 0 otherwise
 
 template <typename T>
-std::vector<T> valueStrongConnection(std::vector<T> R, const size_t elementI, int multi){
+std::vector<T> valueStrongConnection(std::vector<T> R, int elementI, int multi){
     // compute max
     T max = 0;
-    std::vector<std::pair<size_t, T> > NonZR = nonZerosInRow(elementI)
-
-
-    for(std::pair<size_t, T> el : NonZR)
-    {  
-        if(el.first != elementI && std::abs(el.second) > max)
-            max = el.second;
+    
+    for(int i=0 ; i < R.size(); i++) 
+    {
+        if(i != elementI && std::abs(R[i]) > max)
+            max = std::abs(R[i]);
     }
 
     // compute strong connections
-    if(multi == 1){
-        std::vector<T> Ret(R.size(), 0);
-    }else{
-        std::vector<T> Ret(R.size(), 1);
-    }
-    
+    std::vector<T> Ret;
 
-
-
-    for(std::pair<size_t, T> el : NonZR)
+    for(int i=0; i < R.size(); i++)
     {
-        if(el.first != elementI && std::abs(el.second) >= epsilon*max)
+        if(i != elementI && std::abs(R[i]) >= epsilon*max)
         {
-            Ret[el.first] = 1*multi;
-        }else if(i == elementI){
+            Ret.push_back(1*multi);
+            
+        }else if(i == elementI || multi == 1){
             Ret.push_back(0);
+        }else{
+            Ret.push_back(1);
         }
     }
     return Ret;
@@ -105,7 +99,7 @@ std::vector<T> AMG(std::vector<std::vector<T>> &A){
                 R[i] = Tem[i];
             }
         }
-        printVector(R);
+        //printVector(R);
 
         int tempMax = 0;
         
@@ -137,7 +131,7 @@ int main() {
     
     vector<vector<int>> A = {{4, -1, 0, 0, -1},{-1, 4, -1,0, 0}, {0, -1, 4, -1, 0},{0, 0, -1, 4, -1},{-1, 0, 0, -1, 4}};
 
-    int N = 20;
+    int N = 1024;
 
     vector<vector<int>> Matrix(N, vector<int>(N, 0)); // Inizializza tutti gli elementi a 0
 
@@ -155,13 +149,13 @@ int main() {
         }
     }
 
-    //Matrix[5][5] = -3;
+    Matrix[5][5] = -3;
     Matrix[10][7] = -4;
-    Matrix[10][5] = -4;
+    Matrix[10][8] = -4;
 
     auto start = std::chrono::high_resolution_clock::now();
     vector<int> result = AMG(Matrix);
-    printVector(result);
+    //printVector(result);
 
     auto end = std::chrono::high_resolution_clock::now();
 

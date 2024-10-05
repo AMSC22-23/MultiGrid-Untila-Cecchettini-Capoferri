@@ -5,6 +5,8 @@
 #include <map>
 #include <fstream>
 #include <string>
+#include <numeric> // For std::inner_product
+#include <random>  // For random number generation  
 
 
 typedef struct
@@ -221,10 +223,10 @@ const double alpha(const double &/*x*/, const double &/*y*/)
 /// @return a vector with position i-th equal to 1 if strongly connected, 0 otherwise
 
 template <typename T>
-std::vector<T> valueStrongConnection(CSRMatrix R, const size_t elementI, int multi){
+std::vector<T> valueStrongConnection(CSRMatrix& R, const size_t elementI, int multi){
     // compute max
     T max = 0;
-    std::vector<std::pair<size_t, T> > NonZR = R.nonZerosInRow(elementI)
+    std::vector<std::pair<size_t, T> > NonZR = R.nonZerosInRow(elementI);
 
 
     for(std::pair<size_t, T> el : NonZR)
@@ -232,15 +234,18 @@ std::vector<T> valueStrongConnection(CSRMatrix R, const size_t elementI, int mul
         if(el.first != elementI && std::abs(el.second) > max)
             max = el.second;
     }
-
+    
     // compute strong connections
-    if(multi == 1){
-        std::vector<T> Ret(R.cols(), 0);
-    }else{
-        std::vector<T> Ret(R.cols(), 1);
+    std::vector<T> Ret;  // Dichiarazione del vettore al di fuori dello scope dell'if-else
+
+    if(multi == 1) {
+        Ret = std::vector<T>(R.cols(), 0);  // Inizializzazione con 0
+    } else {
+        Ret = std::vector<T>(R.cols(), 1);  // Inizializzazione con 1
     }
     
-
+    //to do:
+    double epsilon = 0.25;
 
 
     for(std::pair<size_t, T> el : NonZR)
@@ -248,7 +253,7 @@ std::vector<T> valueStrongConnection(CSRMatrix R, const size_t elementI, int mul
         if(el.first != elementI && std::abs(el.second) >= epsilon*max)
         {
             Ret[el.first] = 1*multi;
-        }else if(i == elementI){
+        }else if(el.first == elementI){
             Ret[el.first] = 0;
         }
     }
@@ -262,15 +267,15 @@ std::vector<T> valueStrongConnection(CSRMatrix R, const size_t elementI, int mul
 /// @param allNodes[i] is set to 2 if is in F and 1 if it is still undecided. 0 if in course 
 /// @return 
 template <typename T>
-T evaluateNode(CSRMatrix R, size_t NodeIndex, std::vector<T> allNodes ){
-    std::vector<T> V = valueStrongConnection(R, NodeIndex,1); // is a vector with position i-th equal to 1 if strongly connected, 0 otherwise
+T evaluateNode(CSRMatrix &R, size_t NodeIndex, const std::vector<T> allNodes ){
+    std::vector<T> V = valueStrongConnection<T>(R, NodeIndex,1); // is a vector with position i-th equal to 1 if strongly connected, 0 otherwise
 
     if (allNodes.size() != V.size()) {
         std::cerr << "Vectors must be of the same length!" << std::endl;
         return -1;
     }
 
-    return inner_product(V.begin(), V.end(), allNodes.begin(), 0);
+    return std::inner_product(V.begin(), V.end(), allNodes.begin(), 0);
 }
 
 int getRandomInit(int max){
@@ -301,12 +306,12 @@ void printVector(std::vector<T> result){
 
 template <typename T>
 std::vector<T> AMG(CSRMatrix A){
-    std::vector<T> R(A.size(), 1); // numero righe = numero nodi
-    int index = getRandomInit(A.size() - 1 );
+    std::vector<T> R(A.rows(), 1); // numero righe = numero nodi
+    size_t index = getRandomInit(A.rows() - 1 );
     bool GoOn;
     do{
         GoOn = false;
-        std::vector<T> Tem = valueStrongConnection(A[index],index,2);
+        std::vector<T> Tem = valueStrongConnection<T>(A,index,2);
         for(int i = 0; i<R.size(); i++)
         {
             if(R[i] == 1)
@@ -314,7 +319,7 @@ std::vector<T> AMG(CSRMatrix A){
                 R[i] = Tem[i];
             }
         }
-        printVector(R);
+        //printVector(R);
 
         int tempMax = 0;
         
@@ -322,7 +327,7 @@ std::vector<T> AMG(CSRMatrix A){
         {
             if(R[i] == 1)
             {
-                int tt = evaluateNode(A[i], i, R);
+                int tt = evaluateNode<T>(A, i, R);
 
                 if(tt > tempMax)
                 {
@@ -479,6 +484,13 @@ int main()
     CSRMatrix A(A_temp);
     //CSRMatrix B(B_temp);
     A.copy_from(A_temp);
+    std::vector<double> result = AMG<double>(A); // Specify template type
+    std::cout << "Result: ";
+    for (const auto &val : result) {
+        std::cout << val << " ";
+    }
+    std::cout << std::endl;
+    
     //B.copy_from(B_temp);
     std::cout << "Matrix compressed successfully!" << std::endl;
 
