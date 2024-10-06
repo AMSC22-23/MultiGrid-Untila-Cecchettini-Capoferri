@@ -218,12 +218,14 @@ const double alpha(const double &/*x*/, const double &/*y*/)
 }
 
 /// @brief 
-/// @tparam T 
-/// @param R is the row of matrix A, i.e. node i-th
+/// @tparam T type in input
+/// @param R is the input CSRmatrix
+/// @param elementI is the node index to be evaluate 
+/// @param multi is equal to 1 when I want only the strong connection, all other are set to 0. If multi equal to 2, all elements are equal to 1, exept strong connections, to 2
 /// @return a vector with position i-th equal to 1 if strongly connected, 0 otherwise
 
 template <typename T>
-std::vector<T> valueStrongConnection(CSRMatrix& R, const size_t elementI, int multi){
+std::vector<T> valueStrongConnection(CSRMatrix &R, const size_t elementI, int multi){
     // compute max
     T max = 0;
     std::vector<std::pair<size_t, T> > NonZR = R.nonZerosInRow(elementI);
@@ -305,7 +307,7 @@ void printVector(std::vector<T> result){
 // all spd matrix are all square graph and the AMG method correspond to geometric multigrid
 
 template <typename T>
-std::vector<T> AMG(CSRMatrix A){
+std::vector<T> AMG(CSRMatrix &A){
     std::vector<T> R(A.rows(), 1); // numero righe = numero nodi
     size_t index = getRandomInit(A.rows() - 1 );
     bool GoOn;
@@ -345,7 +347,7 @@ std::vector<T> AMG(CSRMatrix A){
 int main()
 {    
     TriangularMesh mesh;
-    mesh.import_from_msh("mesh.msh");
+    mesh.import_from_msh("mesh1.msh");
     //mesh.export_to_vtu();
     std::cout << "Mesh imported! There are " << mesh.n_nodes() << " nodes and "
         << mesh.n_elements() << " elements." << std::endl;
@@ -490,7 +492,7 @@ int main()
         std::cout << val << " ";
     }
     std::cout << std::endl;
-    
+
     //B.copy_from(B_temp);
     std::cout << "Matrix compressed successfully!" << std::endl;
 
