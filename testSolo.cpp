@@ -225,7 +225,7 @@ const double alpha(const double &/*x*/, const double &/*y*/)
 /// @return a vector with position i-th equal to 1 if strongly connected, 0 otherwise
 
 template <typename T>
-std::vector<T> valueStrongConnection(CSRMatrix &R, const size_t elementI, int multi){
+void valueStrongConnection(CSRMatrix &R, const size_t elementI, int multi, std::vector<T> &Ret){
     // compute max
     T max = 0;
     std::vector<std::pair<size_t, T> > NonZR = R.nonZerosInRow(elementI);
@@ -238,13 +238,6 @@ std::vector<T> valueStrongConnection(CSRMatrix &R, const size_t elementI, int mu
     }
     
     // compute strong connections
-    std::vector<T> Ret;  // Dichiarazione del vettore al di fuori dello scope dell'if-else
-
-    if(multi == 1) {
-        Ret = std::vector<T>(R.cols(), 0);  // Inizializzazione con 0
-    } else {
-        Ret = std::vector<T>(R.cols(), 1);  // Inizializzazione con 1
-    }
     
     //to do:
     double epsilon = 0.25;
@@ -252,14 +245,21 @@ std::vector<T> valueStrongConnection(CSRMatrix &R, const size_t elementI, int mu
 
     for(std::pair<size_t, T> el : NonZR)
     {
-        if(el.first != elementI && std::abs(el.second) >= epsilon*max)
-        {
-            Ret[el.first] = 1*multi;
-        }else if(el.first == elementI){
-            Ret[el.first] = 0;
+        if(multi== 2){
+            if(Ret[el.first]==1 && el.first != elementI && std::abs(el.second) >= epsilon*max)
+            {
+                Ret[el.first] = multi;
+            }else if(el.first == elementI){
+                Ret[el.first] = 0;
+            }
+        }else{
+            if( el.first != elementI && std::abs(el.second) >= epsilon*max)
+            {
+                Ret[el.first] = 1;
+            }
         }
+        
     }
-    return Ret;
 }
 
 
@@ -270,7 +270,9 @@ std::vector<T> valueStrongConnection(CSRMatrix &R, const size_t elementI, int mu
 /// @return 
 template <typename T>
 T evaluateNode(CSRMatrix &R, size_t NodeIndex, const std::vector<T> allNodes ){
-    std::vector<T> V = valueStrongConnection<T>(R, NodeIndex,1); // is a vector with position i-th equal to 1 if strongly connected, 0 otherwise
+    
+    std::vector<T> V(R.cols(), 0);
+    valueStrongConnection<T>(R, NodeIndex,1, V); // is a vector with position i-th equal to 1 if strongly connected, 0 otherwise
 
     if (allNodes.size() != V.size()) {
         std::cerr << "Vectors must be of the same length!" << std::endl;
@@ -313,18 +315,13 @@ std::vector<T> AMG(CSRMatrix &A){
     bool GoOn;
     do{
         GoOn = false;
-        std::vector<T> Tem = valueStrongConnection<T>(A,index,2);
-        for(int i = 0; i<R.size(); i++)
-        {
-            if(R[i] == 1)
-            {
-                R[i] = Tem[i];
-            }
-        }
+        std::vector<T> Tem(A.cols(), 1);
+        valueStrongConnection<T>(A,index,2, R); 
         //printVector(R);
 
         int tempMax = 0;
         
+
         for(int i = 0; i< R.size(); i++)
         {
             if(R[i] == 1)
