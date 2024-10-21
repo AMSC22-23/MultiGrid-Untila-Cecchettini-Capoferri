@@ -269,10 +269,7 @@ void valueStrongConnection(CSRMatrix &R, const size_t elementI, int multi, std::
 /// @param allNodes[i] is set to 2 if is in F and 1 if it is still undecided. 0 if in course 
 /// @return 
 template <typename T>
-T evaluateNode(CSRMatrix &R, size_t NodeIndex, const std::vector<T> allNodes ){
-    
-    std::vector<T> V(R.cols(), 0);
-    valueStrongConnection<T>(R, NodeIndex,1, V); // is a vector with position i-th equal to 1 if strongly connected, 0 otherwise
+T evaluateNode(const std::vector<T> allNodes, std::vector<T> V ){
 
     if (allNodes.size() != V.size()) {
         std::cerr << "Vectors must be of the same length!" << std::endl;
@@ -313,6 +310,10 @@ std::vector<T> AMG(CSRMatrix &A){
     std::vector<T> R(A.rows(), 1); // numero righe = numero nodi
     size_t index = getRandomInit(A.rows() - 1 );
     bool GoOn;
+    std::vector<std::vector<T>> TOTStrongConnections (A.rows(), std::vector<T>(A.rows(), 0));
+    for(int i = 0; i< R.size(); i++){
+        valueStrongConnection<T>(A,i,1, TOTStrongConnections[i]); 
+    }
     do{
         GoOn = false;
         std::vector<T> Tem(A.cols(), 1);
@@ -321,12 +322,11 @@ std::vector<T> AMG(CSRMatrix &A){
 
         int tempMax = 0;
         
-
         for(int i = 0; i< R.size(); i++)
         {
             if(R[i] == 1)
             {
-                int tt = evaluateNode<T>(A, i, R);
+                int tt = evaluateNode<T>(R, TOTStrongConnections[i]);
 
                 if(tt > tempMax)
                 {
